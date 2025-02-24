@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from attr import dataclass
+from dataclasses import dataclass
 
 from app.core.Interfaces.product_interface import Product
 
@@ -8,6 +8,6 @@ from app.core.Interfaces.product_interface import Product
 @dataclass
 class ProductInMemoryRepository:
     products: list[Product]
+
     def add_product(self, product: Product) -> None:
         self.products.append(deepcopy(product))
-
