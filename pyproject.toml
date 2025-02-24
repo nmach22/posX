@@ -1,0 +1,52 @@
+[project]
+name = "posx"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "nikamatcharadze",email = "nmach22@freeuni.edu.ge"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+
+[tool.poetry.group.lint.dependencies]
+mypy = "*"
+ruff = "*"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+strict = true
+
+[tool.ruff]
+target-version = "py311"
+
+lint.select = ["E", "F", "I"]
+lint.ignore = []
+lint.fixable = ["A", "B", "C", "D", "E", "F", "I"]
+lint.unfixable = []
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.coverage.run]
+branch = true
+source = []
+
+[tool.coverage.report]
+skip_empty = true
+skip_covered = true
+show_missing = true
