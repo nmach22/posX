@@ -6,7 +6,7 @@ authors = [
     {name = "nikamatcharadze",email = "nmach22@freeuni.edu.ge"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
 ]
 
