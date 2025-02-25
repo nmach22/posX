@@ -2,6 +2,7 @@ import pytest
 
 from app.core.Interfaces.product_interface import Product
 from app.core.classes.receipt_service import ReceiptService
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
 from app.infra.product_in_memory_repository import DoesntExistError
 from app.infra.receipt_in_memory_repository import ReceiptInMemoryRepository

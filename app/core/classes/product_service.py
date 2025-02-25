@@ -29,9 +29,9 @@ class ProductService(ProductInterface):
     def read_all_products(self) -> list[Product]:
         return self.repository.read_all_products()
 
-    def update_product_price(self, new_price: int, product_id: str) -> None:
+    def update_product_price(self, product: Product) -> None:
         try:
-            self.repository.update_product(new_price, product_id)
+            self.repository.update_product(product)
         except DoesntExistError:
             raise DoesntExistError
 
