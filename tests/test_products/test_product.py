@@ -1,7 +1,8 @@
+
 from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.infra.product_in_memory_repository import ProductInMemoryRepository
-import pytest
+
 
 def test_should_add_product_in_memory() -> None:
     product_list : list[Product] = []
