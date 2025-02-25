@@ -17,8 +17,8 @@ class ProductInMemoryRepository(ProductRepositoryInterface):
     products: list[Product] = field(default_factory=list)
 
     def add_product(self, product: Product) -> None:
-        for exicting_product in self.products:
-            if exicting_product.barcode == product.barcode:
+        for existing_product in self.products:
+            if existing_product.barcode == product.barcode:
                 raise ExistsError(product.barcode)
 
         self.products.append(product)

@@ -50,17 +50,18 @@ def create_product(
 def get_all_products(
     repository: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> ProductsListResponse:
-    products = repository.read_all_products()
+    product_service = ProductService(repository)
+    products = product_service.read_all_products()
 
     return ProductsListResponse(
         products=[
             Product(
-                id=product.id,
-                name=product.name,
-                barcode=product.barcode,
-                price=product.price,
+                id=_product.id,
+                name=_product.name,
+                barcode=_product.barcode,
+                price=_product.price,
             )
-            for product in products
+            for _product in products
         ]
     )
 
@@ -71,14 +72,13 @@ def update_product(
     request: UpdateProductRequest,
     repository: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> dict[Any, Any]:
-    # First read the existing product
-    existing_product = repository.get_product(product_id)
-    # Update only the price
+    product_service = ProductService(repository)
+    existing_product = product_service.get_product(product_id)
     updated_product = Product(
         id=existing_product.id,
         name=existing_product.name,
         barcode=existing_product.barcode,
         price=request.price,
     )
-    repository.update_product(updated_product)
+    product_service.update_product_price(updated_product)
     return {}
