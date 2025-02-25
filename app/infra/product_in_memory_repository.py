@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
@@ -6,7 +6,7 @@ from app.core.Interfaces.product_repository_interface import ProductRepositoryIn
 
 @dataclass
 class ProductInMemoryRepository(ProductRepositoryInterface):
-    products: list[Product]
+    products: list[Product] = field(default_factory=list)
 
     def add_product(self, product: Product) -> None:
         self.products.append(product)
@@ -16,11 +16,12 @@ class ProductInMemoryRepository(ProductRepositoryInterface):
             if product.id == product_id:
                 return product
 
-    def update_product(self, new_price: int, product_id: str) -> None:
-        for product in self.products:
-            if product.id == product_id:
-                product.price = new_price
-
+    def update_product(self, product: Product) -> None:
+        for _product in self.products:
+            if _product.id == product.id:
+                self.products.remove(_product)
+                self.products.append(product)
+                return
 
     def read_all_products(self) -> list[Product]:
         return self.products
