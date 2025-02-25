@@ -1,3 +1,4 @@
+from app.core.Interfaces.product_interface import Product
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
 from app.infra.receipt_in_memory_repository import ReceiptInMemoryRepository
@@ -5,7 +6,7 @@ from app.infra.receipt_in_memory_repository import ReceiptInMemoryRepository
 
 def test_should_add_receipt_in_memory() -> None:
     receipt_list : list[Receipt] = []
-    service = ReceiptService(ReceiptInMemoryRepository(receipt_list))
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, []))
     service.create_receipt()
     assert len(receipt_list) == 1
     assert receipt_list[0].status == "open"
@@ -15,7 +16,7 @@ def test_should_add_receipt_in_memory() -> None:
 
 def test_should_close_receipt_in_memory() -> None:
     receipt_list: list[Receipt] = []
-    service = ReceiptService(ReceiptInMemoryRepository(receipt_list))
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, []))
 
     receipt = service.create_receipt()
     receipt_id = receipt.id
@@ -28,7 +29,7 @@ def test_should_close_receipt_in_memory() -> None:
 
 def test_should_read_receipt_in_memory() -> None:
     receipt_list: list[Receipt] = []
-    service = ReceiptService(ReceiptInMemoryRepository(receipt_list))
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, []))
 
     receipt = service.create_receipt()
     receipt_id = receipt.id
@@ -44,7 +45,8 @@ def test_should_read_receipt_in_memory() -> None:
 
 def test_should_add_product_to_receipt() -> None:
     receipt_list: list[Receipt] = []
-    service = ReceiptService(ReceiptInMemoryRepository(receipt_list))
+    product_list: list[Product] = [Product("123", "sigareti", 10, "12345")]
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, product_list))
 
     receipt = service.create_receipt()
     receipt_id = receipt.id

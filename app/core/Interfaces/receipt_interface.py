@@ -36,6 +36,3 @@ class ReceiptInterface(Protocol):
 
     def close_receipt(self, receipt_id: str) -> None:
         pass
-
-
-

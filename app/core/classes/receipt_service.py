@@ -33,6 +33,3 @@ class ReceiptService:
 
     def add_product(self, receipt_id: str, product_request: AddProductRequest) -> Receipt:
         return self.repository.add_product_to_receipt(receipt_id, product_request)
-
-
-
