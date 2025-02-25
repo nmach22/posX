@@ -9,7 +9,6 @@ from pydantic import BaseModel
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.classes.product_service import ProductService
-from app.infra.in_memory import InMemory
 
 products_api = APIRouter()
 
@@ -20,8 +19,7 @@ class _Infra(Protocol):
 
 
 def create_products_repository(request: Request) -> ProductRepositoryInterface:
-    # infra: _Infra = request.app.state.infra
-    infra: _Infra = InMemory()
+    infra: _Infra = request.app.state.infra
     return infra.products()
 
 
