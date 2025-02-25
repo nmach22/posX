@@ -67,4 +67,4 @@ def test_updaiting_non_existing_product() -> None:
     product_list: list[Product] = []
     service = ProductService(ProductInMemoryRepository(product_list))
     with pytest.raises(DoesntExistError):
-        service.update_product_price(1000, "123")
+        service.update_product_price(Product("123", "lobio", 500, "123123"))
