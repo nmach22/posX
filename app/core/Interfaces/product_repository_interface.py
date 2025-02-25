@@ -1,4 +1,4 @@
-from typing import Protocol, List
+from typing import Protocol
 
 from app.core.Interfaces.product_interface import Product
 
