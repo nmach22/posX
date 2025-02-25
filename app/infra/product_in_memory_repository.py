@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
