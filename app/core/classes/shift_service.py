@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass
 
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, XReport, ShiftInterface
+from app.core.Interfaces.shift_interface import Shift, ShiftInterface, XReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 
 
@@ -26,7 +26,6 @@ class ShiftService(ShiftInterface):
     def add_receipt_to_shift(self, receipt: Receipt, shift_id: str) -> None:
         self.repository.add_receipt_to_shift(receipt, shift_id)
 
-    def get_x_report(self, shift_id: str) -> XReport:
-        report = self.get_x_report(shift_id)
-        return report
 
+    def get_x_report(self, shift_id: str) -> XReport:
+        return self.repository.get_x_report(shift_id)  # Ensure correct delegation

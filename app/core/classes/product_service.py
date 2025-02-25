@@ -3,11 +3,11 @@ from dataclasses import dataclass
 
 from app.core.Interfaces.product_interface import (
     Product,
-    ProductRequest,
     ProductInterface,
+    ProductRequest,
 )
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
-from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
+from app.infra.product_in_memory_repository import DoesntExistError, ExistsError
 
 
 @dataclass

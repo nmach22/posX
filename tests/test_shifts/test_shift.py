@@ -2,14 +2,14 @@ import uuid
 
 from app.core.classes.shift_service import ShiftService
 from app.core.Interfaces.product_interface import Product
-from app.core.Interfaces.receipt_interface import Receipt
+from app.core.Interfaces.receipt_interface import Receipt, ReceiptProduct
 from app.core.Interfaces.shift_interface import Shift
 from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
 
 
 def test_should_create_shift() -> None:
     shift_list: list[Shift] = []
-    service = ShiftService(ShiftInMemoryRepository(shift_list))
+    service = ShiftService(ShiftInMemoryRepository(shift_list, []))
     shift = service.create_shift()
 
     assert len(shift_list) == 1
@@ -20,7 +20,7 @@ def test_should_create_shift() -> None:
 
 def test_should_close_shift() -> None:
     shift_list: list[Shift] = []
-    service = ShiftService(ShiftInMemoryRepository(shift_list))
+    service = ShiftService(ShiftInMemoryRepository(shift_list, []))
     shift = service.create_shift()
     service.close_shift(shift.shift_id)
 
@@ -29,7 +29,7 @@ def test_should_close_shift() -> None:
 
 def test_should_add_receipt_to_shift() -> None:
     shift_list: list[Shift] = []
-    service = ShiftService(ShiftInMemoryRepository(shift_list))
+    service = ShiftService(ShiftInMemoryRepository(shift_list, []))
     shift = service.create_shift()
     product = Product(id=str(uuid.uuid4()), name="Product1", price=100, barcode="123")
     receipt = Receipt(id=str(uuid.uuid4()), products=[product], status="open", total=100)
@@ -40,20 +40,25 @@ def test_should_add_receipt_to_shift() -> None:
     assert shift_list[0].receipts[0].id == receipt.id
     assert shift_list[0].receipts[0].total == 100
 
-#
-# def test_should_get_x_report() -> None:
-#     shift_list: list[Shift] = []
-#     service = ShiftService(ShiftInMemoryRepository(shift_list))
-#     shift = service.create_shift()
-#     product1 = Product(id=str(uuid.uuid4()), name="Product1", price=200, barcode="111")
-#     product2 = Product(id=str(uuid.uuid4()), name="Product2", price=300, barcode="222")
-#     receipt1 = Receipt(id=str(uuid.uuid4()), products=[product1], status="closed", total=200)
-#     receipt2 = Receipt(id=str(uuid.uuid4()), products=[product2], status="closed", total=300)
-#
-#     service.add_receipt_to_shift(receipt1, shift.shift_id)
-#     service.add_receipt_to_shift(receipt2, shift.shift_id)
-#
-#     report = service.get_x_report(shift.shift_id)
-#
-#     assert report.shift_id == shift.shift_id
-#     assert report.n_receipts == 2
+
+def test_should_generate_x_report() -> None:
+    shift_list: list[Shift] = []
+    service = ShiftService(ShiftInMemoryRepository(shift_list, []))
+    shift = service.create_shift()
+    product1 = ReceiptProduct(id="p1", quantity=2, price=50, total=100)
+    product2 = ReceiptProduct(id="p2", quantity=1, price=150, total=150)
+    receipt1 = Receipt(id="r1", products=[product1, product2], status="closed", total=250)
+    receipt2 = Receipt(id="r2", products=[product1], status="closed", total=100)
+    service.add_receipt_to_shift(receipt1, shift.shift_id)
+    service.add_receipt_to_shift(receipt2, shift.shift_id)
+
+    x_report = service.get_x_report(shift.shift_id)
+
+    assert x_report.shift_id == shift.shift_id
+    assert x_report.n_receipts == 2
+    assert x_report.revenue == 350
+    assert len(x_report.products) == 2
+    assert x_report.products[0]["quantity"] == 4
+    assert x_report.products[0]["total_price"] == 200
+    assert x_report.products[1]["quantity"] == 1
+    assert x_report.products[1]["total_price"] == 150
