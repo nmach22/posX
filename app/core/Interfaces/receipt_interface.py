@@ -19,6 +19,9 @@ class ReceiptInterface(Protocol):
     def add_product(self, product_id: str) -> Receipt:
         pass
 
+    def read_receipt(self, receipt_id: str) -> Receipt:
+        pass
+
     def close_receipt(self) -> None:
         pass
 
