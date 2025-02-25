@@ -9,19 +9,23 @@ class Product:
     price: int
     barcode: str
 
+
 @dataclass
 class ProductRequest:
     name: str
     price: int
     barcode: str
 
-class ProductInterface(Protocol):
 
-    def create_product (self, product_request: ProductRequest) -> Product:
+class ProductInterface(Protocol):
+    def create_product(self, product_request: ProductRequest) -> Product:
         pass
-    def read_all_products (self) -> list[Product]:
+
+    def read_all_products(self) -> list[Product]:
         pass
-    def update_product_price (self, new_price: int, product_id: str) -> None:
+
+    def update_product_price(self, product: Product) -> None:
         pass
+
     def get_product(self, product_id: str) -> Product:
         pass

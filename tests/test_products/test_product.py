@@ -31,8 +31,12 @@ def test_update_product() -> None:
     product_list: list[Product] = []
     service = ProductService(ProductInMemoryRepository(product_list))
     product = service.create_product(ProductRequest("lobio", 500, "123123"))
-    service.update_product_price(1000, product.id)
-    assert product.price == 1000
+
+    service.update_product_price(
+        Product(product.id, product.name, 1000, product.barcode)
+    )
+    new_product = service.get_product(product.id)
+    assert new_product.price == 1000
 
 
 def test_read_all_products() -> None:
@@ -63,4 +67,4 @@ def test_updaiting_non_existing_product() -> None:
     product_list: list[Product] = []
     service = ProductService(ProductInMemoryRepository(product_list))
     with pytest.raises(DoesntExistError):
-        service.update_product_price(1000, "123")
+        service.update_product_price(Product("123", "lobio", 500, "123123"))

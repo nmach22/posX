@@ -4,11 +4,8 @@ from dataclasses import dataclass
 from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 
-# class Receipt:
-#     id: str
-#     products: list[Product]
-#     status: str
-#     total: int
+
+
 
 @dataclass
 class ReceiptService:
@@ -16,11 +13,13 @@ class ReceiptService:
 
     def create_receipt(self) -> Receipt:
         receipt_id = uuid.uuid4()
-        # shift = shift_id
         products = []
         status = "open"
         total = 0
-        receipt = Receipt(id = str(receipt_id), products = products, status = status, total = total)
+        receipt = Receipt(id = str(receipt_id),
+                          products = products,
+                          status = status,
+                          total = total)
         self.repository.add_receipt(receipt)
         return receipt
 

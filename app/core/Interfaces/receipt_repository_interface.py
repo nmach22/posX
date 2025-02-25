@@ -13,5 +13,6 @@ class ReceiptRepositoryInterface(Protocol):
     def get_receipt(self, receipt_id: str) -> Receipt:
         pass
 
-    def add_product_to_receipt(self, receipt_id: str, product_request: AddProductRequest) -> Receipt:
+    def add_product_to_receipt(self, receipt_id: str,
+                               product_request: AddProductRequest) -> Receipt:
         pass
