@@ -26,4 +26,4 @@ class ProductService:
         pass
 
     def get_product(self, product_id: str) -> Product:
-        pass
+        return self.repository.get_product(product_id)
