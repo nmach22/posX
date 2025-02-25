@@ -5,7 +5,10 @@ from fastapi.requests import Request
 from pydantic import BaseModel
 
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
-from app.core.Interfaces.receipt_interface import Receipt, ReceiptStatus
+from app.core.Interfaces.receipt_interface import (
+    ReceiptStatus,
+    AddProductRequest,
+)
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.classes.receipt_service import ReceiptService
 
@@ -60,5 +63,33 @@ def create_receipt(
             status=created_receipt.status,
             products=[],
             total=created_receipt.total,
+        )
+    )
+
+
+@receipts_api.post(
+    "/{receipt_id}/products", status_code=201, response_model=ReceiptResponse
+)
+def add_product(
+    receipt_id: str,
+    request: AddProductRequest,
+    receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
+    #     products repo ar gvchrdeba albat aq, droebit davtove
+    products_repo: ProductRepositoryInterface = Depends(create_products_repository),
+) -> ReceiptResponse:
+    receipt_service = ReceiptService(receipts_repo)
+
+    receipt = receipt_service.add_product(receipt_id, request)
+    return ReceiptResponse(
+        receipt=ReceiptEntry(
+            id=receipt.id,
+            status=receipt.status,
+            products=[
+                ReceiptProductDict(
+                    id=p.id, quantity=p.quantity, price=p.price, total=p.total
+                )
+                for p in receipt.products
+            ],
+            total=receipt.total,
         )
     )
