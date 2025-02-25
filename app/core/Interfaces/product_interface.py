@@ -24,7 +24,7 @@ class ProductInterface(Protocol):
     def read_all_products(self) -> list[Product]:
         pass
 
-    def update_product_price(self, product: Product) -> Product:
+    def update_product_price(self, product: Product) -> None:
         pass
 
     def get_product(self, product_id: str) -> Product:
