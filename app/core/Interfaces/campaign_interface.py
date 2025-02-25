@@ -8,10 +8,6 @@ class Campaign:
     campaign_type: str
 
 
-
-
-
-
 class CampaignInterface(Protocol):
     def create_campaign(self, campaign_type: str) -> Campaign:
         pass

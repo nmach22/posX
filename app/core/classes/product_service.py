@@ -1,12 +1,17 @@
 import uuid
 from dataclasses import dataclass
 
-from app.core.Interfaces.product_interface import Product, ProductRequest
+from app.core.Interfaces.product_interface import (
+    Product,
+    ProductRequest,
+    ProductInterface,
+)
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
 
 
 @dataclass
-class ProductService:
+class ProductService(ProductInterface):
     repository: ProductRepositoryInterface
 
     def create_product(self, product_request: ProductRequest) -> Product:
@@ -15,15 +20,24 @@ class ProductService:
         barcode = product_request.barcode
         product_id = uuid.uuid4()
         product = Product(name=name, price=price, barcode=barcode, id=str(product_id))
-        self.repository.add_product(product)
-        return product
+        try:
+            self.repository.add_product(product)
+            return product
+        except ExistsError:
+            raise ExistsError
 
-
-    def read_all_products(self, product_id: str) -> list[Product]:
-        pass
+    def read_all_products(self) -> list[Product]:
+        return self.repository.read_all_products()
 
     def update_product_price(self, new_price: int, product_id: str) -> None:
-        pass
+        try:
+            self.repository.update_product(new_price, product_id)
+        except DoesntExistError:
+            raise DoesntExistError
 
     def get_product(self, product_id: str) -> Product:
-        return self.repository.get_product(product_id)
+        try:
+            product = self.repository.get_product(product_id)
+            return product
+        except DoesntExistError:
+            raise DoesntExistError
