@@ -19,5 +19,22 @@ def test_add_and_read_product() -> None:
     returned_product = service.get_product(product.id)
     assert returned_product.name == "lobio"
     assert returned_product.price == 500
-    assert returned_product.price == 500
+    assert returned_product.barcode == "123123"
+
+def test_update_product() -> None:
+    product_list: list[Product] = []
+    service = ProductService(ProductInMemoryRepository(product_list))
+    product = service.create_product(ProductRequest("lobio", 500, "123123"))
+    service.update_product_price(1000, product.id)
+    assert product.price == 1000
+
+
+def test_read_all_products() -> None:
+    product_list: list[Product] = []
+    service = ProductService(ProductInMemoryRepository(product_list))
+    product1 = service.create_product(ProductRequest("lobio", 500, "123123"))
+    product2 = service.create_product(ProductRequest("mchadi", 3, "1234"))
+    all_product = service.read_all_products()
+    assert len(all_product) == 2
+
 
