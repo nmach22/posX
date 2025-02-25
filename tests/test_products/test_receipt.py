@@ -1,6 +1,9 @@
+import pytest
+
 from app.core.Interfaces.product_interface import Product
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
+from app.infra.product_in_memory_repository import DoesntExistError
 from app.infra.receipt_in_memory_repository import ReceiptInMemoryRepository
 
 
@@ -61,5 +64,63 @@ def test_should_add_product_to_receipt() -> None:
     assert updated_receipt.products[0].price == 10.0
     assert updated_receipt.products[0].total == 20.0
     assert updated_receipt.total == 20.0
+
+
+def test_should_raise_error_when_reading_nonexistent_receipt() -> None:
+    receipt_list: list[Receipt] = []
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, []))
+
+    with pytest.raises(DoesntExistError,
+                       match="Receipt with ID nonexistent_id does not exist."):
+        service.read_receipt("nonexistent_id")
+
+
+def test_should_raise_error_when_closing_nonexistent_receipt() -> None:
+    receipt_list: list[Receipt] = []
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, []))
+
+    with pytest.raises(DoesntExistError,
+                       match="Receipt with ID nonexistent_id does not exist."):
+        service.close_receipt("nonexistent_id")
+
+
+def test_should_raise_error_when_adding_product_to_nonexistent_receipt() -> None:
+    receipt_list: list[Receipt] = []
+    product_list: list[Product] = [Product("123", "sigareti", 10, "12345")]
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, product_list))
+
+    product_request = AddProductRequest(product_id="123", quantity=2)
+
+    with pytest.raises(DoesntExistError,
+                       match="Receipt with ID nonexistent_id does not exist."):
+        service.add_product("nonexistent_id", product_request)
+
+
+def test_should_raise_error_when_adding_nonexistent_product_to_receipt() -> None:
+    receipt_list: list[Receipt] = []
+    product_list: list[Product] = []  # No products available
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, product_list))
+
+    receipt = service.create_receipt()
+    receipt_id = receipt.id
+
+    product_request = AddProductRequest(product_id="999", quantity=1)
+
+    with pytest.raises(DoesntExistError, match="Product with ID 999 does not exist."):
+        service.add_product(receipt_id, product_request)
+
+
+def test_should_raise_error_when_closing_already_closed_receipt() -> None:
+    receipt_list: list[Receipt] = []
+    service = ReceiptService(ReceiptInMemoryRepository(receipt_list, []))
+
+    receipt = service.create_receipt()
+    receipt_id = receipt.id
+    service.close_receipt(receipt_id)
+
+    with pytest.raises(DoesntExistError,
+                       match=f"Receipt with ID {receipt_id} is already closed."):
+        service.close_receipt(receipt_id)
+
 
 

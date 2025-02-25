@@ -8,6 +8,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
 
 
 @dataclass
@@ -15,26 +16,43 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     receipts: list[Receipt]
     products: list[Product]
 
+
     def add_receipt(self, receipt: Receipt) -> Receipt:
+        if any(rec.id == receipt.id for rec in self.receipts):
+            raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
+
         self.receipts.append(deepcopy(receipt))
         return receipt
 
     def close_receipt(self, receipt_id: str) -> None:
         for receipt in self.receipts:
             if receipt.id == receipt_id:
+                if receipt.status == "closed":
+                    raise DoesntExistError(f"Receipt with ID {receipt_id} is already closed.")
                 receipt.status = "closed"
-                break
+                return
+        raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
 
     def get_receipt(self, receipt_id: str) -> Receipt:
         for receipt in self.receipts:
             if receipt.id == receipt_id:
                 return receipt
+        raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
 
     def add_product_to_receipt(self, receipt_id: str, product_request: AddProductRequest) -> Receipt:
         product_price = 0
+        product_found = False
         for product in self.products:
             if product.id == product_request.product_id:
                 product_price = product.price
+                product_found = True
+                break
+
+
+        if product_found is False:
+            raise (DoesntExistError(f"Product with ID {product_request.product_id} does not exist."))
+
+
         for receipt in self.receipts:
             if receipt.id == receipt_id:
                 total_price = product_request.quantity * product_price
@@ -46,8 +64,8 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     total=total_price
                 )
 
-                receipt.products.append(product)
+                receipt.products.append(deepcopy(product))
                 receipt.total += total_price
 
                 return receipt
-        raise ValueError("Receipt not found")
+        raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
