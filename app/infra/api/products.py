@@ -1,31 +1,28 @@
 import uuid
+from itertools import product
 from typing import Protocol, Any
 
 from fastapi import APIRouter, Depends
 from fastapi.requests import Request
 from pydantic import BaseModel
 
-from app.core.Interfaces.product_interface import Product
+from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.classes.product_service import ProductService
+from app.infra.in_memory import InMemory
 
 products_api = APIRouter()
 
 
 class _Infra(Protocol):
-    def products(self) -> ProductRepositoryInterface[Product]:
+    def products(self) -> ProductRepositoryInterface:
         pass
 
 
-def create_products_repository(request: Request) -> ProductRepositoryInterface[Product]:
-    infra: _Infra = request.app.state.infra
+def create_products_repository(request: Request) -> ProductRepositoryInterface:
+    # infra: _Infra = request.app.state.infra
+    infra: _Infra = InMemory()
     return infra.products()
-
-
-class CreateProductRequest(BaseModel):
-    unit_id: str
-    name: str
-    barcode: str
-    price: int
 
 
 class ProductResponse(BaseModel):
@@ -42,33 +39,18 @@ class UpdateProductRequest(BaseModel):
 
 @products_api.post("", status_code=201, response_model=ProductResponse)
 def create_product(
-    request: CreateProductRequest,
-    repository: ProductRepositoryInterface[Product] = Depends(
-        create_products_repository
-    ),
+    request: ProductRequest,
+    repository: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> ProductResponse:
-    product = Product(
-        id=str(uuid.uuid4()),
-        name=request.name,
-        barcode=request.barcode,
-        price=request.price,
-    )
-    created_product = repository.add_product(product)
-    return ProductResponse(
-        product=Product(
-            id=created_product.id,
-            name=created_product.name,
-            barcode=created_product.barcode,
-            price=created_product.price,
-        )
-    )
+    product_service = ProductService(repository)
+    created_product = product_service.create_product(request)
+
+    return ProductResponse(product=created_product)
 
 
 @products_api.get("", status_code=200, response_model=ProductsListResponse)
 def get_all_products(
-    repository: ProductRepositoryInterface[Product] = Depends(
-        create_products_repository
-    ),
+    repository: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> ProductsListResponse:
     products = repository.read_all_products()
 
@@ -89,9 +71,7 @@ def get_all_products(
 def update_product(
     product_id: str,
     request: UpdateProductRequest,
-    repository: ProductRepositoryInterface[Product] = Depends(
-        create_products_repository
-    ),
+    repository: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> dict[Any, Any]:
     # First read the existing product
     existing_product = repository.get_product(product_id)

@@ -12,5 +12,5 @@ class InMemory:
         default_factory=ProductInMemoryRepository,
     )
 
-    def products(self) -> ProductRepositoryInterface[Product]:
+    def products(self) -> ProductRepositoryInterface:
         return self._products

@@ -8,7 +8,7 @@ from app.infra.in_memory import InMemory
 def setup() -> FastAPI:
     app = FastAPI()
 
-    api.state.infra = InMemory()
+    # api.state.infra = InMemory()
     app.include_router(products_api, prefix="/products", tags=["products"])
 
     return app
