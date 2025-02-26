@@ -74,8 +74,6 @@ def add_product(
     receipt_id: str,
     request: AddProductRequest,
     receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
-    #     products repo ar gvchrdeba albat aq, droebit davtove
-    products_repo: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(receipts_repo)
 

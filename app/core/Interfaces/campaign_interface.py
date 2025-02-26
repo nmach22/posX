@@ -1,15 +1,49 @@
-from dataclasses import dataclass
-from typing import Protocol
+from dataclasses import dataclass, Field
+from typing import Protocol, Union
+
+from pydantic import BaseModel
+
+
+class BuyNGetN(BaseModel):
+    product_id: str
+    buy_quantity: int = Field(..., gt=0)
+    get_quantity: int = Field(..., gt=0)
+    gift_product_id: int
+
+
+class Discount(BaseModel):
+    product_id: str
+    discount_percentage: int = Field(..., gt=0, lt=100)
+
+
+class Combo(BaseModel):
+    products: list[str]
+    discount_percentage: int = Field(..., gt=0, lt=100)
+
+
+class ReceiptDiscount(BaseModel):
+    min_amount: int
+    discount_percentage: int = Field(..., gt=0, lt=100)
+
+
+# Union type to accept different campaign structures
+CampaignData = Union[BuyNGetN, Discount, Combo]
+
+
+class CampaignRequest(BaseModel):
+    type: str
+    data: CampaignData
 
 
 @dataclass
 class Campaign:
-    id: str
-    campaign_type: str
+    campaign_id: str
+    type: str
+    data: CampaignData
 
 
 class CampaignInterface(Protocol):
-    def create_campaign(self, campaign_type: str) -> Campaign:
+    def create_campaign(self, campaign_request: CampaignRequest) -> Campaign:
         pass
 
     def delete_campaign(self, campaign_id: str) -> None:

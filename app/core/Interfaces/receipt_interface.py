@@ -12,8 +12,8 @@ class ReceiptStatus(str, Enum):
 class ReceiptProduct:
     id: str
     quantity: int
-    price: float
-    total: float
+    price: int
+    total: int
 
 
 @dataclass

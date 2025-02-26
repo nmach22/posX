@@ -8,13 +8,20 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
+from app.infra.product_in_memory_repository import (
+    ExistsError,
+    DoesntExistError,
+    ProductInMemoryRepository,
+)
 
 
 @dataclass
 class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     receipts: list[Receipt] = field(default_factory=list)
-    products: list[Product] = field(default_factory=list)
+    # products: list[Product] = field(default_factory=list)
+    products: ProductInMemoryRepository = field(
+        default_factory=ProductInMemoryRepository
+    )
 
     def add_receipt(self, receipt: Receipt) -> Receipt:
         if any(rec.id == receipt.id for rec in self.receipts):
@@ -45,7 +52,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     ) -> Receipt:
         product_price = 0
         product_found = False
-        for product in self.products:
+        for product in self.products.read_all_products():
             if product.id == product_request.product_id:
                 product_price = product.price
                 product_found = True

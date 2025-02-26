@@ -15,8 +15,10 @@ class InMemory:
 
     _receipts: ReceiptInMemoryRepository = field(
         init=False,
-        default_factory=ReceiptInMemoryRepository,
     )
+
+    def __post_init__(self):
+        self._receipts = ReceiptInMemoryRepository(products=self._products)
 
     def products(self) -> ProductRepositoryInterface:
         return self._products

@@ -19,7 +19,7 @@ class ProductService(ProductInterface):
         price = product_request.price
         barcode = product_request.barcode
         product_id = uuid.uuid4()
-        product = Product(name=name, price=price, barcode=barcode, id=str(product_id))
+        product = Product(id=str(product_id), name=name, price=price, barcode=barcode)
         try:
             self.repository.add_product(product)
             return product
