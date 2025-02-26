@@ -12,10 +12,7 @@ class ShiftService(ShiftInterface):
 
     def create_shift(self) -> Shift:
         shift_id = uuid.uuid4()
-        shift = Shift(
-            shift_id=str(shift_id),
-            receipts=[],
-            status="open")
+        shift = Shift(shift_id=str(shift_id), receipts=[], status="open")
 
         self.repository.add_shift(shift)
         return shift
@@ -24,8 +21,7 @@ class ShiftService(ShiftInterface):
         self.repository.close_shift(shift_id)
 
     def add_receipt_to_shift(self, receipt: Receipt, shift_id: str) -> None:
-        self.repository.add_receipt_to_shift(receipt, shift_id)
-
+        self.repository.add_receipt_to_shift(receipt)
 
     def get_x_report(self, shift_id: str) -> XReport:
         return self.repository.get_x_report(shift_id)  # Ensure correct delegation

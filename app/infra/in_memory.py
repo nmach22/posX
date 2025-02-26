@@ -19,14 +19,12 @@ class InMemory:
         init=False,
     )
 
-    _shifts: ShiftInMemoryRepository = field(
-        init=False,
-    )
+    # # _shifts: ShiftInMemoryRepository = field(
+    #     init=False,
+    # )
 
     def __post_init__(self):
-        self._receipts = ReceiptInMemoryRepository(
-            products=self._products, shifts=self._shifts
-        )
+        self._receipts = ReceiptInMemoryRepository(products=self._products)
 
     def products(self) -> ProductRepositoryInterface:
         return self._products

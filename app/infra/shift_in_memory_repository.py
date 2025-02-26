@@ -24,9 +24,9 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def add_receipt_to_shift(self, receipt: Receipt):
         for shift in self.shifts:
-            if shift.shift_id == receipt.shift_id:
-                shift.receipts.append(deepcopy(receipt))
-                return
+            # if shift.shift_id == receipt.shift_id:
+            shift.receipts.append(deepcopy(receipt))
+            return
         raise DoesntExistError(f"Shift with ID {receipt.shift_id} not found.")
 
     def get_x_report(self, shift_id: str) -> XReport:
