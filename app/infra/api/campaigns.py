@@ -57,9 +57,6 @@ class ResponseListCampaign(BaseModel):
     campaigns: list[Campaign]
 
 
-# List campaigns GET /campaigns
-
-
 @campaigns_api.get("", response_model=ResponseListCampaign)
 def get_all_campaigns(
     repository: CampaignRepositoryInterface = Depends(create_campaigns_repository),
