@@ -51,3 +51,30 @@ def delete_campaign(
     campaign_service.delete_campaign(campaign_id)
 
     return {}
+
+
+class ResponseListCampaign(BaseModel):
+    campaigns: list[Campaign]
+
+
+# List campaigns GET /campaigns
+
+
+@campaigns_api.get("", response_model=ResponseListCampaign)
+def get_all_campaigns(
+    repository: CampaignRepositoryInterface = Depends(create_campaigns_repository),
+) -> ResponseListCampaign:
+    campaign_service = CampaignService(repository)
+    campaigns = campaign_service.read_all_campaigns()
+
+    return ResponseListCampaign(
+        campaigns=[
+            Campaign(
+                campaign_id=_campaign.campaign_id,
+                type=_campaign.type,
+                data=_campaign.data,
+            )
+            for _campaign in campaigns
+        ]
+    )
+    pass
