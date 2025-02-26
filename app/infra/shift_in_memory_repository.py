@@ -2,7 +2,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, XReport
+from app.core.Interfaces.shift_interface import Shift, XReport, ZReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.product_in_memory_repository import DoesntExistError
 
@@ -63,3 +63,39 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                     products=products,
                 )
             raise DoesntExistError(f"Shift with ID {shift_id} not found.")
+
+
+
+    def get_z_report(self, shift_id: str) -> ZReport:
+        for shift in self.shifts:
+            if shift.shift_id == shift_id:
+                receipts = shift.receipts
+                n_receipts = len(receipts)
+                revenue = sum(r.total for r in receipts)
+
+                product_summary = {}
+
+                for receipt in receipts:
+                    for product in receipt.products:
+                        if product.id not in product_summary:
+                            product_summary[product.id] = 0
+                        product_summary[product.id] += product.quantity
+
+                products = [
+                    {"id": pid, "quantity": quantity}
+                    for pid, quantity in product_summary.items()
+                ]
+
+                self.close_shift(shift_id)
+                return ZReport(
+                    shift_id=shift_id,
+                    n_receipts=n_receipts,
+                    revenue=revenue,
+                    products=products
+                )
+        raise DoesntExistError(f"Shift with ID {shift_id} not found.")
+
+
+
+
+

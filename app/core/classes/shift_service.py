@@ -24,4 +24,7 @@ class ShiftService(ShiftInterface):
         self.repository.add_receipt_to_shift(receipt)
 
     def get_x_report(self, shift_id: str) -> XReport:
-        return self.repository.get_x_report(shift_id)  # Ensure correct delegation
+        return self.repository.get_x_report(shift_id)
+
+    def get_z_report(self, shift_id: str) -> XReport:
+        return self.repository.get_z_report(shift_id)

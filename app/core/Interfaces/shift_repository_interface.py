@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, XReport
+from app.core.Interfaces.shift_interface import Shift, XReport, ZReport
 
 
 class ShiftRepositoryInterface(Protocol):
@@ -15,4 +15,7 @@ class ShiftRepositoryInterface(Protocol):
         pass
 
     def get_x_report(self, shift_id: str) -> XReport:
+        pass
+
+    def get_z_report(self, shift_id: str) -> ZReport:
         pass

@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends
 from fastapi.requests import Request
 from pydantic import BaseModel
 
+from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_interface import (
-    ReceiptStatus,
     AddProductRequest,
+    ReceiptStatus,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.classes.receipt_service import ReceiptService
 
 receipts_api = APIRouter()
 

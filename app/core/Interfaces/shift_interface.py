@@ -19,7 +19,15 @@ class XReport:
     products: list[Dict[str, int]]
 
 
-class ShiftInterface(Protocol):
+@dataclass
+class ZReport:
+    shift_id: str
+    n_receipts: int
+    revenue: int
+    products: list[Dict[str, int]]
+
+
+class ShiftInterface (Protocol):
     def create_shift(self) -> Shift:
         pass
 
@@ -31,3 +39,7 @@ class ShiftInterface(Protocol):
 
     def get_x_report(self, shift_id: str) -> XReport:
         pass
+
+    def get_z_report(self, shift_id: str) -> XReport:
+        pass
+

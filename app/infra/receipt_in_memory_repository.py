@@ -1,7 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
-from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -9,8 +8,8 @@ from app.core.Interfaces.receipt_interface import (
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.infra.product_in_memory_repository import (
-    ExistsError,
     DoesntExistError,
+    ExistsError,
     ProductInMemoryRepository,
 )
 from app.infra.shift_in_memory_repository import ShiftInMemoryRepository

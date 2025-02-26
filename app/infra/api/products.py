@@ -1,14 +1,12 @@
-import uuid
-from itertools import product
-from typing import Protocol, Any
+from typing import Any, Protocol
 
 from fastapi import APIRouter, Depends
 from fastapi.requests import Request
 from pydantic import BaseModel
 
+from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
-from app.core.classes.product_service import ProductService
 
 products_api = APIRouter()
 
