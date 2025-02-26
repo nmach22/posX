@@ -22,13 +22,12 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 return
         raise DoesntExistError(f"Shift with ID {shift_id} not found.")
 
-    def add_receipt_to_shift(self, receipt: Receipt, shift_id: str):
+    def add_receipt_to_shift(self, receipt: Receipt):
         for shift in self.shifts:
-            if shift.shift_id == shift_id:
+            if shift.shift_id == receipt.shift_id:
                 shift.receipts.append(deepcopy(receipt))
                 return
-        raise DoesntExistError(f"Shift with ID {shift_id} not found.")
-
+        raise DoesntExistError(f"Shift with ID {receipt.shift_id} not found.")
 
     def get_x_report(self, shift_id: str) -> XReport:
         for shift in self.shifts:
@@ -49,11 +48,18 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                         product_summary[product.id]["total_price"] += product.total
 
                 products = [
-                    {"id": pid, "quantity": data["quantity"],
-                     "total_price": data["total_price"]}
+                    {
+                        "id": pid,
+                        "quantity": data["quantity"],
+                        "total_price": data["total_price"],
+                    }
                     for pid, data in product_summary.items()
                 ]
 
-                return XReport(shift_id=shift_id, n_receipts=n_receipts,
-                               revenue=revenue, products=products)
+                return XReport(
+                    shift_id=shift_id,
+                    n_receipts=n_receipts,
+                    revenue=revenue,
+                    products=products,
+                )
             raise DoesntExistError(f"Shift with ID {shift_id} not found.")

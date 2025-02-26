@@ -13,21 +13,24 @@ from app.infra.product_in_memory_repository import (
     DoesntExistError,
     ProductInMemoryRepository,
 )
+from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
 
 
 @dataclass
 class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     receipts: list[Receipt] = field(default_factory=list)
-    # products: list[Product] = field(default_factory=list)
     products: ProductInMemoryRepository = field(
         default_factory=ProductInMemoryRepository
     )
+
+    shifts: ShiftInMemoryRepository = field(default_factory=ShiftInMemoryRepository)
 
     def add_receipt(self, receipt: Receipt) -> Receipt:
         if any(rec.id == receipt.id for rec in self.receipts):
             raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
 
         self.receipts.append(deepcopy(receipt))
+        self.shifts.add_receipt_to_shift(receipt)
         return receipt
 
     def close_receipt(self, receipt_id: str) -> None:
