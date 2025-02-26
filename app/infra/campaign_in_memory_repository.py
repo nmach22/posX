@@ -1,5 +1,5 @@
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.campaign_repository_interface import (
@@ -19,6 +19,7 @@ class CampaignAndProducts:
     discounted_price: int
 
 
+@dataclass
 class CampaignInMemoryRepository(CampaignRepositoryInterface):
     campaigns: list[Campaign]
     products_repo: ProductInMemoryRepository
@@ -46,7 +47,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                 product_for_campaign = CampaignAndProducts(
                     str(uuid.uuid4()),
                     campaign.campaign_id,
-                    campaign.data.product_id,
+                    product_id,
                     new_price,
                 )
                 self.campaign_product_list.append(product_for_campaign)
@@ -63,15 +64,20 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
         return campaign
 
     def delete_campaign(self, campaign_id: str) -> None:
+        find: bool = False
         for campaign in self.campaigns:
             if campaign.campaign_id == campaign_id:
                 self.campaigns.remove(campaign)
+                find = True
 
         for campaign_product in self.campaign_product_list:
             if campaign_product.campaign_id == campaign_id:
                 self.campaign_product_list.remove(campaign_product)
+                return
 
-        raise DoesntExistError
+        if not find:
+            raise DoesntExistError
+        return
 
     def get_all_campaigns(self) -> list[Campaign]:
         return self.campaigns

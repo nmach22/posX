@@ -1,4 +1,5 @@
 import uuid
+from dataclasses import dataclass
 
 from app.core.Interfaces.campaign_interface import (
     CampaignInterface,
@@ -11,6 +12,7 @@ from app.core.Interfaces.campaign_repository_interface import (
 from app.infra.product_in_memory_repository import DoesntExistError
 
 
+@dataclass
 class CampaignService(CampaignInterface):
     repository: CampaignRepositoryInterface
 
