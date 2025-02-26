@@ -1,4 +1,4 @@
-from dataclasses import dataclass, Field
+from dataclasses import dataclass
 from typing import Protocol, Union
 
 from pydantic import BaseModel
@@ -6,24 +6,24 @@ from pydantic import BaseModel
 
 class BuyNGetN(BaseModel):
     product_id: str
-    buy_quantity: int = Field(..., gt=0)
-    get_quantity: int = Field(..., gt=0)
+    buy_quantity: int
+    get_quantity: int
     gift_product_id: int
 
 
 class Discount(BaseModel):
     product_id: str
-    discount_percentage: int = Field(..., gt=0, lt=100)
+    discount_percentage: int
 
 
 class Combo(BaseModel):
     products: list[str]
-    discount_percentage: int = Field(..., gt=0, lt=100)
+    discount_percentage: int
 
 
 class ReceiptDiscount(BaseModel):
     min_amount: int
-    discount_percentage: int = Field(..., gt=0, lt=100)
+    discount_percentage: int
 
 
 # Union type to accept different campaign structures

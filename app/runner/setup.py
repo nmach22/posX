@@ -11,5 +11,6 @@ def setup() -> FastAPI:
     app.state.infra = InMemory()
     app.include_router(products_api, prefix="/products", tags=["products"])
     app.include_router(receipts_api, prefix="/receipts", tags=["receipts"])
+    app.include_router(campaigns_api, prefix="/campaigns", tags=["campaigns"])
 
     return app
