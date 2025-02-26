@@ -12,7 +12,6 @@ from app.infra.product_in_memory_repository import (
     ExistsError,
     ProductInMemoryRepository,
 )
-from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
 
 
 @dataclass
