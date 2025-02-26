@@ -51,11 +51,21 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                     new_price,
                 )
                 self.campaign_product_list.append(product_for_campaign)
+
+        if campaign.type == "Buy n get n":
+            product_for_campaign = CampaignAndProducts(
+                str(uuid.uuid4()),
+                campaign.campaign_id,
+                campaign.data.product_id,
+                self.products_repo.get_product(campaign.data.product_id).price,
+            )
+            self.campaign_product_list.append(product_for_campaign)
+
         return campaign
 
     def delete_campaign(self, campaign_id: str) -> None:
         for campaign in self.campaigns:
-            if campaign.id == campaign_id:
+            if campaign.campaign_id == campaign_id:
                 self.campaigns.remove(campaign)
 
         for campaign_product in self.campaign_product_list:
