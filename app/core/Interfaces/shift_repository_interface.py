@@ -11,7 +11,7 @@ class ShiftRepositoryInterface(Protocol):
     def close_shift(self, shift_id: str) -> None:
         pass
 
-    def add_receipt_to_shift(self, receipt: Receipt, shift_id: str):
+    def add_receipt_to_shift(self, receipt: Receipt):
         pass
 
     def get_x_report(self, shift_id: str) -> XReport:
