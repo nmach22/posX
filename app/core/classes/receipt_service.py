@@ -5,8 +5,6 @@ from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 
 
-
-
 @dataclass
 class ReceiptService:
     repository: ReceiptRepositoryInterface

@@ -1,14 +1,14 @@
-import uuid
-from itertools import product
-from typing import Protocol, Any
+from typing import Any, Protocol, Dict
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
+from mypyc.irbuild.statement import transform_yield_from_expr
 from pydantic import BaseModel
 
+from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
-from app.core.classes.product_service import ProductService
+from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
 
 products_api = APIRouter()
 
@@ -35,15 +35,38 @@ class UpdateProductRequest(BaseModel):
     price: int
 
 
-@products_api.post("", status_code=201, response_model=ProductResponse)
+class ErrorResponse(BaseModel):
+    error: Dict[str, str]  # Explicitly define Dict type
+
+
+@products_api.post(
+    "",
+    status_code=201,
+    responses={
+        409: {
+            "model": ErrorResponse,
+            "description": "Product with the given barcode already exists.",
+        }
+    },
+)
 def create_product(
     request: ProductRequest,
     repository: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> ProductResponse:
     product_service = ProductService(repository)
-    created_product = product_service.create_product(request)
 
-    return ProductResponse(product=created_product)
+    try:
+        created_product = product_service.create_product(request)
+        return ProductResponse(product=created_product)
+    except ExistsError:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": {
+                    "message": f"Product with barcode<{request.barcode}> already exists."
+                }
+            },
+        )
 
 
 @products_api.get("", status_code=200, response_model=ProductsListResponse)
@@ -66,19 +89,43 @@ def get_all_products(
     )
 
 
-@products_api.patch("/{product_id}")
+@products_api.patch(
+    "/{product_id}",
+    status_code=200,
+    responses={404: {"model": ErrorResponse, "description": "Product not found."}},
+)
 def update_product(
     product_id: str,
     request: UpdateProductRequest,
     repository: ProductRepositoryInterface = Depends(create_products_repository),
 ) -> dict[Any, Any]:
     product_service = ProductService(repository)
-    existing_product = product_service.get_product(product_id)
+
+    try:
+        existing_product = product_service.get_product(product_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": {"message": f"product with id<{product_id}> does not exist."}
+            },
+        )
+
     updated_product = Product(
         id=existing_product.id,
         name=existing_product.name,
         barcode=existing_product.barcode,
         price=request.price,
     )
-    product_service.update_product_price(updated_product)
+    try:
+        product_service.update_product_price(updated_product)
+        return
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": {"message": f"product with id<{product_id}> does not exist."}
+            },
+        )
+
     return {}

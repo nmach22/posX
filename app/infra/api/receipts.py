@@ -1,16 +1,18 @@
 from typing import Protocol
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
+from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_interface import (
-    ReceiptStatus,
     AddProductRequest,
+    ReceiptStatus,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.classes.receipt_service import ReceiptService
+from app.infra.api.products import ErrorResponse
+from app.infra.product_in_memory_repository import DoesntExistError
 
 receipts_api = APIRouter()
 
@@ -68,7 +70,9 @@ def create_receipt(
 
 
 @receipts_api.post(
-    "/{receipt_id}/products", status_code=201, response_model=ReceiptResponse
+    "/{receipt_id}/products",
+    status_code=201,
+    responses={404: {"model": ErrorResponse, "description": "Product not found."}},
 )
 def add_product(
     receipt_id: str,
@@ -77,7 +81,15 @@ def add_product(
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(receipts_repo)
 
-    receipt = receipt_service.add_product(receipt_id, request)
+    try:
+        receipt = receipt_service.add_product(receipt_id, request)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": {"message": f"product or receipt with this id does not exist."}
+            },
+        )
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=receipt.id,

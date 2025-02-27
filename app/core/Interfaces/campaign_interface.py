@@ -8,7 +8,6 @@ class BuyNGetN(BaseModel):
     product_id: str
     buy_quantity: int
     get_quantity: int
-    gift_product_id: int
 
 
 class Discount(BaseModel):
@@ -27,7 +26,7 @@ class ReceiptDiscount(BaseModel):
 
 
 # Union type to accept different campaign structures
-CampaignData = Union[BuyNGetN, Discount, Combo]
+CampaignData = Union[BuyNGetN, Discount, Combo, ReceiptDiscount]
 
 
 class CampaignRequest(BaseModel):

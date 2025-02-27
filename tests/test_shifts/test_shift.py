@@ -62,3 +62,21 @@ def test_should_generate_x_report() -> None:
     assert x_report.products[0]["total_price"] == 200
     assert x_report.products[1]["quantity"] == 1
     assert x_report.products[1]["total_price"] == 150
+
+
+def test_get_z_report():
+    shift_list: list[Shift] = []
+    service = ShiftService(ShiftInMemoryRepository(shift_list,[]))
+
+
+    shift = service.create_shift()
+    receipt = Receipt(id=str(uuid.uuid4()), products=[], status="open", total=100.0)
+    service.add_receipt_to_shift(receipt, shift.shift_id)
+    z_report = service.get_z_report(shift.shift_id)
+
+    # Assertions
+    assert z_report.shift_id == shift.shift_id
+    assert z_report.n_receipts == 1
+    assert z_report.revenue == 100.0
+    assert shift_list[0].status == "closed"
+
