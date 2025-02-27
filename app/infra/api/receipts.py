@@ -64,7 +64,7 @@ def create_receipt(
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
-    created_receipt = receipt_service.create_receipt(CreateReceiptRequest.shift_id)
+    created_receipt = receipt_service.create_receipt(request.shift_id)
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=created_receipt.id,

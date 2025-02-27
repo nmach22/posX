@@ -119,7 +119,6 @@ def update_product(
     )
     try:
         product_service.update_product_price(updated_product)
-        return
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
