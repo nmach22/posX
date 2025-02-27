@@ -1,5 +1,5 @@
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.campaign_repository_interface import (
@@ -21,7 +21,7 @@ class CampaignAndProducts:
 
 @dataclass
 class CampaignInMemoryRepository(CampaignRepositoryInterface):
-    campaigns: list[Campaign] = field(default_factory=list)
+    campaigns: list[Campaign]
     products_repo: ProductInMemoryRepository
     campaign_product_list: list[CampaignAndProducts]
 
