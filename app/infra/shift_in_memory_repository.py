@@ -1,17 +1,17 @@
 from copy import deepcopy
+from dataclasses import dataclass, field
 from dataclasses import dataclass
 from typing import Dict
 
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.sales_interface import SalesReport
-from app.core.Interfaces.shift_interface import Shift, XReport, ZReport
+from app.core.Interfaces.shift_interface import Shift, XReport, ZReport, SalesReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.product_in_memory_repository import DoesntExistError
 
 
 @dataclass
 class ShiftInMemoryRepository(ShiftRepositoryInterface):
-    shifts: list[Shift]
+    shifts: list[Shift] = field(default_factory=list)
 
     def add_shift(self, shift: Shift) -> None:
         self.shifts.append(deepcopy(shift))
@@ -65,8 +65,6 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 )
             raise DoesntExistError(f"Shift with ID {shift_id} not found.")
 
-
-
     def get_z_report(self, shift_id: str) -> ZReport:
         for shift in self.shifts:
             if shift.shift_id == shift_id:
@@ -92,7 +90,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                     shift_id=shift_id,
                     n_receipts=n_receipts,
                     revenue=revenue,
-                    products=products
+                    products=products,
                 )
         raise DoesntExistError(f"Shift with ID {shift_id} not found.")
 
