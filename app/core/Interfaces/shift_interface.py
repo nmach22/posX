@@ -26,6 +26,13 @@ class ZReport:
     revenue: int
     products: list[Dict[str, int]]
 
+@dataclass
+class SalesReport:
+    total_receipts: int
+    total_revenue: float
+    products:  list[dict[str, int]]
+
+
 
 class ShiftInterface (Protocol):
     def create_shift(self) -> Shift:
@@ -40,6 +47,11 @@ class ShiftInterface (Protocol):
     def get_x_report(self, shift_id: str) -> XReport:
         pass
 
-    def get_z_report(self, shift_id: str) -> XReport:
+    def get_z_report(self, shift_id: str) -> ZReport:
         pass
+
+    def get_lifetime_sales_report(self) -> SalesReport:
+        pass
+
+
 

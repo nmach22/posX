@@ -1,7 +1,9 @@
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import Dict
 
 from app.core.Interfaces.receipt_interface import Receipt
+from app.core.Interfaces.sales_interface import SalesReport
 from app.core.Interfaces.shift_interface import Shift, XReport, ZReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.product_in_memory_repository import DoesntExistError
@@ -10,7 +12,6 @@ from app.infra.product_in_memory_repository import DoesntExistError
 @dataclass
 class ShiftInMemoryRepository(ShiftRepositoryInterface):
     shifts: list[Shift]
-    receipts: list[Receipt]
 
     def add_shift(self, shift: Shift) -> None:
         self.shifts.append(deepcopy(shift))
@@ -24,9 +25,9 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def add_receipt_to_shift(self, receipt: Receipt):
         for shift in self.shifts:
-            # if shift.shift_id == receipt.shift_id:
-            shift.receipts.append(deepcopy(receipt))
-            return
+            if shift.shift_id == receipt.shift_id:
+                shift.receipts.append(deepcopy(receipt))
+                return
         raise DoesntExistError(f"Shift with ID {receipt.shift_id} not found.")
 
     def get_x_report(self, shift_id: str) -> XReport:
@@ -96,6 +97,29 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
         raise DoesntExistError(f"Shift with ID {shift_id} not found.")
 
 
+    def get_lifetime_sales_report(self) -> SalesReport:
+        total_revenue = 0.0
+        total_receipts = 0
+        product_summary: Dict[str, Dict[str, float]] = {}
 
+        for shift in self.shifts:
+            for receipt in shift.receipts:
+                if receipt.status == "closed":
+                    total_receipts += 1
+                    total_revenue += receipt.total
+
+                    for product in receipt.products:
+                        if product.id not in product_summary:
+                            product_summary[product.id] = {"quantity": 0, "total_price": 0.0}
+
+                        product_summary[product.id]["quantity"] += product.quantity
+                        product_summary[product.id]["total_price"] += product.total
+
+        products = [
+            {"id": pid, "quantity": data["quantity"], "total_price": data["total_price"]}
+            for pid, data in product_summary.items()
+        ]
+
+        return SalesReport(total_receipts=total_receipts, total_revenue=total_revenue, products=products)
 
 
