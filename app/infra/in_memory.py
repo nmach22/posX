@@ -35,11 +35,12 @@ class InMemory:
 
     def __post_init__(self):
         # self._shifts = ShiftInMemoryRepository(shifts=[])
-        self._receipts = ReceiptInMemoryRepository(
-            products=self._products, shifts=self._shifts, campaigns=self._campaigns
-        )
+
         self._campaigns = CampaignInMemoryRepository(
             products_repo=self._products,
+        )
+        self._receipts = ReceiptInMemoryRepository(
+            products=self._products, shifts=self._shifts, campaigns=self._campaigns
         )
 
     def products(self) -> ProductRepositoryInterface:
