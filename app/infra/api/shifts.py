@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from app.core.Interfaces.shift_interface import Shift, Report
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.core.classes.shift_service import ShiftService
+from app.infra.product_in_memory_repository import DoesntExistError
 
 shifts_api = APIRouter()
 
@@ -63,7 +64,7 @@ def get_x_reports(
     try:
         x_response = shift_service.get_x_report(shift_id)
         return XReportResponse(x_report=x_response)
-    except NotFoundError:
+    except DoesntExistError:
         raise HTTPException(status_code=404, detail="Shift not found.")
     except ValueError:
         raise HTTPException(status_code=400, detail="Shift is closed.")
@@ -80,7 +81,7 @@ def get_z_reports(
     try:
         z_response = shift_service.get_z_report(shift_id)
         return ZReportResponse(z_report=z_response)
-    except NotFoundError:
+    except DoesntExistError:
         raise HTTPException(status_code=404, detail="Shift not found.")
     except ValueError:
         raise HTTPException(status_code=400, detail="Shift is closed.")
