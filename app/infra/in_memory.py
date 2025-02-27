@@ -1,17 +1,23 @@
 from dataclasses import dataclass, field
-from itertools import product
 
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.infra.campaign_in_memory_repository import CampaignInMemoryRepository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.infra.campaign_in_memory_repository import CampaignInMemoryRepository
-from app.infra.product_in_memory_repository import ProductInMemoryRepository
-from app.infra.receipt_in_memory_repository import ReceiptInMemoryRepository
-from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
+from app.infra.in_memory_repositories.campaign_in_memory_repository import (
+    CampaignInMemoryRepository,
+)
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    ProductInMemoryRepository,
+)
+from app.infra.in_memory_repositories.receipt_in_memory_repository import (
+    ReceiptInMemoryRepository,
+)
+from app.infra.in_memory_repositories.shift_in_memory_repository import (
+    ShiftInMemoryRepository,
+)
 
 
 @dataclass
