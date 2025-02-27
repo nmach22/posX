@@ -1,10 +1,10 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
     ReceiptProduct,
+    ReceiptForPayment,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.infra.product_in_memory_repository import (
@@ -82,3 +82,10 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
 
                 return receipt
         raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
+
+    def calculate_payment(
+        self,
+        receipt_id: str,
+    ) -> ReceiptForPayment:
+        # receipt = self.get_receipt(receipt_id)
+        pass
