@@ -31,6 +31,13 @@ class AddProductRequest:
     quantity: int
 
 
+@dataclass
+class ReceiptForPayment:
+    receipt: Receipt
+    total_price: int
+    reduced_price: int
+
+
 class ReceiptInterface(Protocol):
     def create_receipt(self, shift_id: str) -> Receipt:
         pass
@@ -44,4 +51,7 @@ class ReceiptInterface(Protocol):
         pass
 
     def close_receipt(self, receipt_id: str) -> None:
+        pass
+
+    def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
         pass
