@@ -12,19 +12,12 @@ class Shift:
 
 
 @dataclass
-class XReport:
+class Report:
     shift_id: str
     n_receipts: int
     revenue: int
     products: list[Dict[str, int]]
 
-
-@dataclass
-class ZReport:
-    shift_id: str
-    n_receipts: int
-    revenue: int
-    products: list[Dict[str, int]]
 
 @dataclass
 class SalesReport:
@@ -33,8 +26,7 @@ class SalesReport:
     products: list[dict[str, float | int]]
 
 
-
-class ShiftInterface (Protocol):
+class ShiftInterface(Protocol):
     def create_shift(self) -> Shift:
         pass
 
@@ -44,14 +36,11 @@ class ShiftInterface (Protocol):
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         pass
 
-    def get_x_report(self, shift_id: str) -> XReport:
+    def get_x_report(self, shift_id: str) -> Report:
         pass
 
-    def get_z_report(self, shift_id: str) -> ZReport:
+    def get_z_report(self, shift_id: str) -> Report:
         pass
 
     def get_lifetime_sales_report(self) -> SalesReport:
         pass
-
-
-

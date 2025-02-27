@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, XReport, ZReport, SalesReport
+from app.core.Interfaces.shift_interface import Shift, Report, Report, SalesReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.product_in_memory_repository import DoesntExistError
 
@@ -30,7 +30,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 return
         raise DoesntExistError(f"Shift with ID {receipt.shift_id} not found.")
 
-    def get_x_report(self, shift_id: str) -> XReport:
+    def get_x_report(self, shift_id: str) -> Report:
         for shift in self.shifts:
             if shift.shift_id == shift_id:
                 receipts = [r for r in shift.receipts if r.status == "closed"]
@@ -57,7 +57,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                     for pid, data in product_summary.items()
                 ]
 
-                return XReport(
+                return Report(
                     shift_id=shift_id,
                     n_receipts=n_receipts,
                     revenue=revenue,
@@ -65,7 +65,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 )
             raise DoesntExistError(f"Shift with ID {shift_id} not found.")
 
-    def get_z_report(self, shift_id: str) -> ZReport:
+    def get_z_report(self, shift_id: str) -> Report:
         for shift in self.shifts:
             if shift.shift_id == shift_id:
                 receipts = shift.receipts
@@ -86,14 +86,13 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 ]
 
                 self.close_shift(shift_id)
-                return ZReport(
+                return Report(
                     shift_id=shift_id,
                     n_receipts=n_receipts,
                     revenue=revenue,
                     products=products,
                 )
         raise DoesntExistError(f"Shift with ID {shift_id} not found.")
-
 
     def get_lifetime_sales_report(self) -> SalesReport:
         total_revenue = 0
@@ -108,16 +107,25 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
                     for product in receipt.products:
                         if product.id not in product_summary:
-                            product_summary[product.id] = {"quantity": 0, "total_price": 0.0}
+                            product_summary[product.id] = {
+                                "quantity": 0,
+                                "total_price": 0.0,
+                            }
 
                         product_summary[product.id]["quantity"] += product.quantity
                         product_summary[product.id]["total_price"] += product.total
 
         products = [
-            {"id": pid, "quantity": data["quantity"], "total_price": data["total_price"]}
+            {
+                "id": pid,
+                "quantity": data["quantity"],
+                "total_price": data["total_price"],
+            }
             for pid, data in product_summary.items()
         ]
 
-        return SalesReport(total_receipts=total_receipts, total_revenue=total_revenue, products=products)
-
-
+        return SalesReport(
+            total_receipts=total_receipts,
+            total_revenue=total_revenue,
+            products=products,
+        )

@@ -34,8 +34,6 @@ class InMemory:
     )
 
     def __post_init__(self):
-        # self._shifts = ShiftInMemoryRepository(shifts=[])
-
         self._campaigns = CampaignInMemoryRepository(
             products_repo=self._products,
         )

@@ -2,7 +2,6 @@ from typing import Any, Protocol, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
-from mypyc.irbuild.statement import transform_yield_from_expr
 from pydantic import BaseModel
 
 from app.core.classes.product_service import ProductService
