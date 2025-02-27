@@ -26,9 +26,14 @@ class ReceiptProductDict(BaseModel):
 
 class ReceiptEntry(BaseModel):
     id: str
+    shift_id: str
     status: ReceiptStatus
     products: list[ReceiptProductDict]
     total: int
+
+
+class CreateReceiptRequest(BaseModel):
+    shift_id: str
 
 
 class ReceiptResponse(BaseModel):
@@ -55,13 +60,15 @@ def create_products_repository(request: Request) -> ProductRepositoryInterface:
 
 @receipts_api.post("", status_code=201, response_model=ReceiptResponse)
 def create_receipt(
+    request: CreateReceiptRequest,
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
-    created_receipt = receipt_service.create_receipt()
+    created_receipt = receipt_service.create_receipt(CreateReceiptRequest.shift_id)
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=created_receipt.id,
+            shift_id=CreateReceiptRequest.shift_id,
             status=created_receipt.status,
             products=[],
             total=created_receipt.total,

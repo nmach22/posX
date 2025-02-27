@@ -19,7 +19,7 @@ class ReceiptProduct:
 @dataclass
 class Receipt:
     id: str
-    # shift_id: str
+    shift_id: str
     products: list[ReceiptProduct]
     status: str
     total: int
@@ -32,7 +32,7 @@ class AddProductRequest:
 
 
 class ReceiptInterface(Protocol):
-    def create_receipt(self) -> Receipt:
+    def create_receipt(self, shift_id: str) -> Receipt:
         pass
 
     def add_product(

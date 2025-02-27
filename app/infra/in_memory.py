@@ -15,16 +15,19 @@ class InMemory:
         default_factory=ProductInMemoryRepository,
     )
 
+    _shifts: ShiftInMemoryRepository = field(
+        init=False, default_factory=ShiftInMemoryRepository
+    )
+
     _receipts: ReceiptInMemoryRepository = field(
         init=False,
     )
 
-    # # _shifts: ShiftInMemoryRepository = field(
-    #     init=False,
-    # )
-
     def __post_init__(self):
-        self._receipts = ReceiptInMemoryRepository(products=self._products)
+        # self._shifts = ShiftInMemoryRepository(shifts=[])
+        self._receipts = ReceiptInMemoryRepository(
+            products=self._products, shifts=self._shifts
+        )
 
     def products(self) -> ProductRepositoryInterface:
         return self._products

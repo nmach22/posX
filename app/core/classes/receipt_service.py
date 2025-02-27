@@ -9,15 +9,18 @@ from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryIn
 class ReceiptService:
     repository: ReceiptRepositoryInterface
 
-    def create_receipt(self) -> Receipt:
+    def create_receipt(self, shift_id: str) -> Receipt:
         receipt_id = uuid.uuid4()
         products = []
         status = "open"
         total = 0
-        receipt = Receipt(id = str(receipt_id),
-                          products = products,
-                          status = status,
-                          total = total)
+        receipt = Receipt(
+            id=str(receipt_id),
+            shift_id=shift_id,
+            products=products,
+            status=status,
+            total=total,
+        )
         self.repository.add_receipt(receipt)
         return receipt
 
@@ -27,6 +30,7 @@ class ReceiptService:
     def close_receipt(self, receipt_id: str) -> None:
         self.repository.close_receipt(receipt_id)
 
-
-    def add_product(self, receipt_id: str, product_request: AddProductRequest) -> Receipt:
+    def add_product(
+        self, receipt_id: str, product_request: AddProductRequest
+    ) -> Receipt:
         return self.repository.add_product_to_receipt(receipt_id, product_request)
