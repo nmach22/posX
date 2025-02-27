@@ -1,14 +1,13 @@
 from http.client import HTTPException
 from typing import Protocol
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
 from app.core.Interfaces.shift_interface import Shift, Report
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.core.classes.shift_service import ShiftService
-from app.infra.product_in_memory_repository import ExistsError
 
 shifts_api = APIRouter()
 
@@ -35,6 +34,10 @@ class ZReportResponse(BaseModel):
     z_report: Report
 
 
+class NotFoundError:
+    pass
+
+
 @shifts_api.post(
     "",
     status_code=201,
@@ -47,8 +50,8 @@ def create_shift(
     try:
         created_shift = shift_service.create_shift()
         return ShiftResponse(shift=created_shift)
-    except ExistsError:
-        raise HTTPException()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @shifts_api.get("x-reports")
@@ -60,8 +63,12 @@ def get_x_reports(
     try:
         x_response = shift_service.get_x_report(shift_id)
         return XReportResponse(x_report=x_response)
-    except ExistsError:
-        raise HTTPException()
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="Shift not found.")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Shift is closed.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @shifts_api.get("z-reports")
@@ -73,5 +80,9 @@ def get_z_reports(
     try:
         x_response = shift_service.get_x_report(shift_id)
         return ZReportResponse(x_report=x_response)
-    except ExistsError:
-        raise HTTPException()
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="Shift not found.")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Shift is closed.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

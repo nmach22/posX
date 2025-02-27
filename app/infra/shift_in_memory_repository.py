@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, Report, Report, SalesReport
+from app.core.Interfaces.shift_interface import Shift, Report, SalesReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.product_in_memory_repository import DoesntExistError
 
