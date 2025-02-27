@@ -7,6 +7,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptForPayment,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.infra.campaign_in_memory_repository import CampaignInMemoryRepository
 from app.infra.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
@@ -21,8 +22,10 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     products: ProductInMemoryRepository = field(
         default_factory=ProductInMemoryRepository
     )
-
     shifts: ShiftInMemoryRepository = field(default_factory=ShiftInMemoryRepository)
+    campaigns: CampaignInMemoryRepository = field(
+        default_factory=CampaignInMemoryRepository
+    )
 
     def add_receipt(self, receipt: Receipt) -> Receipt:
         if any(rec.id == receipt.id for rec in self.receipts):
@@ -89,4 +92,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         receipt_id: str,
     ) -> ReceiptForPayment:
         # receipt = self.get_receipt(receipt_id)
+        # product_from_receipt = receipt.products
+        # for product in product_from_receipt:
+        #     if
         pass

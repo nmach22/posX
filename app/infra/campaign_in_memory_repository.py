@@ -8,6 +8,7 @@ from app.core.Interfaces.campaign_repository_interface import (
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.infra.product_in_memory_repository import (
     DoesntExistError,
+    ProductInMemoryRepository,
 )
 
 
@@ -21,7 +22,9 @@ class CampaignAndProducts:
 
 @dataclass
 class CampaignInMemoryRepository(CampaignRepositoryInterface):
-    products_repo: ProductRepositoryInterface
+    products_repo: ProductRepositoryInterface = field(
+        default_factory=ProductInMemoryRepository
+    )
     campaign_product_list: list[CampaignAndProducts] = field(default_factory=list)
     campaigns: list[Campaign] = field(default_factory=list)
 

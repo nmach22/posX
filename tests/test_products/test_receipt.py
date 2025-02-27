@@ -21,9 +21,9 @@ def setup_receipt_service():
 
     service = ReceiptService(
         ReceiptInMemoryRepository(
+            products=ProductInMemoryRepository(product_list),
             receipts=receipt_list,
             shifts=ShiftInMemoryRepository(shift_list),
-            products=ProductInMemoryRepository(product_list),
         )
     )
     return service, shift_id, receipt_list
