@@ -33,8 +33,14 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
     def get_x_report(self, shift_id: str) -> Report:
         for shift in self.shifts:
             if shift.shift_id == shift_id:
+                print("shift ipova da axla statusi unda sheamowmos")
                 if shift.status != "open":
-                    raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
+                    print("shift status = closed")
+                    raise ValueError(
+                        f"Cannot generate X Report for closed shift {shift_id}."
+                    )
+
+                print("shift status = open")
 
                 receipts = [r for r in shift.receipts if r.status == "closed"]
                 n_receipts = len(receipts)
@@ -66,14 +72,19 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                     revenue=revenue,
                     products=products,
                 )
-            raise DoesntExistError(f"Shift with ID {shift_id} not found.")
+        raise DoesntExistError(f"Shift with ID {shift_id} not found.")
 
     def get_z_report(self, shift_id: str) -> Report:
         for shift in self.shifts:
             if shift.shift_id == shift_id:
+                print("shift ipova da axla statusi unda sheamowmos")
                 if shift.status != "open":
-                    raise ValueError(f"Cannot generate Z Report for closed shift {shift_id}.")
+                    print("shift status = closed")
+                    raise ValueError(
+                        f"Cannot generate Z Report for closed shift {shift_id}."
+                    )
 
+                print("shift status = open")
                 receipts = shift.receipts
                 n_receipts = len(receipts)
                 revenue = sum(r.total for r in receipts)
