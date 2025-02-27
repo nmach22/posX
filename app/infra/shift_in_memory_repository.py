@@ -1,5 +1,5 @@
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import field
 from dataclasses import dataclass
 from typing import Dict
 
@@ -96,7 +96,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
 
     def get_lifetime_sales_report(self) -> SalesReport:
-        total_revenue = 0.0
+        total_revenue = 0
         total_receipts = 0
         product_summary: Dict[str, Dict[str, float]] = {}
 

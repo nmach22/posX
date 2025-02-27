@@ -30,7 +30,7 @@ class ZReport:
 class SalesReport:
     total_receipts: int
     total_revenue: float
-    products:  list[dict[str, int]]
+    products: list[dict[str, float | int]]
 
 
 

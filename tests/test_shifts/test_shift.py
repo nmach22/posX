@@ -1,7 +1,6 @@
 import uuid
 
 from app.core.classes.shift_service import ShiftService
-from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import Receipt, ReceiptProduct
 from app.core.Interfaces.shift_interface import Shift
 from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
@@ -31,7 +30,7 @@ def test_should_add_receipt_to_shift() -> None:
     shift_list: list[Shift] = []
     service = ShiftService(ShiftInMemoryRepository(shift_list))
     shift = service.create_shift()
-    product = Product(id=str(uuid.uuid4()), name="Product1", price=100, barcode="123")
+    product = ReceiptProduct(id=str(uuid.uuid4()), quantity=1, price=100, total=100)
     receipt = Receipt(
         id=str(uuid.uuid4()),
         shift_id=shift.shift_id,
