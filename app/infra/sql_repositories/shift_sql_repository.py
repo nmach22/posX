@@ -6,6 +6,8 @@ from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterf
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
+from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
+from app.infra.sql_repositories.receipt_sql_repository import ReceiptSQLRepository
 
 
 @dataclass
@@ -13,7 +15,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
     def __init__(self, db_path: str = ":memory:"):
         self.db_path = db_path
         self.products = ProductSQLRepository(db_path)
-        self.receipts = ReceiptsSQLRepository(db_path)
+        self.receipts = ReceiptSQLRepository(db_path)
 
         self._initialize_database()
 
