@@ -6,8 +6,10 @@ from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
-from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
-from app.infra.product_sql_repository import (
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    DoesntExistError,
+)
+from app.infra.sql_repositories.product_sql_repository import (
     ProductSQLRepository,
 )  # Assuming this exists
 
@@ -141,7 +143,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
     def delete_campaign(self, campaign_id: str) -> None:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            # Delete campaign from the campaigns table
+
             cursor.execute("SELECT id FROM campaigns WHERE id = ?", (campaign_id,))
             campaign = cursor.fetchone()
             if not campaign:
@@ -149,7 +151,6 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
                     f"Campaign with ID {campaign_id} does not exist."
                 )
 
-            # Delete associated campaign products
             cursor.execute(
                 "DELETE FROM campaign_products WHERE campaign_id = ?", (campaign_id,)
             )

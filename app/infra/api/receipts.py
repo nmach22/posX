@@ -12,7 +12,9 @@ from app.core.Interfaces.receipt_interface import (
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.infra.api.products import ErrorResponse
-from app.infra.product_in_memory_repository import DoesntExistError
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    DoesntExistError,
+)
 
 receipts_api = APIRouter()
 

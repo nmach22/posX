@@ -12,11 +12,11 @@ from app.core.Interfaces.campaign_interface import (
 from app.core.Interfaces.product_interface import Product
 
 from app.core.classes.campaign_service import CampaignService
-from app.infra.campaign_in_memory_repository import (
+from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
     CampaignAndProducts,
 )
-from app.infra.product_in_memory_repository import (
+from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ProductInMemoryRepository,
 )

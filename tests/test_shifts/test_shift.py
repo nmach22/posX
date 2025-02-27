@@ -3,7 +3,9 @@ import uuid
 from app.core.classes.shift_service import ShiftService
 from app.core.Interfaces.receipt_interface import Receipt, ReceiptProduct
 from app.core.Interfaces.shift_interface import Shift, SalesReport
-from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
+from app.infra.in_memory_repositories.shift_in_memory_repository import (
+    ShiftInMemoryRepository,
+)
 
 
 def test_should_create_shift() -> None:
@@ -100,7 +102,6 @@ def test_get_z_report():
     assert z_report.n_receipts == 1
     assert z_report.revenue == 100.0
     assert shift_list[0].status == "closed"
-
 
 
 def test_get_lifetime_sales_report() -> None:

@@ -1,7 +1,10 @@
 import sqlite3
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
-from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    ExistsError,
+    DoesntExistError,
+)
 
 
 # todo:errorebs chavuwerot risi erroria
