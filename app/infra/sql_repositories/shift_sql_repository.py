@@ -1,7 +1,7 @@
 import sqlite3
 from dataclasses import dataclass
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, XReport, ZReport, SalesReport
+from app.core.Interfaces.shift_interface import Shift, Report, SalesReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
@@ -66,7 +66,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         #         )
         #     conn.commit()
 
-    def get_x_report(self, shift_id: str) -> XReport:
+    def get_x_report(self, shift_id: str) -> Report:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
 
@@ -116,18 +116,18 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
                 for pid, data in product_summary.items()
             ]
 
-            return XReport(
+            return Report(
                 shift_id=shift_id,
                 n_receipts=n_receipts,
                 revenue=revenue,
                 products=products,
             )
 
-    def get_z_report(self, shift_id: str) -> ZReport:
+    def get_z_report(self, shift_id: str) -> Report:
         """Generate a Z report for a shift and close it."""
         report = self.get_x_report(shift_id)
         self.close_shift(shift_id)
-        return ZReport(
+        return Report(
             shift_id=shift_id,
             n_receipts=report.n_receipts,
             revenue=report.revenue,
