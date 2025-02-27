@@ -30,7 +30,7 @@ class TestCampaignService(unittest.TestCase):
             [Product("123", "sigareti", 10, "12345")]
         )
         repository = CampaignInMemoryRepository(
-            campaigns, product_repo, campaigns_products
+            product_repo, campaigns_products, campaigns
         )
         campaign_service = CampaignService(repository)
         campaign = campaign_service.create_campaign(
@@ -48,7 +48,7 @@ class TestCampaignService(unittest.TestCase):
         product_list: list[Product] = [Product("123", "sigareti", 10, "12345")]
         product_repo = ProductInMemoryRepository(product_list)
         repository = CampaignInMemoryRepository(
-            campaigns, product_repo, campaigns_products
+            product_repo, campaigns_products, campaigns
         )
         campaign_service = CampaignService(repository)
         campaign = campaign_service.create_campaign(
@@ -65,7 +65,7 @@ class TestCampaignService(unittest.TestCase):
         campaigns_products: list[CampaignAndProducts] = []
         product_repo = ProductInMemoryRepository([])
         repository = CampaignInMemoryRepository(
-            campaigns, product_repo, campaigns_products
+            product_repo, campaigns_products, campaigns
         )
         campaign_service = CampaignService(repository)
 
@@ -81,7 +81,7 @@ class TestCampaignService(unittest.TestCase):
         ]
         product_repo = ProductInMemoryRepository(product_list)
         repository = CampaignInMemoryRepository(
-            campaigns, product_repo, campaigns_products
+            product_repo, campaigns_products, campaigns
         )
         campaign_service = CampaignService(repository)
         campaign1 = campaign_service.create_campaign(
