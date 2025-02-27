@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from itertools import product
 
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
@@ -32,6 +33,9 @@ class InMemory:
 
     def __post_init__(self):
         self._receipts = ReceiptInMemoryRepository(products=self._products)
+        self._campaigns = CampaignInMemoryRepository(
+            products_repo=self._products,
+        )
 
     def products(self) -> ProductRepositoryInterface:
         return self._products
