@@ -54,7 +54,7 @@ def create_shift(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@shifts_api.get("x-reports")
+@shifts_api.get("/x-reports")
 def get_x_reports(
     shift_id: str,
     repository: ShiftRepositoryInterface = Depends(create_shift_repository),
@@ -71,15 +71,15 @@ def get_x_reports(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@shifts_api.get("z-reports")
+@shifts_api.get("/z-reports")
 def get_z_reports(
     shift_id: str,
     repository: ShiftRepositoryInterface = Depends(create_shift_repository),
 ) -> ZReportResponse:
     shift_service = ShiftService(repository)
     try:
-        x_response = shift_service.get_x_report(shift_id)
-        return ZReportResponse(x_report=x_response)
+        z_response = shift_service.get_z_report(shift_id)
+        return ZReportResponse(z_report=z_response)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="Shift not found.")
     except ValueError:
