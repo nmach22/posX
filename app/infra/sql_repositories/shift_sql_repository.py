@@ -1,21 +1,24 @@
 import sqlite3
 from dataclasses import dataclass
+
+from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.shift_interface import Shift, Report, SalesReport
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
-from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
-from app.infra.sql_repositories.receipt_sql_repository import ReceiptSQLRepository
 
 
 @dataclass
 class ShiftSQLRepository(ShiftRepositoryInterface):
-    def __init__(self, db_path: str = ":memory:"):
+    def __init__(
+        self,
+        db_path: str,
+        products_repo: ProductRepositoryInterface,
+    ):
         self.db_path = db_path
-        self.products = ProductSQLRepository(db_path)
-        self.receipts = ReceiptSQLRepository(db_path)
+        self.products = products_repo
 
         self._initialize_database()
 

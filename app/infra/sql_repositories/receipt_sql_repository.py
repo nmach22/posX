@@ -1,4 +1,9 @@
 import sqlite3
+
+from app.core.Interfaces.campaign_repository_interface import (
+    CampaignRepositoryInterface,
+)
+from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -6,21 +11,25 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptForPayment,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.infra.sql_repositories.campaign_sql_repository import CampaignSQLRepository
+from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
 )
-from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
-from app.infra.sql_repositories.shift_sql_repository import ShiftSQLRepository
 
 
 class ReceiptSQLRepository(ReceiptRepositoryInterface):
-    def __init__(self, db_path: str = ":memory:"):
+    def __init__(
+        self,
+        db_path: str,
+        products_repo: ProductRepositoryInterface,
+        shifts_repo: ShiftRepositoryInterface,
+        campaigns_repo: CampaignRepositoryInterface,
+    ):
         self.db_path = db_path
-        self.products = ProductSQLRepository(db_path)
-        self.shifts = ShiftSQLRepository(db_path)
-        self.campaigns = CampaignSQLRepository(db_path)
+        self.products = products_repo
+        self.shifts = shifts_repo
+        self.campaigns = campaigns_repo
         self._initialize_db()
 
     def _initialize_db(self):

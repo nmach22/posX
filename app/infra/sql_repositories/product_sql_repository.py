@@ -9,11 +9,12 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 
 # todo:errorebs chavuwerot risi erroria
 class ProductSQLRepository(ProductRepositoryInterface):
-    def __init__(self, db_path: str = ":memory:"):
+    def __init__(self, db_path: str):
         self.db_path = db_path
         self._initialize_db()
 
     def _initialize_db(self):
+        print("initializing products db")
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute(
