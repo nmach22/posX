@@ -28,7 +28,6 @@ class ReceiptProductDict(BaseModel):
 
 class ReceiptEntry(BaseModel):
     id: str
-    shift_id: str
     status: ReceiptStatus
     products: list[ReceiptProductDict]
     total: int

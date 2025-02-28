@@ -14,13 +14,7 @@ from app.infra.sql_repositories.product_sql_repository import (
 )
 
 
-@dataclass
 class CampaignSQLRepository(CampaignRepositoryInterface):
-    db_path: str
-    products_repo: ProductRepositoryInterface = field(
-        default_factory=ProductSQLRepository
-    )
-
     def __init__(self, db_path: str = ":memory:"):
         self.db_path = db_path
         self.products_repo = ProductSQLRepository(db_path)
