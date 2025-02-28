@@ -34,7 +34,7 @@ class AddProductRequest:
 @dataclass
 class ReceiptForPayment:
     receipt: Receipt
-    total_price: int
+    discounted_price: int
     reduced_price: int
 
 

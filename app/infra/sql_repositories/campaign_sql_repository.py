@@ -11,7 +11,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 )
 from app.infra.sql_repositories.product_sql_repository import (
     ProductSQLRepository,
-)  # Assuming this exists
+)
 
 
 @dataclass
@@ -20,6 +20,10 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
     products_repo: ProductRepositoryInterface = field(
         default_factory=ProductSQLRepository
     )
+
+    def __init__(self, db_path: str = ":memory:"):
+        self.db_path = db_path
+        self.products_repo = ProductSQLRepository(db_path)
 
     def __post_init__(self):
         self._initialize_db()

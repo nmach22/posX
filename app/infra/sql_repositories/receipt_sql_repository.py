@@ -3,6 +3,7 @@ from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
     ReceiptProduct,
+    ReceiptForPayment,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.infra.sql_repositories.campaign_sql_repository import CampaignSQLRepository
@@ -171,25 +172,75 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
         return self.get_receipt(receipt_id)
 
-    # def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
-    #     with sqlite3.connect(self.db_path) as conn:
-    #         cursor = conn.cursor()
-    #         cursor.execute(
-    #             """
-    #             SELECT product_id, quantity, price, total
-    #             FROM receipt_products
-    #             WHERE receipt_id = ?
-    #             """,
-    #             (receipt_id,),
-    #         )
-    #         products = cursor.fetchall()
-    #         if not products:
-    #             raise DoesntExistError(
-    #                 f"Receipt with ID {receipt_id} does not have any products."
-    #             )
-    #
-    #         total_amount = sum(product[3] for product in products)
-    #         receipt_payment = ReceiptForPayment(
-    #             receipt=self.get_receipt(receipt_id), total_price=total_amount
-    #         )
-    #         return receipt_payment
+
+def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
+    with sqlite3.connect(self.db_path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT total FROM receipts WHERE id = ?", (receipt_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
+
+        original_total = row[0]
+
+        cursor.execute(
+            """
+            SELECT rp.product_id, rp.quantity, rp.price, rp.total
+            FROM receipt_products rp
+            WHERE rp.receipt_id = ?
+            """,
+            (receipt_id,),
+        )
+        products_data = cursor.fetchall()
+
+        total_discounted_price = 0
+        products = []
+
+        for product_data in products_data:
+            product_id, quantity, price, total_price = product_data
+
+            cursor.execute(
+                """
+                SELECT c.type, cp.discounted_price, c.discount_percentage, c.required_quantity, c.free_quantity
+                FROM campaign_products cp
+                JOIN campaigns c ON cp.campaign_id = c.id
+                WHERE cp.product_id = ?
+                """,
+                (product_id,),
+            )
+            campaign_row = cursor.fetchone()
+
+            if campaign_row:
+                (
+                    campaign_type,
+                    campaign_discounted_price,
+                    discount_percentage,
+                    required_qty,
+                    free_qty,
+                ) = campaign_row
+
+                if campaign_type == "discount":
+                    discounted_price = campaign_discounted_price
+                    total_discounted_price += discounted_price * quantity
+                elif campaign_type == "combo":
+                    discounted_price = (
+                        campaign_discounted_price  # Applies combo discount
+                    )
+                    total_discounted_price += discounted_price
+                elif campaign_type == "buy_n_get_n":
+                    if quantity >= required_qty:
+                        result = quantity // (required_qty + free_qty)
+                        discounted_price = result * free_qty
+                        total_discounted_price += discounted_price
+
+                        # elif campaign_type == "receipt_discount":
+                #     if original_total >= required_qty:
+                #         discount_amount = (original_total * discount_percentage) / 100
+                #         discounted_price -= discount_amount / quantity
+
+        return ReceiptForPayment(
+            receipt=self.get_receipt(receipt_id),
+            discounted_price=total_discounted_price,
+            reduced_price=original_total - total_discounted_price,
+        )
