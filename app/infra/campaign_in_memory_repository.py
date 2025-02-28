@@ -1,5 +1,6 @@
 import uuid
 from dataclasses import dataclass, field
+from typing import Dict
 
 from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.campaign_repository_interface import (
@@ -25,7 +26,8 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
     products_repo: ProductRepositoryInterface = field(
         default_factory=ProductInMemoryRepository
     )
-    campaign_product_list: list[CampaignAndProducts] = field(default_factory=list)
+    # campaign_product_list: list[CampaignAndProducts] = field(default_factory=list)
+    campaigns_product_list: Dict[str, CampaignAndProducts] = field(default_factory=dict)
     campaigns: list[Campaign] = field(default_factory=list)
 
     def add_campaign(self, campaign: Campaign) -> Campaign:
@@ -40,7 +42,8 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                 campaign.data.product_id,
                 new_price,
             )
-            self.campaign_product_list.append(product_for_campaign)
+            # self.campaign_product_list.append(product_for_campaign)
+            self.campaigns_product_list[campaign.data.product_id] = product_for_campaign
         if campaign.type == "combo":
             products_id_list = campaign.data.products
             for product_id in products_id_list:
@@ -53,7 +56,8 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                     product_id,
                     new_price,
                 )
-                self.campaign_product_list.append(product_for_campaign)
+                # self.campaign_product_list.append(product_for_campaign)
+                self.campaigns_product_list[product_id] = product_for_campaign
 
         if campaign.type == "Buy n get n":
             product_for_campaign = CampaignAndProducts(
@@ -62,7 +66,8 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                 campaign.data.product_id,
                 self.products_repo.get_product(campaign.data.product_id).price,
             )
-            self.campaign_product_list.append(product_for_campaign)
+            # self.campaign_product_list.append(product_for_campaign)
+            self.campaigns_product_list[campaign.data.product_id] = product_for_campaign
 
         return campaign
 
@@ -73,9 +78,9 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                 self.campaigns.remove(campaign)
                 find = True
 
-        for campaign_product in self.campaign_product_list:
+        for product_id, campaign_product in list(self.campaigns_product_list.items()):
             if campaign_product.campaign_id == campaign_id:
-                self.campaign_product_list.remove(campaign_product)
+                del self.campaigns_product_list[product_id]
                 return
 
         if not find:

@@ -40,7 +40,7 @@ class InMemory:
             products_repo=self._products,
         )
         self._receipts = ReceiptInMemoryRepository(
-            products=self._products, shifts=self._shifts, campaigns=self._campaigns
+            products=self._products, shifts=self._shifts, campaigns_repo=self._campaigns
         )
 
     def products(self) -> ProductRepositoryInterface:

@@ -1,5 +1,8 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
+
+
+from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -23,7 +26,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         default_factory=ProductInMemoryRepository
     )
     shifts: ShiftInMemoryRepository = field(default_factory=ShiftInMemoryRepository)
-    campaigns: CampaignInMemoryRepository = field(
+    campaigns_repo: CampaignInMemoryRepository = field(
         default_factory=CampaignInMemoryRepository
     )
 
@@ -91,8 +94,99 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         self,
         receipt_id: str,
     ) -> ReceiptForPayment:
-        # receipt = self.get_receipt(receipt_id)
-        # product_from_receipt = receipt.products
-        # for product in product_from_receipt:
-        #     if
-        pass
+        already_checkouted_product_from_combo: list[str] = []
+        discounted_price = 0
+        receipt = self.get_receipt(receipt_id)
+        receipt_products_from_receipt = receipt.products
+        campaigns_and_products = self.campaigns_repo.campaigns_product_list
+        for receipt_product in receipt_products_from_receipt:
+            if receipt_product.id in already_checkouted_product_from_combo:
+                continue
+
+            campaign_without_type_on_this_product = campaigns_and_products[
+                receipt_product.id
+            ]
+            if campaign_without_type_on_this_product is None:
+                discounted_price += receipt_product.total
+            else:
+                campaign_with_type_on_this_product = self.get_campaign_with_campaign_id(
+                    campaign_without_type_on_this_product.campaign_id
+                )
+                if campaign_with_type_on_this_product.type == "discount":
+                    new_price = receipt_product.total - (
+                        (
+                            receipt_product.total
+                            * campaign_with_type_on_this_product.data.discount_percentage
+                        )
+                        / 100
+                    )
+                    discounted_price += new_price
+                elif campaign_with_type_on_this_product.type == "buy n get n":
+                    n = campaign_with_type_on_this_product.data.buy_quantity
+                    m = campaign_with_type_on_this_product.data.get_quantity
+                    amount_of_campaign_costumer_use = receipt_product.quantity // (
+                        n + m
+                    )
+                    amount_of_product_got_without_price = (
+                        m * amount_of_campaign_costumer_use
+                    )
+                    discounted_price += receipt_product.total - (
+                        receipt_product.price * amount_of_product_got_without_price
+                    )
+                elif campaign_with_type_on_this_product.type == "combo":
+                    other_products_in_combo = (
+                        self.get_other_products_with_same_campaign(
+                            campaign_without_type_on_this_product.campaign_id
+                        )
+                    )
+                    other_products_in_combo.remove(
+                        campaign_without_type_on_this_product.product_id
+                    )
+                    skip_receipt_product = False
+
+                    for next_product_id_in_combo in other_products_in_combo:
+                        if (
+                            next_product_id_in_combo
+                            not in receipt_products_from_receipt
+                        ):
+                            discounted_price += receipt_product.total
+                            skip_receipt_product = False
+
+                    if skip_receipt_product:
+                        continue
+                    for next_product_id_in_combo in other_products_in_combo:
+                        already_checkouted_product_from_combo.append(
+                            next_product_id_in_combo
+                        )
+                        discount_percentage = (
+                            campaign_with_type_on_this_product.data.discount_percentage
+                        )
+                        old_price_of_this_product = self.products.get_product(
+                            next_product_id_in_combo
+                        ).price
+                        discounted_price += old_price_of_this_product - (
+                            old_price_of_this_product * discount_percentage / 100
+                        )
+        # TODO: tu maqvs 2-2 kombos produqti, mand raxdeba?????
+        # an 2 vashli da 1 banani tu maqvs, prosta 1 kombos fass damitvlis
+        # sabolood tu fasdaklebis mere kide gadaacharba ragac ricxvs, miigebs chekis discounts
+        return ReceiptForPayment(
+            receipt, discounted_price, receipt.total - discounted_price
+        )
+
+    def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign | None:
+        for campaign in self.campaigns_repo.campaigns:
+            if campaign.campaign_id == campaign_id:
+                return campaign
+
+        return None
+
+    def get_other_products_with_same_campaign(self, campaign_id: str) -> list[str]:
+        result_list = list(str)
+        for product_id, campaign_product in list(
+            self.campaigns_repo.campaigns_product_list.items()
+        ):
+            if campaign_product.campaign_id == campaign_id:
+                result_list.append(product_id)
+
+        return result_list

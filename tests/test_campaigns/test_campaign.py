@@ -1,6 +1,6 @@
 import unittest
-
 import pytest
+from typing import Dict
 
 from app.core.Interfaces.campaign_interface import (
     Campaign,
@@ -25,7 +25,7 @@ from app.infra.product_in_memory_repository import (
 class TestCampaignService(unittest.TestCase):
     def test_create_campaign(self):
         campaigns: list[Campaign] = []
-        campaigns_products: list[CampaignAndProducts] = []
+        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_repo = ProductInMemoryRepository(
             [Product("123", "sigareti", 10, "12345")]
         )
@@ -41,10 +41,13 @@ class TestCampaignService(unittest.TestCase):
         assert campaign.type == "discount"
         assert campaign.data.discount_percentage == 10
         assert campaign.data.product_id == "123"
+        assert (
+            "123" in campaigns_products
+        )  # Check if product_id exists in the dictionary
 
     def test_delete_campaign_success(self):
         campaigns: list[Campaign] = []
-        campaigns_products: list[CampaignAndProducts] = []
+        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_list: list[Product] = [Product("123", "sigareti", 10, "12345")]
         product_repo = ProductInMemoryRepository(product_list)
         repository = CampaignInMemoryRepository(
@@ -59,10 +62,11 @@ class TestCampaignService(unittest.TestCase):
 
         campaign_service.delete_campaign(campaign.campaign_id)
         assert len(repository.get_all_campaigns()) == 0
+        assert "123" not in campaigns_products  # Ensure the product_id is removed
 
     def test_delete_campaign_raises_error(self):
         campaigns: list[Campaign] = []
-        campaigns_products: list[CampaignAndProducts] = []
+        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_repo = ProductInMemoryRepository([])
         repository = CampaignInMemoryRepository(
             product_repo, campaigns_products, campaigns
@@ -74,7 +78,7 @@ class TestCampaignService(unittest.TestCase):
 
     def test_read_all_campaigns(self):
         campaigns: list[Campaign] = []
-        campaigns_products: list[CampaignAndProducts] = []
+        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_list: list[Product] = [
             Product("123", "sigareti", 10, "12345"),
             Product("111", "kvercxi", 5, "123123"),
@@ -113,3 +117,9 @@ class TestCampaignService(unittest.TestCase):
         assert returned_campaigns[2].type == "Buy n get n"
         assert returned_campaigns[0].data.discount_percentage == 10
         assert returned_campaigns[1].data.discount_percentage == 20
+        assert (
+            "123" in campaigns_products
+        )  # Check if product_id exists in the dictionary
+        assert (
+            "111" in campaigns_products
+        )  # Check if product_id exists in the dictionary
