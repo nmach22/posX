@@ -3,10 +3,10 @@ from dataclasses import dataclass
 from typing import Optional
 
 from app.core.Interfaces.campaign_interface import (
-    CampaignInterface,
     Campaign,
-    CampaignRequest,
     CampaignData,
+    CampaignInterface,
+    CampaignRequest,
 )
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,

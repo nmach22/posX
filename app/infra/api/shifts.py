@@ -1,4 +1,3 @@
-from http.client import HTTPException
 from typing import Protocol, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -69,7 +68,7 @@ def create_shift(
         created_shift = shift_service.create_shift()
         return ShiftResponse(shift=created_shift)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))  # ✅ Now works correctly
 
 
 @shifts_api.get("/x-reports")
@@ -125,4 +124,4 @@ def get_sales_report(
             ],
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))  # ✅ Fixed

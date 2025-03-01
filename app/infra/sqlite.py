@@ -1,5 +1,4 @@
 import sqlite3
-from dataclasses import dataclass, field
 
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,

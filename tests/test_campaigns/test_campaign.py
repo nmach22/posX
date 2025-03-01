@@ -1,20 +1,20 @@
 import unittest
-import pytest
 from typing import Dict
 
-from app.core.Interfaces.campaign_interface import (
-    Campaign,
-    CampaignRequest,
-    Discount,
-    Combo,
-    BuyNGetN,
-)
-from app.core.Interfaces.product_interface import Product
+import pytest
 
 from app.core.classes.campaign_service import CampaignService
+from app.core.Interfaces.campaign_interface import (
+    BuyNGetN,
+    Campaign,
+    CampaignRequest,
+    Combo,
+    Discount,
+)
+from app.core.Interfaces.product_interface import Product
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
-    CampaignInMemoryRepository,
     CampaignAndProducts,
+    CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,

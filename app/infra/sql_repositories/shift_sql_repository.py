@@ -4,7 +4,12 @@ from typing import Dict
 
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, Report, SalesReport, ClosedReceipt
+from app.core.Interfaces.shift_interface import (
+    ClosedReceipt,
+    Report,
+    SalesReport,
+    Shift,
+)
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
@@ -163,15 +168,10 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             (shift_id,),
         )
         for product_id, total_quantity in cursor.fetchall():
-            product_summary[product_id] = {
-                "quantity": total_quantity
-            }
+            product_summary[product_id] = {"quantity": total_quantity}
 
         products = [
-            {
-                "id": pid,
-                "quantity": data["quantity"]
-            }
+            {"id": pid, "quantity": data["quantity"]}
             for pid, data in product_summary.items()
         ]
 
@@ -199,7 +199,9 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
 
         for receipt_id, currency, total in receipts:
             currency_totals[currency] = currency_totals.get(currency, 0) + total
-            closed_receipts.append(ClosedReceipt(receipt_id=receipt_id, calculated_payment=total))
+            closed_receipts.append(
+                ClosedReceipt(receipt_id=receipt_id, calculated_payment=total)
+            )
 
         return SalesReport(
             total_receipts=total_receipts,

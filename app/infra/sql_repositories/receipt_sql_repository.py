@@ -7,15 +7,14 @@ from app.core.Interfaces.product_repository_interface import ProductRepositoryIn
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
-    ReceiptProduct,
     ReceiptForPayment,
+    ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-    ExistsError,
     AlreadyClosedError,
+    DoesntExistError,
 )
 
 
@@ -62,7 +61,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
     def add_receipt(self, receipt: Receipt) -> Receipt:
         cursor = self.conn.cursor()
-        cursor.execute("SELECT id FROM shifts WHERE shift_id = ?", (receipt.shift_id,))
+        cursor.execute("SELECT shift_id FROM shifts WHERE shift_id = ?", (receipt.shift_id,))
         if not cursor.fetchone():
             raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
 
@@ -102,7 +101,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def get_receipt(self, receipt_id: str) -> Receipt:
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT id, status, total FROM receipts WHERE id = ?",
+            "SELECT id,  currency, status, total FROM receipts WHERE id = ?",
             (receipt_id,),
         )
         row = cursor.fetchone()
@@ -130,8 +129,9 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             receipt = Receipt(
                 id=receipt_id,
                 shift_id=row[0],
-                status=row[1],
-                total=row[2],
+                currency=row[1],
+                status=row[2],
+                total=row[3],
                 products=products,
             )
             return receipt

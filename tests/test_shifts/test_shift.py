@@ -2,8 +2,7 @@ import uuid
 
 from app.core.classes.shift_service import ShiftService
 from app.core.Interfaces.receipt_interface import Receipt, ReceiptProduct
-from app.core.Interfaces.shift_interface import Shift, SalesReport
-from app.infra.in_memory_repositories.product_in_memory_repository import DoesntExistError
+from app.core.Interfaces.shift_interface import Shift
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     ShiftInMemoryRepository,
 )
@@ -49,6 +48,7 @@ def test_should_add_receipt_to_shift() -> None:
     assert shift_list[0].receipts[0].id == receipt.id
     assert shift_list[0].receipts[0].total == 100
 
+
 def test_close_shift():
     shift_list: list[Shift] = []
     service = ShiftService(ShiftInMemoryRepository(shift_list))
@@ -66,6 +66,7 @@ def test_close_shift():
     service.close_shift(shift.shift_id)
 
     assert shift_list[0].status == "closed"
+
 
 def test_should_generate_x_report_for_open_shift() -> None:
     shift_list: list[Shift] = []

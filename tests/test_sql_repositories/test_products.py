@@ -1,11 +1,13 @@
-import pytest
 import sqlite3
+
+import pytest
+
 from app.core.Interfaces.product_interface import Product
-from app.infra.sqlite import ProductSQLRepository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    ExistsError,
     DoesntExistError,
+    ExistsError,
 )
+from app.infra.sqlite import ProductSQLRepository
 
 
 @pytest.fixture

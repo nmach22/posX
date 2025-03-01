@@ -1,12 +1,14 @@
-import pytest
 import sqlite3
 import uuid
-from app.core.Interfaces.campaign_interface import Campaign, Discount, Combo, BuyNGetN
+
+import pytest
+
+from app.core.Interfaces.campaign_interface import BuyNGetN, Campaign, Combo, Discount
 from app.core.Interfaces.product_interface import Product
-from app.infra.sqlite import CampaignSQLRepository, ProductSQLRepository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
+from app.infra.sqlite import CampaignSQLRepository, ProductSQLRepository
 
 
 @pytest.fixture

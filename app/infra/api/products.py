@@ -1,4 +1,4 @@
-from typing import Any, Protocol, Dict
+from typing import Any, Dict, Protocol
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
@@ -8,8 +8,8 @@ from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    ExistsError,
     DoesntExistError,
+    ExistsError,
 )
 
 products_api = APIRouter()
