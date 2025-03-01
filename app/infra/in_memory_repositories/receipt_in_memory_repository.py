@@ -110,13 +110,26 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         self,
         receipt_id: str,
     ) -> ReceiptForPayment:
-        already_checkouted_product_from_combo: list[str] = []
+        already_checkouted_product_from_combo: dict[
+            str, int
+        ] = {}  # {product_id: discount_percentage}
         discounted_price = 0
         receipt = self.get_receipt(receipt_id)
         receipt_products_from_receipt = receipt.products
         campaigns_and_products = self.campaigns_repo.campaigns_product_list
         for receipt_product in receipt_products_from_receipt:
-            if receipt_product.id in already_checkouted_product_from_combo:
+            if (
+                already_checkouted_product_from_combo.get(receipt_product.id)
+                is not None
+            ):
+                discounted_price += receipt_product.total - int(
+                    receipt_product.total
+                    * already_checkouted_product_from_combo.get(
+                        receipt_product.id, 0
+                    )  # Default 0
+                    / 100
+                )
+
                 continue
 
             campaign_without_type_on_this_product = campaigns_and_products[
@@ -161,30 +174,27 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     skip_receipt_product = False
 
                     for next_product_id_in_combo in other_products_in_combo:
-                        if (
-                            next_product_id_in_combo
-                            not in receipt_products_from_receipt
+                        if self.product_not_in_receipt(
+                            next_product_id_in_combo, receipt_id
                         ):
                             discounted_price += receipt_product.total
-                            skip_receipt_product = False
+                            skip_receipt_product = True
+                            break
 
                     if skip_receipt_product:
                         continue
+
+                    discount_percentage = (
+                        campaign_with_type_on_this_product.data.discount_percentage
+                    )
+                    discounted_price += receipt_product.total - (
+                        receipt_product.total * discount_percentage / 100
+                    )
                     for next_product_id_in_combo in other_products_in_combo:
-                        already_checkouted_product_from_combo.append(
+                        already_checkouted_product_from_combo[
                             next_product_id_in_combo
-                        )
-                        discount_percentage = (
-                            campaign_with_type_on_this_product.data.discount_percentage
-                        )
-                        old_price_of_this_product = self.products.get_product(
-                            next_product_id_in_combo
-                        ).price
-                        discounted_price += old_price_of_this_product - (
-                            old_price_of_this_product * discount_percentage / 100
-                        )
-        # TODO: tu maqvs 2-2 kombos produqti, mand raxdeba?????
-        # an 2 vashli da 1 banani tu maqvs, prosta 1 kombos fass damitvlis
+                        ] = discount_percentage
+
         for campaign in self.campaigns_repo.campaigns:
             if (
                 campaign.type == "receipt discount"
@@ -193,6 +203,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 discounted_price -= (
                     discounted_price * campaign.data.discount_percentage / 100
                 )
+                break
 
         return ReceiptForPayment(
             receipt, discounted_price, receipt.total - discounted_price
@@ -206,11 +217,20 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         return None
 
     def get_other_products_with_same_campaign(self, campaign_id: str) -> list[str]:
-        result_list = list(str)
-        for product_id, campaign_product in list(
-            self.campaigns_repo.campaigns_product_list.items()
-        ):
+        result_list: list[str] = []
+        for (
+            product_id,
+            campaign_product,
+        ) in self.campaigns_repo.campaigns_product_list.items():
             if campaign_product.campaign_id == campaign_id:
                 result_list.append(product_id)
 
         return result_list
+
+    def product_not_in_receipt(self, product_id: str, receipt_id: str) -> bool:
+        receipt = self.get_receipt(receipt_id)
+        receipt_products_from_receipt = receipt.products
+        for receipt_product in receipt_products_from_receipt:
+            if receipt_product.id == product_id:
+                return False
+        return True
