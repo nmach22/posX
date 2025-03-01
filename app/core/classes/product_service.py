@@ -6,7 +6,7 @@ from app.core.Interfaces.product_interface import (
     ProductInterface,
     ProductRequest,
 )
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
@@ -15,7 +15,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 
 @dataclass
 class ProductService(ProductInterface):
-    repository: ProductRepositoryInterface
+    repository: Repository[Product]
 
     def create_product(self, product_request: ProductRequest) -> Product:
         name = product_request.name

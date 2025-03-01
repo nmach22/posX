@@ -1,14 +1,14 @@
 import sqlite3
 
 from app.core.Interfaces.product_interface import Product
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
 )
 
 
-class ProductSQLRepository(ProductRepositoryInterface):
+class ProductSQLRepository(Repository[Product]):
     def __init__(self, connection: sqlite3.Connection):
         self.conn = connection
         self._initialize_db()

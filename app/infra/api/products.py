@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
+from app.core.Interfaces.repository import Repository
 from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
@@ -16,11 +16,11 @@ products_api = APIRouter()
 
 
 class _Infra(Protocol):
-    def products(self) -> ProductRepositoryInterface:
+    def products(self) -> Repository[Product]:
         pass
 
 
-def create_products_repository(request: Request) -> ProductRepositoryInterface:
+def create_products_repository(request: Request) -> Repository[Product]:
     infra: _Infra = request.app.state.infra
     return infra.products()
 
@@ -53,7 +53,7 @@ class ErrorResponse(BaseModel):
 )
 def create_product(
     request: ProductRequest,
-    repository: ProductRepositoryInterface = Depends(create_products_repository),
+    repository: Repository[Product] = Depends(create_products_repository),
 ) -> ProductResponse:
     product_service = ProductService(repository)
 
@@ -73,7 +73,7 @@ def create_product(
 
 @products_api.get("", status_code=200, response_model=ProductsListResponse)
 def get_all_products(
-    repository: ProductRepositoryInterface = Depends(create_products_repository),
+    repository: Repository[Product] = Depends(create_products_repository),
 ) -> ProductsListResponse:
     product_service = ProductService(repository)
     products = product_service.read_all_products()
@@ -99,7 +99,7 @@ def get_all_products(
 def update_product(
     product_id: str,
     request: UpdateProductRequest,
-    repository: ProductRepositoryInterface = Depends(create_products_repository),
+    repository: Repository[Product] = Depends(create_products_repository),
 ) -> dict[Any, Any]:
     product_service = ProductService(repository)
 

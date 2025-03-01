@@ -2,8 +2,9 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Dict
 
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import Receipt
+from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_interface import (
     ClosedReceipt,
     Report,
@@ -21,7 +22,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
     def __init__(
         self,
         connection: sqlite3.Connection,
-        products_repo: ProductRepositoryInterface,
+        products_repo: Repository[Product],
     ):
         self.conn = connection
         self.products = products_repo

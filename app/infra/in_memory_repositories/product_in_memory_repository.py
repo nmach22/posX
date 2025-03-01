@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from app.core.Interfaces.product_interface import Product
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.repository import Repository
 
 
 class ExistsError(Exception):
@@ -17,7 +17,7 @@ class AlreadyClosedError(Exception):
 
 
 @dataclass
-class ProductInMemoryRepository(ProductRepositoryInterface):
+class ProductInMemoryRepository(Repository[Product]):
     products: list[Product] = field(default_factory=list)
 
     def create(self, product: Product) -> None:

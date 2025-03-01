@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
+from app.core.Interfaces.product_interface import Product
+from app.core.Interfaces.repository import Repository
 from app.core.classes.receipt_service import ReceiptService
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     ReceiptStatus,
@@ -48,7 +49,7 @@ class _Infra(Protocol):
     def receipts(self) -> ReceiptRepositoryInterface:
         pass
 
-    def products(self) -> ProductRepositoryInterface:
+    def products(self) -> Repository[Product]:
         pass
 
 
@@ -57,7 +58,7 @@ def create_receipts_repository(request: Request) -> ReceiptRepositoryInterface:
     return infra.receipts()
 
 
-def create_products_repository(request: Request) -> ProductRepositoryInterface:
+def create_products_repository(request: Request) -> Repository[Product]:
     infra: _Infra = request.app.state.infra
     return infra.products()
 

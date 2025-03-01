@@ -3,7 +3,7 @@ import sqlite3
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -11,6 +11,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     AlreadyClosedError,
@@ -22,7 +23,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def __init__(
         self,
         connection: sqlite3.Connection,
-        products_repo: ProductRepositoryInterface,
+        products_repo: Repository[Product],
         shifts_repo: ShiftRepositoryInterface,
         campaigns_repo: CampaignRepositoryInterface,
     ):

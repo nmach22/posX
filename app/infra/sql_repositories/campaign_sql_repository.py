@@ -11,7 +11,8 @@ from app.core.Interfaces.campaign_interface import (
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.product_interface import Product
+from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
@@ -19,7 +20,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 
 class CampaignSQLRepository(CampaignRepositoryInterface):
     def __init__(
-        self, connection: sqlite3.Connection, products_repo: ProductRepositoryInterface
+        self, connection: sqlite3.Connection, products_repo: Repository[Product]
     ):
         self.conn = connection
         self.products = products_repo
