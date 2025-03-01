@@ -24,14 +24,14 @@ class CampaignService(CampaignInterface):
         campaign_id = uuid.uuid4()
 
         campaign_data: Optional[CampaignData] = None
-        for field in ["buy_n_get_n", "discount", "combo", "receipt_discount"]:
-            value = getattr(campaign_request, field)
-            if value is not None:
-                if campaign_data is not None:
-                    raise ValueError(
-                        "Only one type of campaign data should be provided."
-                    )
-                campaign_data = value
+        # for field in ["buy_n_get_n", "discount", "combo", "receipt_discount"]:
+        value = getattr(campaign_request, campaign_request.type)
+        if value is not None:
+            # if campaign_data is not None:
+            #     raise ValueError(
+            #         "Only one type of campaign data should be provided."
+            #     )
+            campaign_data = value
 
         if campaign_data is None:
             raise ValueError("At least one campaign data field must be provided.")
