@@ -181,7 +181,7 @@ def test_calculate_discount_campaign():
         [], product_repo, shift_repo, campaign_repo
     )
 
-    receipt = Receipt(id="1", shift_id="1", products=[], status="open", total=0)
+    receipt = Receipt(id="1", shift_id="1", currency="gel", products=[], status="open", total=0)
     receipt_repo.add_receipt(receipt)
 
     product_request = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
@@ -315,7 +315,7 @@ def test_calculate_payment_combo_discount_multiple_quantities():
         [], product_repo, shift_repo, campaign_repo
     )
 
-    receipt = Receipt(id="1", shift_id="1", products=[], status="open", total=0)
+    receipt = Receipt(id="1", shift_id="1", currency="gel", products=[], status="open", total=0)
     receipt_repo.add_receipt(receipt)
 
     product_request_1 = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
@@ -359,7 +359,7 @@ def test_calculate_payment_buy_n_get_n_with_discount():
         [], product_repo, shift_repo, campaign_repo
     )
 
-    receipt = Receipt(id="1", shift_id="1", products=[], status="open", total=0)
+    receipt = Receipt(id="1", shift_id="1", currency="gel", products=[], status="open", total=0)
     receipt_repo.add_receipt(receipt)
 
     product_request = AddProductRequest(product_id="1", quantity=3)  # Buy 3 (one free)
@@ -422,7 +422,7 @@ def test_calculate_payment_large_receipt_discount():
         [], product_repo, shift_repo, campaign_repo
     )
 
-    receipt = Receipt(id="1", shift_id="1", products=[], status="open", total=0)
+    receipt = Receipt(id="1", shift_id="1", currency="gel", products=[], status="open", total=0)
     receipt_repo.add_receipt(receipt)
 
     product_request_1 = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
