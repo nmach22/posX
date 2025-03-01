@@ -72,9 +72,8 @@ def create_receipt(
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
-    created_receipt = receipt_service.create_receipt(request.shift_id, request.currency)
     try:
-        created_receipt = receipt_service.create_receipt(request.shift_id)
+        created_receipt = receipt_service.create_receipt(request.shift_id, request.currency)
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
@@ -131,6 +130,7 @@ def add_product(
         receipt=ReceiptEntry(
             id=receipt.id,
             shift_id=receipt.shift_id,
+            currency=receipt.currency,
             status=receipt.status,
             products=[
                 ReceiptProductDict(
@@ -162,6 +162,7 @@ def get_receipt(
         receipt=ReceiptEntry(
             id=receipt.id,
             shift_id=receipt.shift_id,
+            currency=receipt.currency,
             status=receipt.status,
             products=[
                 ReceiptProductDict(

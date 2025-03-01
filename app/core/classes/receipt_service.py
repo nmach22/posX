@@ -23,8 +23,8 @@ class ReceiptService(ReceiptInterface):
             id=str(receipt_id),
             shift_id=shift_id,
             currency=currency,
-            products=products,
             status=status,
+            products=products,
             total=total,
         )
         self.repository.add_receipt(receipt)
