@@ -26,8 +26,8 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
                 id TEXT PRIMARY KEY,
                 type TEXT NOT NULL CHECK(type IN ('buy_n_get_n', 'discount', 'combo')),
                 discount_percentage INTEGER,
-                required_quantity INTEGER,
-                free_quantity INTEGER
+                buy_quantity INTEGER,
+                get_quantity INTEGER
             )
             """
         )
@@ -54,24 +54,24 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
             if campaign.type in ["discount", "combo"]
             else None
         )
-        required_quantity = (
-            campaign.data.required_quantity if campaign.type == "buy_n_get_n" else None
+        buy_quantity = (
+            campaign.data.buy_quantity if campaign.type == "buy_n_get_n" else None
         )
-        free_quantity = (
-            campaign.data.free_quantity if campaign.type == "buy_n_get_n" else None
+        get_quantity = (
+            campaign.data.get_quantity if campaign.type == "buy_n_get_n" else None
         )
 
         cursor.execute(
             """
-            INSERT INTO campaigns (id, type, discount_percentage, required_quantity, free_quantity)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO campaigns (id, type, discount_percentage, buy_quantity, get_quantity)
+            VALUES (?, ?, ?, ?, ?)
             """,
             (
                 campaign.campaign_id,
                 campaign.type,
                 discount_percentage,
-                required_quantity,
-                free_quantity,
+                buy_quantity,
+                get_quantity,
             ),
         )
 
@@ -147,15 +147,9 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
 
         campaigns = []
         for campaign_data in campaigns_data:
-            (
-                campaign_id,
-                type_,
-                discount_percentage,
-                required_quantity,
-                free_quantity,
-                is_active,
-                created_at,
-            ) = campaign_data
+            (campaign_id, type_, discount_percentage, buy_quantity, get_quantity) = (
+                campaign_data
+            )
 
             cursor.execute(
                 "SELECT product_id FROM campaign_products WHERE campaign_id = ?",
@@ -178,8 +172,8 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
             elif type_ == "buy_n_get_n":
                 campaign_data_obj = BuyNGetN(
                     product_id=product_ids[0],
-                    buy_quantity=required_quantity,
-                    get_quantity=free_quantity,
+                    buy_quantity=buy_quantity,
+                    get_quantity=get_quantity,
                 )
             else:
                 raise DoesntExistError(f"Unknown campaign type {type_}")
