@@ -39,6 +39,17 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         if any(rec.id == receipt.id for rec in self.receipts):
             raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
 
+        shift_found = False
+        for shift in self.shifts.read_all_shifts():
+            if shift.shift_id == receipt.shift_id:
+                shift_found = True
+                break
+
+        if shift_found is False:
+            raise (
+                DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
+            )
+
         self.receipts.append(deepcopy(receipt))
         self.shifts.add_receipt_to_shift(receipt)
         return receipt
