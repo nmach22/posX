@@ -8,9 +8,6 @@ from app.core.Interfaces.campaign_interface import (
     Discount,
     ReceiptDiscount,
 )
-from app.core.Interfaces.campaign_repository_interface import (
-    CampaignRepositoryInterface,
-)
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
@@ -18,7 +15,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 )
 
 
-class CampaignSQLRepository(CampaignRepositoryInterface):
+class CampaignSQLRepository(Repository[Campaign]):
     def __init__(
         self, connection: sqlite3.Connection, products_repo: Repository[Product]
     ):
@@ -55,7 +52,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
         )
         self.conn.commit()
 
-    def add_campaign(self, campaign: Campaign) -> Campaign:
+    def create(self, campaign: Campaign) -> Campaign:
         cursor = self.conn.cursor()
 
         discount_percentage = (
@@ -140,7 +137,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
 
         return campaign
 
-    def delete_campaign(self, campaign_id: str) -> None:
+    def delete(self, campaign_id: str) -> None:
         cursor = self.conn.cursor()
 
         cursor.execute("SELECT id FROM campaigns WHERE id = ?", (campaign_id,))
@@ -154,7 +151,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
         cursor.execute("DELETE FROM campaigns WHERE id = ?", (campaign_id,))
         self.conn.commit()
 
-    def get_all_campaigns(self) -> list[Campaign]:
+    def read_all(self) -> list[Campaign]:
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM campaigns")
         campaigns_data = cursor.fetchall()

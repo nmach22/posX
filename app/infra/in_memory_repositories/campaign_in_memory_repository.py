@@ -3,9 +3,6 @@ from dataclasses import dataclass, field
 from typing import Dict
 
 from app.core.Interfaces.campaign_interface import Campaign
-from app.core.Interfaces.campaign_repository_interface import (
-    CampaignRepositoryInterface,
-)
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
@@ -23,7 +20,7 @@ class CampaignAndProducts:
 
 
 @dataclass
-class CampaignInMemoryRepository(CampaignRepositoryInterface):
+class CampaignInMemoryRepository(Repository[Campaign]):
     products_repo: Repository[Product] = field(
         default_factory=ProductInMemoryRepository
     )
@@ -31,7 +28,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
     campaigns_product_list: Dict[str, CampaignAndProducts] = field(default_factory=dict)
     campaigns: list[Campaign] = field(default_factory=list)
 
-    def add_campaign(self, campaign: Campaign) -> Campaign:
+    def create(self, campaign: Campaign) -> Campaign:
         self.campaigns.append(campaign)
         if campaign.type == "discount":
             if self.product_does_not_exist(campaign.data.product_id):
@@ -80,7 +77,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
 
         return campaign
 
-    def delete_campaign(self, campaign_id: str) -> None:
+    def delete(self, campaign_id: str) -> None:
         find: bool = False
         for campaign in self.campaigns:
             if campaign.campaign_id == campaign_id:
@@ -96,7 +93,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
             raise DoesntExistError
         return
 
-    def get_all_campaigns(self) -> list[Campaign]:
+    def read_all(self) -> list[Campaign]:
         return self.campaigns
 
     def product_does_not_exist(self, product_id: str) -> bool:

@@ -8,9 +8,7 @@ from app.core.Interfaces.campaign_interface import (
     CampaignInterface,
     CampaignRequest,
 )
-from app.core.Interfaces.campaign_repository_interface import (
-    CampaignRepositoryInterface,
-)
+from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
@@ -18,7 +16,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 
 @dataclass
 class CampaignService(CampaignInterface):
-    repository: CampaignRepositoryInterface
+    repository: Repository[Campaign]
 
     def create_campaign(self, campaign_request: CampaignRequest) -> Campaign:
         campaign_id = uuid.uuid4()
@@ -46,14 +44,14 @@ class CampaignService(CampaignInterface):
             campaign_data,
         )
 
-        self.repository.add_campaign(new_campaign)
+        self.repository.create(new_campaign)
         return new_campaign
 
     def delete_campaign(self, campaign_id: str) -> None:
         try:
-            self.repository.delete_campaign(campaign_id)
+            self.repository.delete(campaign_id)
         except DoesntExistError:
             raise DoesntExistError
 
     def read_all_campaigns(self) -> list[Campaign]:
-        return self.repository.get_all_campaigns()
+        return self.repository.read_all()

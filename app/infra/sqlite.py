@@ -1,8 +1,6 @@
 import sqlite3
 
-from app.core.Interfaces.campaign_repository_interface import (
-    CampaignRepositoryInterface,
-)
+from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
@@ -34,5 +32,5 @@ class Sqlite:
     def receipts(self) -> ReceiptRepositoryInterface:
         return self._receipts
 
-    def campaigns(self) -> CampaignRepositoryInterface:
+    def campaigns(self) -> Repository[Campaign]:
         return self._campaigns

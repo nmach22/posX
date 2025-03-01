@@ -45,9 +45,9 @@ def test_add_discount_campaign(campaigns_repo, sample_product):
         data=Discount(product_id=sample_product.id, discount_percentage=10),
     )
 
-    campaigns_repo.add_campaign(campaign)
+    campaigns_repo.create(campaign)
 
-    campaigns = campaigns_repo.get_all_campaigns()
+    campaigns = campaigns_repo.read_all()
     assert len(campaigns) == 1
     assert campaigns[0].campaign_id == campaign.campaign_id
     assert campaigns[0].data.product_id == sample_product.id
@@ -67,9 +67,9 @@ def test_add_combo_campaign(campaigns_repo, products_repo):
         data=Combo(products=["p1", "p2"], discount_percentage=20),
     )
 
-    campaigns_repo.add_campaign(campaign)
+    campaigns_repo.create(campaign)
 
-    campaigns = campaigns_repo.get_all_campaigns()
+    campaigns = campaigns_repo.read_all()
     assert len(campaigns) == 1
     assert set(campaigns[0].data.products) == {"p1", "p2"}
     assert campaigns[0].data.discount_percentage == 20
@@ -83,9 +83,9 @@ def test_add_buy_n_get_n_campaign(campaigns_repo, sample_product):
         data=BuyNGetN(product_id=sample_product.id, buy_quantity=2, get_quantity=1),
     )
 
-    campaigns_repo.add_campaign(campaign)
+    campaigns_repo.create(campaign)
 
-    campaigns = campaigns_repo.get_all_campaigns()
+    campaigns = campaigns_repo.read_all()
     assert len(campaigns) == 1
     assert campaigns[0].data.product_id == sample_product.id
     assert campaigns[0].data.buy_quantity == 2
@@ -100,14 +100,14 @@ def test_delete_existing_campaign(campaigns_repo, sample_product):
         data=Discount(product_id=sample_product.id, discount_percentage=10),
     )
 
-    campaigns_repo.add_campaign(campaign)
-    campaigns_repo.delete_campaign(campaign.campaign_id)
+    campaigns_repo.create(campaign)
+    campaigns_repo.delete(campaign.campaign_id)
 
-    campaigns = campaigns_repo.get_all_campaigns()
+    campaigns = campaigns_repo.read_all()
     assert len(campaigns) == 0
 
 
 def test_delete_non_existent_campaign(campaigns_repo):
     """Tests that deleting a non-existent campaign raises DoesntExistError."""
     with pytest.raises(DoesntExistError):
-        campaigns_repo.delete_campaign(str(uuid.uuid4()))
+        campaigns_repo.delete(str(uuid.uuid4()))

@@ -63,7 +63,7 @@ class TestCampaignService(unittest.TestCase):
         )
 
         campaign_service.delete_campaign(campaign.campaign_id)
-        assert len(repository.get_all_campaigns()) == 0
+        assert len(repository.read_all()) == 0
         assert "123" not in campaigns_products  # Ensure the product_id is removed
 
     def test_delete_campaign_raises_error(self):

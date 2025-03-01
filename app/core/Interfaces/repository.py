@@ -13,5 +13,8 @@ class Repository(Protocol[ItemT]):
     def update(self, item: ItemT) -> None:
         pass
 
+    def delete(self, item_id: str) -> None:
+        pass
+
     def read_all(self) -> list[ItemT]:
         pass

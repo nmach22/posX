@@ -5,13 +5,11 @@ from mypy.semanal_shared import Protocol
 from pydantic import BaseModel
 from starlette.requests import Request
 
+from app.core.Interfaces.repository import Repository
 from app.core.classes.campaign_service import CampaignService
 from app.core.Interfaces.campaign_interface import (
     Campaign,
     CampaignRequest,
-)
-from app.core.Interfaces.campaign_repository_interface import (
-    CampaignRepositoryInterface,
 )
 from app.infra.api.products import ErrorResponse
 from app.infra.in_memory_repositories.product_in_memory_repository import (
@@ -22,11 +20,11 @@ campaigns_api = APIRouter()
 
 
 class _Infra(Protocol):
-    def campaigns(self) -> CampaignRepositoryInterface:
+    def campaigns(self) -> Repository[Campaign]:
         pass
 
 
-def create_campaigns_repository(request: Request) -> CampaignRepositoryInterface:
+def create_campaigns_repository(request: Request) -> Repository[Campaign]:
     infra: _Infra = request.app.state.infra
     return infra.campaigns()
 
@@ -38,7 +36,7 @@ class ResponseCampaign(BaseModel):
 @campaigns_api.post("", status_code=201, response_model=ResponseCampaign)
 def add_campaign(
     request: CampaignRequest,
-    repository: CampaignRepositoryInterface = Depends(create_campaigns_repository),
+    repository: Repository[Campaign] = Depends(create_campaigns_repository),
 ) -> ResponseCampaign:
     campaign_service = CampaignService(repository)
     created_campaign = campaign_service.create_campaign(request)
@@ -51,7 +49,7 @@ def add_campaign(
 )
 def delete_campaign(
     campaign_id: str,
-    repository: CampaignRepositoryInterface = Depends(create_campaigns_repository),
+    repository: Repository[Campaign] = Depends(create_campaigns_repository),
 ) -> dict[Any, Any]:
     campaign_service = CampaignService(repository)
     try:
@@ -70,7 +68,7 @@ class ResponseListCampaign(BaseModel):
 
 @campaigns_api.get("", response_model=ResponseListCampaign)
 def get_all_campaigns(
-    repository: CampaignRepositoryInterface = Depends(create_campaigns_repository),
+    repository: Repository[Campaign] = Depends(create_campaigns_repository),
 ) -> ResponseListCampaign:
     campaign_service = CampaignService(repository)
     campaigns = campaign_service.read_all_campaigns()

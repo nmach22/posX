@@ -1,8 +1,6 @@
 import sqlite3
 
-from app.core.Interfaces.campaign_repository_interface import (
-    CampaignRepositoryInterface,
-)
+from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
@@ -25,7 +23,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         connection: sqlite3.Connection,
         products_repo: Repository[Product],
         shifts_repo: ShiftRepositoryInterface,
-        campaigns_repo: CampaignRepositoryInterface,
+        campaigns_repo: Repository[Campaign],
     ):
         self.conn = connection
         self.products = products_repo
