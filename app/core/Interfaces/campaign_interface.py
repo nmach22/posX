@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, Union
+from typing import Protocol, Union, Optional
 
 from pydantic import BaseModel
 
@@ -31,10 +31,10 @@ CampaignData = Union[BuyNGetN, Discount, Combo, ReceiptDiscount]
 
 class CampaignRequest(BaseModel):
     type: str
-    buy_n_get_n: BuyNGetN
-    discount: Discount
-    combo: Combo
-    receipt_discount: ReceiptDiscount
+    buy_n_get_n: Optional[BuyNGetN] = None
+    discount: Optional[Discount] = None
+    combo: Optional[Combo] = None
+    receipt_discount: Optional[ReceiptDiscount] = None
 
 
 @dataclass
