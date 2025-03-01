@@ -123,3 +123,34 @@ def add_product(
             total=receipt.total,
         )
     )
+
+
+@receipts_api.get("/{receipt_id}", response_model=ReceiptResponse)
+def get_receipt(
+    receipt_id: str,
+    receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
+) -> ReceiptResponse:
+    receipt_service = ReceiptService(receipts_repo)
+    try:
+        receipt = receipt_service.read_receipt(receipt_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": {"message": f"product or receipt with this id does not exist."}
+            },
+        )
+    return ReceiptResponse(
+        receipt=ReceiptEntry(
+            id=receipt.id,
+            shift_id=receipt.shift_id,
+            status=receipt.status,
+            products=[
+                ReceiptProductDict(
+                    id=p.id, quantity=p.quantity, price=p.price, total=p.total
+                )
+                for p in receipt.products
+            ],
+            total=receipt.total,
+        )
+    )
