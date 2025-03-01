@@ -8,13 +8,13 @@ from app.core.Interfaces.receipt_interface import (
 
 
 class ReceiptRepositoryInterface(Protocol):
-    def add_receipt(self, receipt: Receipt) -> Receipt:
+    def create(self, item: Receipt) -> Receipt:
         pass
 
-    def close_receipt(self, receipt_id: str) -> None:
+    def read(self, item_id: str) -> Receipt:
         pass
 
-    def get_receipt(self, receipt_id: str) -> Receipt:
+    def update(self, item_id: str) -> None:
         pass
 
     def add_product_to_receipt(

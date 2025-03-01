@@ -11,7 +11,8 @@ from app.core.Interfaces.campaign_interface import (
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.product_interface import Product
+from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
@@ -19,7 +20,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 
 class CampaignSQLRepository(CampaignRepositoryInterface):
     def __init__(
-        self, connection: sqlite3.Connection, products_repo: ProductRepositoryInterface
+        self, connection: sqlite3.Connection, products_repo: Repository[Product]
     ):
         self.conn = connection
         self.products = products_repo
@@ -54,7 +55,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
         )
         self.conn.commit()
 
-    def add_campaign(self, campaign: Campaign) -> Campaign:
+    def create(self, campaign: Campaign) -> Campaign:
         cursor = self.conn.cursor()
 
         discount_percentage = (
@@ -89,7 +90,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
         )
 
         if campaign.type == "discount":
-            old_price = self.products.get_product(campaign.data.product_id).price
+            old_price = self.products.read(campaign.data.product_id).price
             discount = campaign.data.discount_percentage
             new_price = old_price - (old_price * discount / 100)
             cursor.execute(
@@ -106,7 +107,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
             )
         elif campaign.type == "combo":
             for product_id in campaign.data.products:
-                old_price = self.products.get_product(product_id).price
+                old_price = self.products.read(product_id).price
                 discount = campaign.data.discount_percentage
                 new_price = old_price - (old_price * discount / 100)
                 cursor.execute(
@@ -131,7 +132,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
                     str(uuid.uuid4()),
                     campaign.campaign_id,
                     campaign.data.product_id,
-                    self.products.get_product(campaign.data.product_id).price,
+                    self.products.read(campaign.data.product_id).price,
                 ),
             )
 
@@ -139,7 +140,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
 
         return campaign
 
-    def delete_campaign(self, campaign_id: str) -> None:
+    def delete(self, campaign_id: str) -> None:
         cursor = self.conn.cursor()
 
         cursor.execute("SELECT id FROM campaigns WHERE id = ?", (campaign_id,))
@@ -153,7 +154,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
         cursor.execute("DELETE FROM campaigns WHERE id = ?", (campaign_id,))
         self.conn.commit()
 
-    def get_all_campaigns(self) -> list[Campaign]:
+    def read_all(self) -> list[Campaign]:
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM campaigns")
         campaigns_data = cursor.fetchall()

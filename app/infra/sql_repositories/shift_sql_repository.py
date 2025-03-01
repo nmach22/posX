@@ -2,13 +2,13 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Dict
 
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.shift_interface import (
-    ClosedReceipt,
+    Shift,
     Report,
     SalesReport,
-    Shift,
+    ClosedReceipt,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
@@ -21,7 +21,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
     def __init__(
         self,
         connection: sqlite3.Connection,
-        products_repo: ProductRepositoryInterface,
+        products_repo: Repository[Product],
     ):
         self.conn = connection
         self.products = products_repo
@@ -40,7 +40,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         """)
         self.conn.commit()
 
-    def add_shift(self, shift: Shift) -> None:
+    def create(self, shift: Shift) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             "INSERT INTO shifts (shift_id, status) VALUES (?, ?)",
@@ -48,7 +48,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         )
         self.conn.commit()
 
-    def close_shift(self, shift_id: str) -> None:
+    def update(self, shift_id: str) -> None:
         cursor = self.conn.cursor()
         cursor.execute("SELECT status FROM shifts WHERE shift_id = ?", (shift_id,))
         row = cursor.fetchone()

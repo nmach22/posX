@@ -3,7 +3,7 @@ import sqlite3
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -11,6 +11,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     AlreadyClosedError,
@@ -22,7 +23,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def __init__(
         self,
         connection: sqlite3.Connection,
-        products_repo: ProductRepositoryInterface,
+        products_repo: Repository[Product],
         shifts_repo: ShiftRepositoryInterface,
         campaigns_repo: CampaignRepositoryInterface,
     ):
@@ -59,9 +60,11 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         )
         self.conn.commit()
 
-    def add_receipt(self, receipt: Receipt) -> Receipt:
+    def create(self, receipt: Receipt) -> Receipt:
         cursor = self.conn.cursor()
-        cursor.execute("SELECT shift_id FROM shifts WHERE shift_id = ?", (receipt.shift_id,))
+        cursor.execute(
+            "SELECT shift_id FROM shifts WHERE shift_id = ?", (receipt.shift_id,)
+        )
         if not cursor.fetchone():
             raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
 
@@ -80,7 +83,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         # self.shifts.add_receipt_to_shift(receipt)
         return receipt
 
-    def close_receipt(self, receipt_id: str) -> None:
+    def update(self, receipt_id: str) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT status FROM receipts WHERE id = ?",
@@ -98,7 +101,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
         self.conn.commit()
 
-    def get_receipt(self, receipt_id: str) -> Receipt:
+    def read(self, receipt_id: str) -> Receipt:
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT id,  currency, status, total FROM receipts WHERE id = ?",
@@ -180,7 +183,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         )
         self.conn.commit()
 
-        return self.get_receipt(receipt_id)
+        return self.read(receipt_id)
 
 
 def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
@@ -272,7 +275,7 @@ def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
             reduced_price -= receipt_discount_price
 
         return ReceiptForPayment(
-            receipt=self.get_receipt(receipt_id),
+            receipt=self.read(receipt_id),
             discounted_price=total_discounted_price,
             reduced_price=reduced_price,
         )

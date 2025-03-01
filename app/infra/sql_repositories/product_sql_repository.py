@@ -1,14 +1,14 @@
 import sqlite3
 
 from app.core.Interfaces.product_interface import Product
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
 )
 
 
-class ProductSQLRepository(ProductRepositoryInterface):
+class ProductSQLRepository(Repository[Product]):
     def __init__(self, connection: sqlite3.Connection):
         self.conn = connection
         self._initialize_db()
@@ -27,7 +27,7 @@ class ProductSQLRepository(ProductRepositoryInterface):
         )
         self.conn.commit()
 
-    def add_product(self, product: Product) -> None:
+    def create(self, product: Product) -> None:
         try:
             cursor = self.conn.cursor()
             cursor.execute(
@@ -38,7 +38,7 @@ class ProductSQLRepository(ProductRepositoryInterface):
         except sqlite3.IntegrityError:
             raise ExistsError
 
-    def get_product(self, product_id: str) -> Product:
+    def read(self, product_id: str) -> Product:
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT id, name, barcode, price FROM products WHERE id = ?",
@@ -49,7 +49,7 @@ class ProductSQLRepository(ProductRepositoryInterface):
             return Product(id=row[0], name=row[1], barcode=row[2], price=row[3])
         raise DoesntExistError
 
-    def update_product(self, product: Product) -> None:
+    def update(self, product: Product) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             """
@@ -61,7 +61,10 @@ class ProductSQLRepository(ProductRepositoryInterface):
             raise DoesntExistError
         self.conn.commit()
 
-    def read_all_products(self) -> list[Product]:
+    def delete(self, product_id: str) -> None:
+        raise NotImplemented
+
+    def read_all(self) -> list[Product]:
         cursor = self.conn.cursor()
         cursor.execute("SELECT id, name, barcode, price FROM products")
         rows = cursor.fetchall()

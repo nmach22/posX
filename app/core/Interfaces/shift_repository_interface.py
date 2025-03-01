@@ -5,10 +5,10 @@ from app.core.Interfaces.shift_interface import Report, SalesReport, Shift
 
 
 class ShiftRepositoryInterface(Protocol):
-    def add_shift(self, shift: Shift) -> None:
+    def create(self, item: Shift) -> Shift:
         pass
 
-    def close_shift(self, shift_id: str) -> None:
+    def update(self, item_id: str) -> None:
         pass
 
     def add_receipt_to_shift(self, receipt: Receipt):

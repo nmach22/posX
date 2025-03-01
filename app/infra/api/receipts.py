@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
+from app.core.Interfaces.product_interface import Product
+from app.core.Interfaces.repository import Repository
 from app.core.classes.receipt_service import ReceiptService
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     ReceiptStatus,
@@ -48,7 +50,7 @@ class _Infra(Protocol):
     def receipts(self) -> ReceiptRepositoryInterface:
         pass
 
-    def products(self) -> ProductRepositoryInterface:
+    def products(self) -> Repository[Product]:
         pass
 
 
@@ -57,7 +59,7 @@ def create_receipts_repository(request: Request) -> ReceiptRepositoryInterface:
     return infra.receipts()
 
 
-def create_products_repository(request: Request) -> ProductRepositoryInterface:
+def create_products_repository(request: Request) -> Repository[Product]:
     infra: _Infra = request.app.state.infra
     return infra.products()
 
@@ -73,7 +75,9 @@ def create_receipt(
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
     try:
-        created_receipt = receipt_service.create_receipt(request.shift_id, request.currency)
+        created_receipt = receipt_service.create_receipt(
+            request.shift_id, request.currency
+        )
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
@@ -97,7 +101,7 @@ def close_receipt(
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ):
     try:
-        repository.close_receipt(receipt_id)
+        repository.update(receipt_id)
         return {"message": f"Receipt {receipt_id} successfully closed."}
     except DoesntExistError as e:
         raise HTTPException(status_code=404, detail=str(e))

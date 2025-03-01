@@ -3,8 +3,9 @@ import sqlite3
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
-from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.sql_repositories.campaign_sql_repository import CampaignSQLRepository
 from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
@@ -24,7 +25,7 @@ class Sqlite:
             connection, self._products, self._shifts, self._campaigns
         )
 
-    def products(self) -> ProductRepositoryInterface:
+    def products(self) -> Repository[Product]:
         return self._products
 
     def shifts(self) -> ShiftRepositoryInterface:
