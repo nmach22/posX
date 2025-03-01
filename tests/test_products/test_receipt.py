@@ -1,7 +1,12 @@
 import uuid
 import pytest
 
-from app.core.Interfaces.campaign_interface import Campaign, Discount, BuyNGetN
+from app.core.Interfaces.campaign_interface import (
+    Campaign,
+    Discount,
+    BuyNGetN,
+    ReceiptDiscount,
+)
 from app.core.Interfaces.shift_interface import Shift
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
@@ -169,6 +174,11 @@ def test_calculate_payment_mixed_campaigns():
                 product_id="2", buy_quantity=2, get_quantity=1
             ),  # Buy 2, Get 1 free on Product 2
         ),
+        Campaign(
+            campaign_id="receipt discount",
+            type="receipt discount",
+            data=ReceiptDiscount(min_amount=500, discount_percentage=10),
+        ),
     ]
     campaigns_product_list = {
         "1": CampaignAndProducts(
@@ -216,4 +226,5 @@ def test_calculate_payment_mixed_campaigns():
     # - Product 1: 2 x 100 = 200, with 10% discount = 180
     # - Product 2: Buy 2 Get 1 free, so 3 items cost 400 (2 x 200)
     # Total: 180 + 400 = 580
-    assert receipt_payment.discounted_price == 580
+    # receipt discount: 580-58
+    assert receipt_payment.discounted_price == 580 - 58

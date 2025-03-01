@@ -35,7 +35,8 @@ class TestCampaignService(unittest.TestCase):
         campaign_service = CampaignService(repository)
         campaign = campaign_service.create_campaign(
             CampaignRequest(
-                type="discount", data=Discount(product_id="123", discount_percentage=10)
+                type="discount",
+                discount=Discount(product_id="123", discount_percentage=10),
             )
         )
         assert campaign.type == "discount"
@@ -56,7 +57,8 @@ class TestCampaignService(unittest.TestCase):
         campaign_service = CampaignService(repository)
         campaign = campaign_service.create_campaign(
             CampaignRequest(
-                type="discount", data=Discount(product_id="123", discount_percentage=10)
+                type="discount",
+                discount=Discount(product_id="123", discount_percentage=10),
             )
         )
 
@@ -90,20 +92,21 @@ class TestCampaignService(unittest.TestCase):
         campaign_service = CampaignService(repository)
         campaign1 = campaign_service.create_campaign(
             CampaignRequest(
-                type="discount", data=Discount(product_id="123", discount_percentage=10)
+                type="discount",
+                discount=Discount(product_id="123", discount_percentage=10),
             )
         )
         campaign2 = campaign_service.create_campaign(
             CampaignRequest(
                 type="combo",
-                data=Combo(products=["111", "123"], discount_percentage=20),
+                combo=Combo(products=["111", "123"], discount_percentage=20),
             )
         )
 
         campaign3 = campaign_service.create_campaign(
             CampaignRequest(
                 type="Buy n get n",
-                data=BuyNGetN(product_id="111", buy_quantity=2, get_quantity=1),
+                buy_n_get_n=BuyNGetN(product_id="111", buy_quantity=2, get_quantity=1),
             )
         )
 

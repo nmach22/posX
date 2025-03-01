@@ -17,6 +17,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
     ProductInMemoryRepository,
+    AlreadyClosedError,
 )
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     ShiftInMemoryRepository,
@@ -38,6 +39,17 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         if any(rec.id == receipt.id for rec in self.receipts):
             raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
 
+        shift_found = False
+        for shift in self.shifts.read_all_shifts():
+            if shift.shift_id == receipt.shift_id:
+                shift_found = True
+                break
+
+        if shift_found is False:
+            raise (
+                DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
+            )
+
         self.receipts.append(deepcopy(receipt))
         self.shifts.add_receipt_to_shift(receipt)
         return receipt
@@ -46,7 +58,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         for receipt in self.receipts:
             if receipt.id == receipt_id:
                 if receipt.status == "closed":
-                    raise DoesntExistError(
+                    raise AlreadyClosedError(
                         f"Receipt with ID {receipt_id} is already closed."
                     )
                 receipt.status = "closed"
@@ -173,7 +185,15 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                         )
         # TODO: tu maqvs 2-2 kombos produqti, mand raxdeba?????
         # an 2 vashli da 1 banani tu maqvs, prosta 1 kombos fass damitvlis
-        # sabolood tu fasdaklebis mere kide gadaacharba ragac ricxvs, miigebs chekis discounts
+        for campaign in self.campaigns_repo.campaigns:
+            if (
+                campaign.type == "receipt discount"
+                and discounted_price >= campaign.data.min_amount
+            ):
+                discounted_price -= (
+                    discounted_price * campaign.data.discount_percentage / 100
+                )
+
         return ReceiptForPayment(
             receipt, discounted_price, receipt.total - discounted_price
         )

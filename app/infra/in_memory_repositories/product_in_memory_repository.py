@@ -12,6 +12,10 @@ class DoesntExistError(Exception):
     pass
 
 
+class AlreadyClosedError(Exception):
+    pass
+
+
 @dataclass
 class ProductInMemoryRepository(ProductRepositoryInterface):
     products: list[Product] = field(default_factory=list)

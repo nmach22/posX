@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from starlette.requests import Request
 
 from app.core.Interfaces.campaign_interface import (
-    CampaignInterface,
     CampaignRequest,
     Campaign,
 )
