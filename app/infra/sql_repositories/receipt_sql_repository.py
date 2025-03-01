@@ -249,7 +249,7 @@ def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
                 if all(prod in receipt_products for prod in combo_products):
                     discounted_price = campaign_discounted_price
                     total_discounted_price += discounted_price * quantity
-            elif campaign_type == "buy_n_get_n":
+            elif campaign_type == "buy n get n":
                 if quantity >= required_qty:
                     result = quantity // (required_qty + free_qty)
                     discounted_price = result * free_qty
@@ -260,7 +260,7 @@ def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
             """
             SELECT discount_percentage, min_amount
             FROM campaigns
-            WHERE type = 'receipt_discount' AND min_amount <= ?
+            WHERE type = 'receipt discount' AND min_amount <= ?
             """,
             (reduced_price,),
         )

@@ -30,7 +30,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
             """
             CREATE TABLE IF NOT EXISTS campaigns (
                 id TEXT PRIMARY KEY,
-                type TEXT NOT NULL CHECK(type IN ('buy_n_get_n', 'discount', 'combo', 'receipt_discount')),
+                type TEXT NOT NULL CHECK(type IN ('buy n get n', 'discount', 'combo', 'receipt discount')),
                 discount_percentage INTEGER,
                 buy_quantity INTEGER,
                 get_quantity INTEGER,
@@ -58,18 +58,18 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
 
         discount_percentage = (
             campaign.data.discount_percentage
-            if campaign.type in ["discount", "combo", "receipt_discount"]
+            if campaign.type in ["discount", "combo", "receipt discount"]
             else None
         )
         buy_quantity = (
-            campaign.data.buy_quantity if campaign.type == "buy_n_get_n" else None
+            campaign.data.buy_quantity if campaign.type == "buy n get n" else None
         )
         get_quantity = (
-            campaign.data.get_quantity if campaign.type == "buy_n_get_n" else None
+            campaign.data.get_quantity if campaign.type == "buy n get n" else None
         )
 
         min_amount = (
-            campaign.data.min_amount if campaign.type == "receipt_discount" else None
+            campaign.data.min_amount if campaign.type == "receipt discount" else None
         )
 
         cursor.execute(
@@ -120,7 +120,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
                         new_price,
                     ),
                 )
-        elif campaign.type == "buy_n_get_n":
+        elif campaign.type == "buy n get n":
             cursor.execute(
                 """
                 INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price)
@@ -186,13 +186,13 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
                     products=product_ids,
                     discount_percentage=discount_percentage,
                 )
-            elif type_ == "buy_n_get_n":
+            elif type_ == "buy n get n":
                 campaign_data_obj = BuyNGetN(
                     product_id=product_ids[0],
                     buy_quantity=buy_quantity,
                     get_quantity=get_quantity,
                 )
-            elif type_ == "receipt_discount":
+            elif type_ == "receipt discount":
                 campaign_data_obj = ReceiptDiscount(
                     min_amount=min_amount,
                     discount_percentage=discount_percentage,
