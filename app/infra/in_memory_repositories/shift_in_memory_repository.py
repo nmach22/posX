@@ -148,3 +148,6 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
             total_revenue=total_revenue,
             products=products,
         )
+
+    def read_all_shifts(self) -> list[Shift]:
+        return self.shifts

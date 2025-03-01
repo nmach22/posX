@@ -24,23 +24,26 @@ class CampaignService(CampaignInterface):
         campaign_id = uuid.uuid4()
 
         campaign_data: Optional[CampaignData] = None
-        # for field in ["buy_n_get_n", "discount", "combo", "receipt_discount"]:
-        value = getattr(campaign_request, campaign_request.type)
+        type_in_string: str
+        if campaign_request.type == "Buy n get n":
+            type_in_string = "buy_n_get_n"
+        elif campaign_request.type == "Receipt Discount":
+            type_in_string = "receipt_discount"
+        else:
+            type_in_string = campaign_request.type
+
+        value = getattr(campaign_request, type_in_string)
+
         if value is not None:
-            # if campaign_data is not None:
-            #     raise ValueError(
-            #         "Only one type of campaign data should be provided."
-            #     )
             campaign_data = value
 
         if campaign_data is None:
             raise ValueError("At least one campaign data field must be provided.")
 
-        # Create the campaign using the extracted data
         new_campaign = Campaign(
             str(campaign_id),
             campaign_request.type,
-            campaign_data,  # Now this is the actual campaign data object
+            campaign_data,
         )
 
         self.repository.add_campaign(new_campaign)
