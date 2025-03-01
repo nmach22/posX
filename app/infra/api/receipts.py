@@ -70,7 +70,7 @@ def create_receipt(
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=created_receipt.id,
-            shift_id=CreateReceiptRequest.shift_id,
+            shift_id=request.shift_id,
             status=created_receipt.status,
             products=[],
             total=created_receipt.total,

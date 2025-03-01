@@ -63,7 +63,7 @@ def get_all_campaigns(
 ) -> ResponseListCampaign:
     campaign_service = CampaignService(repository)
     campaigns = campaign_service.read_all_campaigns()
-
+    print(campaigns)
     return ResponseListCampaign(
         campaigns=[
             Campaign(

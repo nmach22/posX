@@ -1,16 +1,26 @@
+import uuid
 import pytest
 
+from app.core.Interfaces.campaign_interface import Campaign, Discount, BuyNGetN
 from app.core.Interfaces.shift_interface import Shift
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
+
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ProductInMemoryRepository,
 )
+
+from app.infra.in_memory_repositories.campaign_in_memory_repository import (
+    CampaignAndProducts,
+    CampaignInMemoryRepository,
+)
+
 from app.infra.in_memory_repositories.receipt_in_memory_repository import (
     ReceiptInMemoryRepository,
 )
+
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     ShiftInMemoryRepository,
 )
@@ -133,3 +143,77 @@ def test_should_raise_error_when_closing_already_closed_receipt(setup_receipt_se
         DoesntExistError, match=f"Receipt with ID {receipt_id} is already closed."
     ):
         service.close_receipt(receipt_id)
+
+
+def test_calculate_payment_mixed_campaigns():
+    # Step 1: Create product repository and add products
+    product_list = [
+        Product(id="1", name="Product 1", price=100, barcode="12345"),
+        Product(id="2", name="Product 2", price=200, barcode="67890"),
+    ]
+    product_repo = ProductInMemoryRepository(product_list)
+
+    # Step 2: Create campaign repository and add campaigns
+    campaigns = [
+        Campaign(
+            campaign_id="discount_1",
+            type="discount",
+            data=Discount(
+                product_id="1", discount_percentage=10
+            ),  # 10% discount on Product 1
+        ),
+        Campaign(
+            campaign_id="buy_n_get_m_1",
+            type="buy n get n",
+            data=BuyNGetN(
+                product_id="2", buy_quantity=2, get_quantity=1
+            ),  # Buy 2, Get 1 free on Product 2
+        ),
+    ]
+    campaigns_product_list = {
+        "1": CampaignAndProducts(
+            id=str(uuid.uuid4()),
+            campaign_id="discount_1",
+            product_id="1",
+            discounted_price=90,
+        ),
+        "2": CampaignAndProducts(
+            id=str(uuid.uuid4()),
+            campaign_id="buy_n_get_m_1",
+            product_id="2",
+            discounted_price=200,
+        ),
+    }
+    campaign_repo = CampaignInMemoryRepository(
+        product_repo, campaigns_product_list, campaigns
+    )
+    shifts = [Shift("1", [], "open")]
+    shift_repo = ShiftInMemoryRepository(shifts)
+
+    # Step 3: Create receipt repository
+    receipt_repo = ReceiptInMemoryRepository(
+        products=product_repo,
+        shifts=shift_repo,
+        campaigns_repo=campaign_repo,
+    )
+
+    # Step 4: Create a receipt and add products to it
+    receipt = Receipt(id="1", shift_id="1", products=[], status="open", total=0)
+    receipt_repo.add_receipt(receipt)
+
+    # Add Product 1 (with 10% discount) and Product 2 (with Buy 2 Get 1 free)
+    product_request_1 = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
+    product_request_2 = AddProductRequest(product_id="2", quantity=3)  # 3 x Product 2
+
+    receipt_repo.add_product_to_receipt("1", product_request_1)
+    receipt_repo.add_product_to_receipt("1", product_request_2)
+
+    # Step 5: Calculate the discounted price
+    receipt_payment = receipt_repo.calculate_payment("1")
+
+    # Step 6: Verify the discounted price
+    # Expected:
+    # - Product 1: 2 x 100 = 200, with 10% discount = 180
+    # - Product 2: Buy 2 Get 1 free, so 3 items cost 400 (2 x 200)
+    # Total: 180 + 400 = 580
+    assert receipt_payment.discounted_price == 580
