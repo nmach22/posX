@@ -169,7 +169,15 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                         )
         # TODO: tu maqvs 2-2 kombos produqti, mand raxdeba?????
         # an 2 vashli da 1 banani tu maqvs, prosta 1 kombos fass damitvlis
-        # sabolood tu fasdaklebis mere kide gadaacharba ragac ricxvs, miigebs chekis discounts
+        for campaign in self.campaigns_repo.campaigns:
+            if (
+                campaign.type == "receipt discount"
+                and discounted_price >= campaign.data.min_amount
+            ):
+                discounted_price -= (
+                    discounted_price * campaign.data.discount_percentage / 100
+                )
+
         return ReceiptForPayment(
             receipt, discounted_price, receipt.total - discounted_price
         )
