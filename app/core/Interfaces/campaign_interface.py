@@ -31,7 +31,10 @@ CampaignData = Union[BuyNGetN, Discount, Combo, ReceiptDiscount]
 
 class CampaignRequest(BaseModel):
     type: str
-    data: CampaignData
+    buy_n_get_n: BuyNGetN
+    discount: Discount
+    combo: Combo
+    receipt_discount: ReceiptDiscount
 
 
 @dataclass
