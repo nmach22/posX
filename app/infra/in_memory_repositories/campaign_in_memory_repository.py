@@ -35,7 +35,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
         if campaign.type == "discount":
             if self.product_does_not_exist(campaign.data.product_id):
                 raise DoesntExistError
-            old_price = self.products_repo.get_product(campaign.data.product_id).price
+            old_price = self.products_repo.read(campaign.data.product_id).price
             discount = campaign.data.discount_percentage
             new_price = int(old_price - (old_price * discount) / 100)
             product_for_campaign = CampaignAndProducts(
@@ -53,7 +53,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
 
             products_id_list = campaign.data.products
             for product_id in products_id_list:
-                old_price = self.products_repo.get_product(product_id).price
+                old_price = self.products_repo.read(product_id).price
                 discount = campaign.data.discount_percentage
                 new_price = int(old_price - (old_price * discount) / 100)
                 product_for_campaign = CampaignAndProducts(
@@ -72,7 +72,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                 str(uuid.uuid4()),
                 campaign.campaign_id,
                 campaign.data.product_id,
-                self.products_repo.get_product(campaign.data.product_id).price,
+                self.products_repo.read(campaign.data.product_id).price,
             )
             # self.campaign_product_list.append(product_for_campaign)
             self.campaigns_product_list[campaign.data.product_id] = product_for_campaign
@@ -99,7 +99,7 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
         return self.campaigns
 
     def product_does_not_exist(self, product_id: str) -> bool:
-        for product_from_list in self.products_repo.read_all_products():
+        for product_from_list in self.products_repo.read_all():
             if product_from_list.id == product_id:
                 return False
 

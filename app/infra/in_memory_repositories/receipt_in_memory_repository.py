@@ -75,7 +75,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     ) -> Receipt:
         product_price = 0
         product_found = False
-        for product in self.products.read_all_products():
+        for product in self.products.read_all():
             if product.id == product_request.product_id:
                 product_price = product.price
                 product_found = True

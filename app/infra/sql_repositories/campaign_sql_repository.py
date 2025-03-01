@@ -89,7 +89,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
         )
 
         if campaign.type == "discount":
-            old_price = self.products.get_product(campaign.data.product_id).price
+            old_price = self.products.read(campaign.data.product_id).price
             discount = campaign.data.discount_percentage
             new_price = old_price - (old_price * discount / 100)
             cursor.execute(
@@ -106,7 +106,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
             )
         elif campaign.type == "combo":
             for product_id in campaign.data.products:
-                old_price = self.products.get_product(product_id).price
+                old_price = self.products.read(product_id).price
                 discount = campaign.data.discount_percentage
                 new_price = old_price - (old_price * discount / 100)
                 cursor.execute(
@@ -131,7 +131,7 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
                     str(uuid.uuid4()),
                     campaign.campaign_id,
                     campaign.data.product_id,
-                    self.products.get_product(campaign.data.product_id).price,
+                    self.products.read(campaign.data.product_id).price,
                 ),
             )
 

@@ -33,7 +33,7 @@ def campaigns_repo(connection, products_repo):
 def sample_product(products_repo):
     """Adds a sample product to the repository."""
     product = Product(id="p1", name="Apple", barcode="12345", price=100)
-    products_repo.add_product(product)
+    products_repo.create(product)
     return product
 
 
@@ -58,8 +58,8 @@ def test_add_combo_campaign(campaigns_repo, products_repo):
     """Tests adding a combo campaign with multiple products."""
     product1 = Product(id="p1", name="Apple", barcode="12345", price=100)
     product2 = Product(id="p2", name="Banana", barcode="67890", price=50)
-    products_repo.add_product(product1)
-    products_repo.add_product(product2)
+    products_repo.create(product1)
+    products_repo.create(product2)
 
     campaign = Campaign(
         campaign_id=str(uuid.uuid4()),

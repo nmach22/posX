@@ -27,7 +27,7 @@ class ProductSQLRepository(ProductRepositoryInterface):
         )
         self.conn.commit()
 
-    def add_product(self, product: Product) -> None:
+    def create(self, product: Product) -> Product:
         try:
             cursor = self.conn.cursor()
             cursor.execute(
@@ -37,8 +37,9 @@ class ProductSQLRepository(ProductRepositoryInterface):
             self.conn.commit()
         except sqlite3.IntegrityError:
             raise ExistsError
+        return product
 
-    def get_product(self, product_id: str) -> Product:
+    def read(self, product_id: str) -> Product:
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT id, name, barcode, price FROM products WHERE id = ?",
@@ -49,7 +50,7 @@ class ProductSQLRepository(ProductRepositoryInterface):
             return Product(id=row[0], name=row[1], barcode=row[2], price=row[3])
         raise DoesntExistError
 
-    def update_product(self, product: Product) -> None:
+    def update(self, product: Product) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             """
@@ -61,7 +62,7 @@ class ProductSQLRepository(ProductRepositoryInterface):
             raise DoesntExistError
         self.conn.commit()
 
-    def read_all_products(self) -> list[Product]:
+    def read_all(self) -> list[Product]:
         cursor = self.conn.cursor()
         cursor.execute("SELECT id, name, barcode, price FROM products")
         rows = cursor.fetchall()

@@ -20,20 +20,20 @@ class AlreadyClosedError(Exception):
 class ProductInMemoryRepository(ProductRepositoryInterface):
     products: list[Product] = field(default_factory=list)
 
-    def add_product(self, product: Product) -> None:
+    def create(self, product: Product) -> None:
         for existing_product in self.products:
             if existing_product.barcode == product.barcode:
                 raise ExistsError(product.barcode)
 
         self.products.append(product)
 
-    def get_product(self, product_id: str) -> Product:
+    def read(self, product_id: str) -> Product:
         for product in self.products:
             if product.id == product_id:
                 return product
         raise DoesntExistError
 
-    def update_product(self, product: Product) -> None:
+    def update(self, product: Product) -> None:
         find: bool = False
         for _product in self.products:
             if _product.id == product.id:
@@ -43,5 +43,5 @@ class ProductInMemoryRepository(ProductRepositoryInterface):
         if not find:
             raise DoesntExistError
 
-    def read_all_products(self) -> list[Product]:
+    def read_all(self) -> list[Product]:
         return self.products
