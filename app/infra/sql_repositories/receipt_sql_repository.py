@@ -62,13 +62,19 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
     def add_receipt(self, receipt: Receipt) -> Receipt:
         cursor = self.conn.cursor()
-        cursor.execute("SELECT id FROM shifts WHERE id = ?", (receipt.shift_id,))
+        cursor.execute("SELECT id FROM shifts WHERE shift_id = ?", (receipt.shift_id,))
         if not cursor.fetchone():
             raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
 
         cursor.execute(
             "INSERT INTO receipts (id, shift_id, currency, status, total) VALUES (?, ?, ?,?, ?)",
-            (receipt.id, receipt.shift_id, receipt.currency, receipt.status, receipt.total),
+            (
+                receipt.id,
+                receipt.shift_id,
+                receipt.currency,
+                receipt.status,
+                receipt.total,
+            ),
         )
         self.conn.commit()
 

@@ -40,19 +40,15 @@ class ZReportResponse(BaseModel):
 class NotFoundError:
     pass
 
+
 class CloseShiftResponse(BaseModel):
     message: str
 
 
-@shifts_api.post(
-    "",
-    status_code=201,
-    response_model=ShiftResponse,
-)
-
 class ClosedReceiptResponse(BaseModel):
     receipt_id: str
     calculated_payment: int
+
 
 class SalesReportResponse(BaseModel):
     total_receipts: int
@@ -60,6 +56,11 @@ class SalesReportResponse(BaseModel):
     closed_receipts: list[ClosedReceiptResponse]
 
 
+@shifts_api.post(
+    "",
+    status_code=201,
+    response_model=ShiftResponse,
+)
 def create_shift(
     repository: ShiftRepositoryInterface = Depends(create_shift_repository),
 ) -> ShiftResponse:
@@ -103,7 +104,6 @@ def close_shift(
         raise HTTPException(status_code=400, detail="Shift is already closed.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @shifts_api.get("/sales", response_model=SalesReportResponse)
