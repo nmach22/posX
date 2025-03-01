@@ -79,7 +79,7 @@ def test_add_buy_n_get_n_campaign(campaigns_repo, sample_product):
     """Tests adding a Buy N Get N campaign."""
     campaign = Campaign(
         campaign_id=str(uuid.uuid4()),
-        type="buy_n_get_n",
+        type="buy n get n",
         data=BuyNGetN(product_id=sample_product.id, buy_quantity=2, get_quantity=1),
     )
 

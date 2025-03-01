@@ -105,7 +105,7 @@ class TestCampaignService(unittest.TestCase):
 
         campaign3 = campaign_service.create_campaign(
             CampaignRequest(
-                type="Buy n get n",
+                type="buy n get n",
                 buy_n_get_n=BuyNGetN(product_id="111", buy_quantity=2, get_quantity=1),
             )
         )
@@ -117,7 +117,7 @@ class TestCampaignService(unittest.TestCase):
         assert returned_campaigns[2].campaign_id == campaign3.campaign_id
         assert returned_campaigns[0].type == "discount"
         assert returned_campaigns[1].type == "combo"
-        assert returned_campaigns[2].type == "Buy n get n"
+        assert returned_campaigns[2].type == "buy n get n"
         assert returned_campaigns[0].data.discount_percentage == 10
         assert returned_campaigns[1].data.discount_percentage == 20
         assert (
