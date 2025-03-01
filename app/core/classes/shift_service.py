@@ -18,11 +18,11 @@ class ShiftService(ShiftInterface):
     def create_shift(self) -> Shift:
         shift_id = uuid.uuid4()
         shift = Shift(shift_id=str(shift_id), receipts=[], status="open")
-        self.repository.add_shift(shift)
+        self.repository.create(shift)
         return shift
 
     def close_shift(self, shift_id: str) -> None:
-        self.repository.close_shift(shift_id)
+        self.repository.update(shift_id)
 
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         self.repository.add_receipt_to_shift(receipt)

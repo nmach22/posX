@@ -41,7 +41,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         """)
         self.conn.commit()
 
-    def add_shift(self, shift: Shift) -> None:
+    def create(self, shift: Shift) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             "INSERT INTO shifts (shift_id, status) VALUES (?, ?)",
@@ -49,7 +49,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         )
         self.conn.commit()
 
-    def close_shift(self, shift_id: str) -> None:
+    def update(self, shift_id: str) -> None:
         cursor = self.conn.cursor()
         cursor.execute("SELECT status FROM shifts WHERE shift_id = ?", (shift_id,))
         row = cursor.fetchone()

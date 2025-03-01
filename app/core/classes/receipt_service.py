@@ -27,14 +27,14 @@ class ReceiptService(ReceiptInterface):
             products=products,
             total=total,
         )
-        self.repository.add_receipt(receipt)
+        self.repository.create(receipt)
         return receipt
 
     def read_receipt(self, receipt_id: str) -> Receipt:
-        return self.repository.get_receipt(receipt_id)
+        return self.repository.read(receipt_id)
 
     def close_receipt(self, receipt_id: str) -> None:
-        self.repository.close_receipt(receipt_id)
+        self.repository.update(receipt_id)
 
     def add_product(
         self, receipt_id: str, product_request: AddProductRequest

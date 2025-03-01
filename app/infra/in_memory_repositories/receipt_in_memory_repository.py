@@ -34,7 +34,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         default_factory=CampaignInMemoryRepository
     )
 
-    def add_receipt(self, receipt: Receipt) -> Receipt:
+    def create(self, receipt: Receipt) -> Receipt:
         if any(rec.id == receipt.id for rec in self.receipts):
             raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
 
@@ -53,7 +53,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         self.shifts.add_receipt_to_shift(receipt)
         return receipt
 
-    def close_receipt(self, receipt_id: str) -> None:
+    def update(self, receipt_id: str) -> None:
         for receipt in self.receipts:
             if receipt.id == receipt_id:
                 if receipt.status == "closed":
@@ -64,7 +64,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 return
         raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
 
-    def get_receipt(self, receipt_id: str) -> Receipt:
+    def read(self, receipt_id: str) -> Receipt:
         for receipt in self.receipts:
             if receipt.id == receipt_id:
                 return receipt
@@ -113,7 +113,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             str, int
         ] = {}  # {product_id: discount_percentage}
         discounted_price = 0
-        receipt = self.get_receipt(receipt_id)
+        receipt = self.read(receipt_id)
         receipt_products_from_receipt = receipt.products
         campaigns_and_products = self.campaigns_repo.campaigns_product_list
         for receipt_product in receipt_products_from_receipt:
@@ -227,7 +227,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         return result_list
 
     def product_not_in_receipt(self, product_id: str, receipt_id: str) -> bool:
-        receipt = self.get_receipt(receipt_id)
+        receipt = self.read(receipt_id)
         receipt_products_from_receipt = receipt.products
         for receipt_product in receipt_products_from_receipt:
             if receipt_product.id == product_id:

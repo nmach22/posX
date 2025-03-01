@@ -1,30 +1,33 @@
 import uuid
-
 import pytest
 
-from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.campaign_interface import (
-    BuyNGetN,
     Campaign,
-    Combo,
     Discount,
+    BuyNGetN,
     ReceiptDiscount,
+    Combo,
 )
+from app.core.Interfaces.shift_interface import Shift
+from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
-from app.core.Interfaces.shift_interface import Shift
+
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    DoesntExistError,
+    ProductInMemoryRepository,
+    AlreadyClosedError,
+)
+
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignAndProducts,
     CampaignInMemoryRepository,
 )
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    AlreadyClosedError,
-    DoesntExistError,
-    ProductInMemoryRepository,
-)
+
 from app.infra.in_memory_repositories.receipt_in_memory_repository import (
     ReceiptInMemoryRepository,
 )
+
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     ShiftInMemoryRepository,
 )
@@ -181,7 +184,7 @@ def test_calculate_discount_campaign():
     receipt = Receipt(
         id="1", shift_id="1", currency="gel", products=[], status="open", total=0
     )
-    receipt_repo.add_receipt(receipt)
+    receipt_repo.create(receipt)
 
     product_request = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
     receipt_repo.add_product_to_receipt("1", product_request)
@@ -255,7 +258,7 @@ def test_calculate_payment_mixed_campaigns():
     receipt = Receipt(
         id="1", shift_id="1", currency="gel", products=[], status="open", total=0
     )
-    receipt_repo.add_receipt(receipt)
+    receipt_repo.create(receipt)
 
     # Add Product 1 (with 10% discount) and Product 2 (with Buy 2 Get 1 free)
     product_request_1 = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
@@ -317,7 +320,7 @@ def test_calculate_payment_combo_discount_multiple_quantities():
     receipt = Receipt(
         id="1", shift_id="1", currency="gel", products=[], status="open", total=0
     )
-    receipt_repo.add_receipt(receipt)
+    receipt_repo.create(receipt)
 
     product_request_1 = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
     product_request_2 = AddProductRequest(product_id="2", quantity=2)  # 2 x Product 2
@@ -363,7 +366,7 @@ def test_calculate_payment_buy_n_get_n_with_discount():
     receipt = Receipt(
         id="1", shift_id="1", currency="gel", products=[], status="open", total=0
     )
-    receipt_repo.add_receipt(receipt)
+    receipt_repo.create(receipt)
 
     product_request = AddProductRequest(product_id="1", quantity=3)  # Buy 3 (one free)
     receipt_repo.add_product_to_receipt("1", product_request)
@@ -428,7 +431,7 @@ def test_calculate_payment_large_receipt_discount():
     receipt = Receipt(
         id="1", shift_id="1", currency="gel", products=[], status="open", total=0
     )
-    receipt_repo.add_receipt(receipt)
+    receipt_repo.create(receipt)
 
     product_request_1 = AddProductRequest(product_id="1", quantity=2)  # 2 x Product 1
     product_request_2 = AddProductRequest(

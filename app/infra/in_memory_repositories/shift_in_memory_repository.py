@@ -19,10 +19,10 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 class ShiftInMemoryRepository(ShiftRepositoryInterface):
     shifts: list[Shift] = field(default_factory=list)
 
-    def add_shift(self, shift: Shift) -> None:
+    def create(self, shift: Shift) -> None:
         self.shifts.append(deepcopy(shift))
 
-    def close_shift(self, shift_id: str) -> None:
+    def update(self, shift_id: str) -> None:
         for shift in self.shifts:
             if shift.shift_id == shift_id:
                 if shift.status != "open":

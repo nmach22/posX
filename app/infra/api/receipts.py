@@ -98,7 +98,7 @@ def close_receipt(
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ):
     try:
-        repository.close_receipt(receipt_id)
+        repository.update(receipt_id)
         return {"message": f"Receipt {receipt_id} successfully closed."}
     except DoesntExistError as e:
         raise HTTPException(status_code=404, detail=str(e))

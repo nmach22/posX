@@ -1,15 +1,11 @@
 from typing import Protocol
 
 from app.core.Interfaces.receipt_interface import Receipt
+from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_interface import Report, SalesReport, Shift
 
 
-class ShiftRepositoryInterface(Protocol):
-    def add_shift(self, shift: Shift) -> None:
-        pass
-
-    def close_shift(self, shift_id: str) -> None:
-        pass
+class ShiftRepositoryInterface(Repository[Shift], Protocol):
 
     def add_receipt_to_shift(self, receipt: Receipt):
         pass
