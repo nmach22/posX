@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+import sqlite3
+from dataclasses import dataclass, field
 
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
@@ -12,17 +13,16 @@ from app.infra.sql_repositories.receipt_sql_repository import ReceiptSQLReposito
 from app.infra.sql_repositories.shift_sql_repository import ShiftSQLRepository
 
 
-@dataclass
+# @dataclass
 class Sqlite:
-    db_path: str = ":memory:"
-
-    def __post_init__(self):
+    # db_path: str
+    def __init__(self, connection: sqlite3.Connection):
         """Initialize repositories with correct dependencies."""
-        self._products = ProductSQLRepository(self.db_path)
-        self._campaigns = CampaignSQLRepository(self.db_path)
-        self._shifts = ShiftSQLRepository(self.db_path, self._products)
+        self._products = ProductSQLRepository(connection)
+        self._campaigns = CampaignSQLRepository(connection, self._products)
+        self._shifts = ShiftSQLRepository(connection, self._products)
         self._receipts = ReceiptSQLRepository(
-            self.db_path, self._products, self._shifts, self._campaigns
+            connection, self._products, self._shifts, self._campaigns
         )
 
     def products(self) -> ProductRepositoryInterface:
