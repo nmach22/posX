@@ -17,6 +17,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
     ProductInMemoryRepository,
+    AlreadyClosedError,
 )
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     ShiftInMemoryRepository,
@@ -46,7 +47,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         for receipt in self.receipts:
             if receipt.id == receipt_id:
                 if receipt.status == "closed":
-                    raise DoesntExistError(
+                    raise AlreadyClosedError(
                         f"Receipt with ID {receipt_id} is already closed."
                     )
                 receipt.status = "closed"

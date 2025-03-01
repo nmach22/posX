@@ -15,6 +15,7 @@ from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterf
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
+    AlreadyClosedError,
 )
 
 
@@ -60,12 +61,9 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
     def add_receipt(self, receipt: Receipt) -> Receipt:
         cursor = self.conn.cursor()
-        cursor.execute(
-            "SELECT id FROM receipts WHERE id = ?",
-            (receipt.id,),
-        )
-        if cursor.fetchone():
-            raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
+        cursor.execute("SELECT id FROM shifts WHERE id = ?", (receipt.shift_id,))
+        if not cursor.fetchone():
+            raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
 
         cursor.execute(
             "INSERT INTO receipts (id, shift_id, status, total) VALUES (?, ?, ?,?)",
@@ -84,8 +82,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         )
         row = cursor.fetchone()
         if row and row[0] == "closed":
-            # todo:saxeli ar sheesabameba
-            raise DoesntExistError(f"Receipt with ID {receipt_id} is already closed.")
+            raise AlreadyClosedError(f"Receipt with ID {receipt_id} is already closed.")
 
         cursor.execute(
             "UPDATE receipts SET status = ? WHERE id = ?",
@@ -137,8 +134,12 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         self, receipt_id: str, product_request: AddProductRequest
     ) -> Receipt:
         # product_price = 0
-
         cursor = self.conn.cursor()
+
+        cursor.execute("SELECT id FROM receipts WHERE id = ?", (receipt_id,))
+        if not cursor.fetchone():
+            raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
+
         cursor.execute(
             "SELECT price FROM products WHERE id = ?",
             (product_request.product_id,),
@@ -203,7 +204,7 @@ def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
 
         cursor.execute(
             """
-            SELECT c.type, cp.discounted_price, c.discount_percentage, c.required_quantity, c.free_quantity
+            SELECT c.id, c.type, cp.discounted_price, c.discount_percentage, c.required_quantity, c.free_quantity
             FROM campaign_products cp
             JOIN campaigns c ON cp.campaign_id = c.id
             WHERE cp.product_id = ?
@@ -214,6 +215,7 @@ def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
 
         if campaign_row:
             (
+                campaign_id,
                 campaign_type,
                 campaign_discounted_price,
                 discount_percentage,
@@ -225,21 +227,45 @@ def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
                 discounted_price = campaign_discounted_price
                 total_discounted_price += discounted_price * quantity
             elif campaign_type == "combo":
-                discounted_price = campaign_discounted_price  # Applies combo discount
-                total_discounted_price += discounted_price
+                cursor.execute(
+                    """
+                    SELECT cp.product_id
+                    FROM campaign_products cp
+                    WHERE cp.campaign_id = ?
+                    """,
+                    (campaign_id,),
+                )
+                combo_products = [row[0] for row in cursor.fetchall()]
+                receipt_products = {
+                    product_id: quantity for product_id, quantity, _, _ in products_data
+                }
+                if all(prod in receipt_products for prod in combo_products):
+                    discounted_price = campaign_discounted_price
+                    total_discounted_price += discounted_price * quantity
             elif campaign_type == "buy_n_get_n":
                 if quantity >= required_qty:
                     result = quantity // (required_qty + free_qty)
                     discounted_price = result * free_qty
                     total_discounted_price += discounted_price
 
-                    # elif campaign_type == "receipt_discount":
-            #     if original_total >= required_qty:
-            #         discount_amount = (original_total * discount_percentage) / 100
-            #         discounted_price -= discount_amount / quantity
+        reduced_price = original_total - total_discounted_price
+        cursor.execute(
+            """
+            SELECT discount_percentage, min_amount
+            FROM campaigns
+            WHERE type = 'receipt_discount' AND min_amount <= ?
+            """,
+            (reduced_price,),
+        )
+        receipt_discount_row = cursor.fetchone()
+
+        if receipt_discount_row:
+            discount_percentage, min_amount = receipt_discount_row
+            receipt_discount_price = (reduced_price * discount_percentage) / 100
+            reduced_price -= receipt_discount_price
 
         return ReceiptForPayment(
             receipt=self.get_receipt(receipt_id),
             discounted_price=total_discounted_price,
-            reduced_price=original_total - total_discounted_price,
+            reduced_price=reduced_price,
         )
