@@ -2,7 +2,7 @@ import pytest
 
 from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
-from app.infra.product_in_memory_repository import (
+from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
     ProductInMemoryRepository,

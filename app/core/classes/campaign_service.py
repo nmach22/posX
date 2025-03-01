@@ -9,7 +9,9 @@ from app.core.Interfaces.campaign_interface import (
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
-from app.infra.product_in_memory_repository import DoesntExistError
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    DoesntExistError,
+)
 
 
 @dataclass

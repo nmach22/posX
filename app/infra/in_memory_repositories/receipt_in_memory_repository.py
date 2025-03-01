@@ -10,13 +10,17 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptForPayment,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.infra.campaign_in_memory_repository import CampaignInMemoryRepository
-from app.infra.product_in_memory_repository import (
+from app.infra.in_memory_repositories.campaign_in_memory_repository import (
+    CampaignInMemoryRepository,
+)
+from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ExistsError,
     ProductInMemoryRepository,
 )
-from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
+from app.infra.in_memory_repositories.shift_in_memory_repository import (
+    ShiftInMemoryRepository,
+)
 
 
 @dataclass

@@ -2,13 +2,15 @@ from typing import Any, Protocol, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
-from mypyc.irbuild.statement import transform_yield_from_expr
 from pydantic import BaseModel
 
 from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
-from app.infra.product_in_memory_repository import ExistsError, DoesntExistError
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    ExistsError,
+    DoesntExistError,
+)
 
 products_api = APIRouter()
 

@@ -12,7 +12,9 @@ from app.core.Interfaces.receipt_interface import (
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.infra.api.products import ErrorResponse
-from app.infra.product_in_memory_repository import DoesntExistError
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    DoesntExistError,
+)
 
 receipts_api = APIRouter()
 
@@ -68,7 +70,7 @@ def create_receipt(
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=created_receipt.id,
-            shift_id=CreateReceiptRequest.shift_id,
+            shift_id=request.shift_id,
             status=created_receipt.status,
             products=[],
             total=created_receipt.total,
@@ -100,6 +102,7 @@ def add_product(
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=receipt.id,
+            shift_id=receipt.shift_id,
             status=receipt.status,
             products=[
                 ReceiptProductDict(

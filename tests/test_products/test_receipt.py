@@ -1,5 +1,4 @@
 import uuid
-
 import pytest
 
 from app.core.Interfaces.campaign_interface import (
@@ -12,16 +11,24 @@ from app.core.Interfaces.shift_interface import Shift
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import AddProductRequest, Receipt
-from app.infra.campaign_in_memory_repository import (
-    CampaignInMemoryRepository,
-    CampaignAndProducts,
-)
-from app.infra.product_in_memory_repository import (
+
+from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
     ProductInMemoryRepository,
 )
-from app.infra.receipt_in_memory_repository import ReceiptInMemoryRepository
-from app.infra.shift_in_memory_repository import ShiftInMemoryRepository
+
+from app.infra.in_memory_repositories.campaign_in_memory_repository import (
+    CampaignAndProducts,
+    CampaignInMemoryRepository,
+)
+
+from app.infra.in_memory_repositories.receipt_in_memory_repository import (
+    ReceiptInMemoryRepository,
+)
+
+from app.infra.in_memory_repositories.shift_in_memory_repository import (
+    ShiftInMemoryRepository,
+)
 
 
 @pytest.fixture
