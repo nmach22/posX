@@ -7,15 +7,14 @@ from app.core.Interfaces.product_repository_interface import ProductRepositoryIn
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
-    ReceiptProduct,
     ReceiptForPayment,
+    ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-    ExistsError,
     AlreadyClosedError,
+    DoesntExistError,
 )
 
 

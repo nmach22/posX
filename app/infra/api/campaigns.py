@@ -1,18 +1,22 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from mypy.semanal_shared import Protocol
 from pydantic import BaseModel
 from starlette.requests import Request
 
+from app.core.classes.campaign_service import CampaignService
 from app.core.Interfaces.campaign_interface import (
-    CampaignRequest,
     Campaign,
+    CampaignRequest,
 )
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
-from app.core.classes.campaign_service import CampaignService
+from app.infra.api.products import ErrorResponse
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    DoesntExistError,
+)
 
 campaigns_api = APIRouter()
 
@@ -41,14 +45,22 @@ def add_campaign(
     return ResponseCampaign(campaign=created_campaign)
 
 
-@campaigns_api.delete("{campaign_id}")
+@campaigns_api.delete(
+    "{campaign_id}",
+    responses={404: {"model": ErrorResponse, "description": "Shift not found."}},
+)
 def delete_campaign(
     campaign_id: str,
     repository: CampaignRepositoryInterface = Depends(create_campaigns_repository),
 ) -> dict[Any, Any]:
     campaign_service = CampaignService(repository)
-    campaign_service.delete_campaign(campaign_id)
-
+    try:
+        campaign_service.delete_campaign(campaign_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": {"message": "campaign with this id does not exist."}},
+        )
     return {}
 
 

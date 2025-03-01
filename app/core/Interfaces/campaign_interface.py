@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, Union, Optional
+from typing import Optional, Protocol, Union
 
 from pydantic import BaseModel
 

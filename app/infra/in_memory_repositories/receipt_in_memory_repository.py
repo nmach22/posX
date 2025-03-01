@@ -1,23 +1,22 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
-
 from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
-    ReceiptProduct,
     ReceiptForPayment,
+    ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
+    AlreadyClosedError,
     DoesntExistError,
     ExistsError,
     ProductInMemoryRepository,
-    AlreadyClosedError,
 )
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     ShiftInMemoryRepository,

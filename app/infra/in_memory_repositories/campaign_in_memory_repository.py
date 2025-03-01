@@ -33,6 +33,8 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
     def add_campaign(self, campaign: Campaign) -> Campaign:
         self.campaigns.append(campaign)
         if campaign.type == "discount":
+            if self.product_does_not_exist(campaign.data.product_id):
+                raise DoesntExistError
             old_price = self.products_repo.get_product(campaign.data.product_id).price
             discount = campaign.data.discount_percentage
             new_price = int(old_price - (old_price * discount) / 100)
@@ -45,6 +47,10 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
             # self.campaign_product_list.append(product_for_campaign)
             self.campaigns_product_list[campaign.data.product_id] = product_for_campaign
         if campaign.type == "combo":
+            for product_id in campaign.data.products:
+                if self.product_does_not_exist(product_id):
+                    raise DoesntExistError
+
             products_id_list = campaign.data.products
             for product_id in products_id_list:
                 old_price = self.products_repo.get_product(product_id).price
@@ -60,6 +66,8 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
                 self.campaigns_product_list[product_id] = product_for_campaign
 
         if campaign.type == "Buy n get n":
+            if self.product_does_not_exist(campaign.data.product_id):
+                raise DoesntExistError
             product_for_campaign = CampaignAndProducts(
                 str(uuid.uuid4()),
                 campaign.campaign_id,
@@ -89,3 +97,10 @@ class CampaignInMemoryRepository(CampaignRepositoryInterface):
 
     def get_all_campaigns(self) -> list[Campaign]:
         return self.campaigns
+
+    def product_does_not_exist(self, product_id: str) -> bool:
+        for product_from_list in self.products_repo.read_all_products():
+            if product_from_list.id == product_id:
+                return False
+
+        return True

@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
-    ReceiptInterface,
     ReceiptForPayment,
+    ReceiptInterface,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 

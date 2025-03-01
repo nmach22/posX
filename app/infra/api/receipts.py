@@ -78,7 +78,7 @@ def create_receipt(
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
-            detail={"error": {"message": f"Shift with this id does not exist."}},
+            detail={"error": {"message": "Shift with this id does not exist."}},
         )
     return ReceiptResponse(
         receipt=ReceiptEntry(
@@ -91,10 +91,12 @@ def create_receipt(
         )
     )
 
+
 @receipts_api.post("/receipts/{receipt_id}/close")
 def close_receipt(
-        receipt_id: str,
-        repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),):
+    receipt_id: str,
+    repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
+):
     try:
         repository.close_receipt(receipt_id)
         return {"message": f"Receipt {receipt_id} successfully closed."}
@@ -122,7 +124,7 @@ def add_product(
         raise HTTPException(
             status_code=404,
             detail={
-                "error": {"message": f"product or receipt with this id does not exist."}
+                "error": {"message": "product or receipt with this id does not exist."}
             },
         )
     return ReceiptResponse(
@@ -153,7 +155,7 @@ def get_receipt(
         raise HTTPException(
             status_code=404,
             detail={
-                "error": {"message": f"product or receipt with this id does not exist."}
+                "error": {"message": "product or receipt with this id does not exist."}
             },
         )
     return ReceiptResponse(

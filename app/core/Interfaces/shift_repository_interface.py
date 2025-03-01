@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, Report, Report, SalesReport
+from app.core.Interfaces.shift_interface import Report, SalesReport, Shift
 
 
 class ShiftRepositoryInterface(Protocol):

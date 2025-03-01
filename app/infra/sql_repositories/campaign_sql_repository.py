@@ -1,10 +1,11 @@
-import uuid
 import sqlite3
+import uuid
+
 from app.core.Interfaces.campaign_interface import (
-    Campaign,
-    Discount,
-    Combo,
     BuyNGetN,
+    Campaign,
+    Combo,
+    Discount,
     ReceiptDiscount,
 )
 from app.core.Interfaces.campaign_repository_interface import (

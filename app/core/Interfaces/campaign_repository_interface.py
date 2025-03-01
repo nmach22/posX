@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from app.core.Interfaces.campaign_interface import Campaign, CampaignRequest
+from app.core.Interfaces.campaign_interface import Campaign
 
 
 class CampaignRepositoryInterface(Protocol):
