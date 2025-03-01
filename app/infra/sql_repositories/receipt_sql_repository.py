@@ -124,10 +124,10 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 products.append(product)
 
             receipt = Receipt(
-                id=row[0],
-                shift_id=row[1],
-                status=row[2],
-                total=row[3],
+                id=receipt_id,
+                shift_id=row[0],
+                status=row[1],
+                total=row[2],
                 products=products,
             )
             return receipt

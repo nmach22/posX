@@ -102,6 +102,7 @@ def add_product(
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=receipt.id,
+            shift_id=receipt.shift_id,
             status=receipt.status,
             products=[
                 ReceiptProductDict(
