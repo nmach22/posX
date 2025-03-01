@@ -15,15 +15,20 @@ class Shift:
 class Report:
     shift_id: str
     n_receipts: int
-    revenue: int
+    revenue: Dict[str, int]
     products: list[Dict[str, int]]
 
 
 @dataclass
+class ClosedReceipt:
+    receipt_id: str
+    calculated_payment: int
+
+@dataclass
 class SalesReport:
     total_receipts: int
-    total_revenue: float
-    products: list[dict[str, float | int]]
+    total_revenue: Dict[str, int]
+    closed_receipts: list[ClosedReceipt]
 
 
 class ShiftInterface(Protocol):
@@ -37,9 +42,6 @@ class ShiftInterface(Protocol):
         pass
 
     def get_x_report(self, shift_id: str) -> Report:
-        pass
-
-    def get_z_report(self, shift_id: str) -> Report:
         pass
 
     def get_lifetime_sales_report(self) -> SalesReport:

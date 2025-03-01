@@ -20,6 +20,7 @@ class ReceiptProduct:
 class Receipt:
     id: str
     shift_id: str
+    currency: str
     products: list[ReceiptProduct]
     status: str
     total: int
@@ -39,7 +40,7 @@ class ReceiptForPayment:
 
 
 class ReceiptInterface(Protocol):
-    def create_receipt(self, shift_id: str) -> Receipt:
+    def create_receipt(self, shift_id: str, currency: str) -> Receipt:
         pass
 
     def add_product(

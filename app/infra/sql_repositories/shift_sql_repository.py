@@ -1,9 +1,10 @@
 import sqlite3
 from dataclasses import dataclass
+from typing import Dict
 
 from app.core.Interfaces.product_repository_interface import ProductRepositoryInterface
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.shift_interface import Shift, Report, SalesReport
+from app.core.Interfaces.shift_interface import Shift, Report, SalesReport, ClosedReceipt
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
@@ -43,14 +44,17 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         self.conn.commit()
 
     def close_shift(self, shift_id: str) -> None:
-        """Mark shift as closed."""
-
         cursor = self.conn.cursor()
+        cursor.execute("SELECT status FROM shifts WHERE shift_id = ?", (shift_id,))
+        row = cursor.fetchone()
+        if row is None:
+            raise DoesntExistError(f"Shift with ID {shift_id} not found.")
+        current_status = row[0]
+        if current_status == "closed":
+            raise ValueError(f"Shift with ID {shift_id} is already closed.")
         cursor.execute(
             "UPDATE shifts SET status = 'closed' WHERE shift_id = ?", (shift_id,)
         )
-        if cursor.rowcount == 0:
-            raise DoesntExistError(f"Shift with ID {shift_id} not found.")
         self.conn.commit()
 
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
@@ -68,31 +72,89 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         #         )
         #     self.conn.commit()
 
+    # def get_x_report(self, shift_id: str) -> Report:
+    #     cursor = self.conn.cursor()
+    #
+    #     cursor.execute("SELECT status FROM shifts WHERE shift_id = ?", (shift_id,))
+    #     result = cursor.fetchone()
+    #     if not result:
+    #         raise DoesntExistError(f"Shift with ID {shift_id} not found.")
+    #     if result[0] != "open":
+    #         raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
+    #
+    #     cursor.execute(
+    #         "SELECT r.id, r.total "
+    #         "FROM receipts r "
+    #         "WHERE r.shift_id = ? AND r.status = 'closed'",
+    #         (shift_id,),
+    #     )
+    #     receipts = cursor.fetchall()
+    #     n_receipts = len(receipts)
+    #     revenue = sum(total for _, total in receipts)
+    #
+    #     product_summary = {}
+    #     cursor.execute(
+    #         """
+    #         SELECT rp.product_id, SUM(rp.quantity) AS total_quantity
+    #         FROM receipt_products rp
+    #         JOIN receipts r ON rp.receipt_id = r.id
+    #         WHERE r.shift_id = ? AND r.status = 'closed'
+    #         GROUP BY rp.product_id
+    #         """,
+    #         (shift_id,),
+    #     )
+    #     for product_id, total_quantity in cursor.fetchall():
+    #         product_summary[product_id] = {
+    #             "quantity": total_quantity
+    #         }
+    #
+    #     products = [
+    #         {
+    #             "id": pid,
+    #             "quantity": data["quantity"]
+    #         }
+    #         for pid, data in product_summary.items()
+    #     ]
+    #
+    #     return Report(
+    #         shift_id=shift_id,
+    #         n_receipts=n_receipts,
+    #         revenue=revenue,
+    #         products=products,
+    #     )
+
     def get_x_report(self, shift_id: str) -> Report:
         cursor = self.conn.cursor()
 
         cursor.execute("SELECT status FROM shifts WHERE shift_id = ?", (shift_id,))
         result = cursor.fetchone()
+        print(result)
         if not result:
             raise DoesntExistError(f"Shift with ID {shift_id} not found.")
         if result[0] != "open":
             raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
-
-        # Get receipts for the shift that are closed
+        print("aq movedi")
         cursor.execute(
-            "SELECT r.id, r.total "
-            "FROM receipts r "
-            "WHERE r.shift_id = ? AND r.status = 'closed'",
+            """
+            SELECT r.id, r.total, r.currency
+            FROM receipts r
+            WHERE r.shift_id = ? AND r.status = 'closed'
+            """,
             (shift_id,),
         )
+        print("aqac movedi vau")
         receipts = cursor.fetchall()
+        print(receipts)
         n_receipts = len(receipts)
-        revenue = sum(total for _, total in receipts)
+        currency_revenue = {}
+
+        for receipt_id, total, currency in receipts:
+            currency_revenue[currency] = currency_revenue.get(currency, 0) + total
 
         product_summary = {}
         cursor.execute(
             """
-            SELECT rp.product_id, SUM(rp.quantity) AS total_quantity, SUM(rp.total) AS total_price
+            SELECT rp.product_id, SUM(rp.quantity) AS total_quantity
             FROM receipt_products rp
             JOIN receipts r ON rp.receipt_id = r.id
             WHERE r.shift_id = ? AND r.status = 'closed'
@@ -100,17 +162,15 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             """,
             (shift_id,),
         )
-        for product_id, total_quantity, total_price in cursor.fetchall():
+        for product_id, total_quantity in cursor.fetchall():
             product_summary[product_id] = {
-                "quantity": total_quantity,
-                "total_price": total_price,
+                "quantity": total_quantity
             }
 
         products = [
             {
                 "id": pid,
-                "quantity": data["quantity"],
-                "total_price": data["total_price"],
+                "quantity": data["quantity"]
             }
             for pid, data in product_summary.items()
         ]
@@ -118,54 +178,31 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         return Report(
             shift_id=shift_id,
             n_receipts=n_receipts,
-            revenue=revenue,
+            revenue=currency_revenue,
             products=products,
-        )
-
-    def get_z_report(self, shift_id: str) -> Report:
-        """Generate a Z report for a shift and close it."""
-        report = self.get_x_report(shift_id)
-        self.close_shift(shift_id)
-        return Report(
-            shift_id=shift_id,
-            n_receipts=report.n_receipts,
-            revenue=report.revenue,
-            products=report.products,
         )
 
     def get_lifetime_sales_report(self) -> SalesReport:
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT COUNT(*), SUM(total) FROM receipts WHERE status = 'closed'"
-        )
-        total_receipts, total_revenue = cursor.fetchone()
-
-        product_summary = {}
-        cursor.execute(
             """
-            SELECT product_id, SUM(quantity), SUM(total_price)
-            FROM products
-            WHERE receipt_id IN (SELECT receipt_id FROM receipts WHERE status = 'closed')
-            GROUP BY product_id
+            SELECT r.id, r.currency, r.total
+            FROM receipts r
+            WHERE r.status = 'closed'
             """
         )
-        for product_id, quantity, total_price in cursor.fetchall():
-            product_summary[product_id] = {
-                "quantity": quantity,
-                "total_price": total_price,
-            }
+        receipts = cursor.fetchall()
 
-        products = [
-            {
-                "id": pid,
-                "quantity": data["quantity"],
-                "total_price": data["total_price"],
-            }
-            for pid, data in product_summary.items()
-        ]
+        total_receipts = len(receipts)
+        currency_totals: Dict[str, int] = {}  # Ensure float values
+        closed_receipts: list[ClosedReceipt] = []
+
+        for receipt_id, currency, total in receipts:
+            currency_totals[currency] = currency_totals.get(currency, 0) + total
+            closed_receipts.append(ClosedReceipt(receipt_id=receipt_id, calculated_payment=total))
 
         return SalesReport(
-            total_receipts=total_receipts or 0,
-            total_revenue=total_revenue or 0.0,
-            products=products,
+            total_receipts=total_receipts,
+            total_revenue=currency_totals,
+            closed_receipts=closed_receipts,
         )

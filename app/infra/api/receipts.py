@@ -29,6 +29,7 @@ class ReceiptProductDict(BaseModel):
 class ReceiptEntry(BaseModel):
     id: str
     shift_id: str
+    currency: str
     status: ReceiptStatus
     products: list[ReceiptProductDict]
     total: int
@@ -36,6 +37,7 @@ class ReceiptEntry(BaseModel):
 
 class CreateReceiptRequest(BaseModel):
     shift_id: str
+    currency: str
 
 
 class ReceiptResponse(BaseModel):
@@ -66,16 +68,29 @@ def create_receipt(
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
-    created_receipt = receipt_service.create_receipt(request.shift_id)
+    created_receipt = receipt_service.create_receipt(request.shift_id, request.currency)
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=created_receipt.id,
             shift_id=request.shift_id,
+            currency=request.currency,
             status=created_receipt.status,
             products=[],
             total=created_receipt.total,
         )
     )
+
+@receipts_api.post("/receipts/{receipt_id}/close")
+def close_receipt(
+        receipt_id: str,
+        repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),):
+    try:
+        repository.close_receipt(receipt_id)
+        return {"message": f"Receipt {receipt_id} successfully closed."}
+    except DoesntExistError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @receipts_api.post(

@@ -14,7 +14,7 @@ from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryIn
 class ReceiptService(ReceiptInterface):
     repository: ReceiptRepositoryInterface
 
-    def create_receipt(self, shift_id: str) -> Receipt:
+    def create_receipt(self, shift_id: str, currency: str) -> Receipt:
         receipt_id = uuid.uuid4()
         products = []
         status = "open"
@@ -22,6 +22,7 @@ class ReceiptService(ReceiptInterface):
         receipt = Receipt(
             id=str(receipt_id),
             shift_id=shift_id,
+            currency=currency,
             products=products,
             status=status,
             total=total,

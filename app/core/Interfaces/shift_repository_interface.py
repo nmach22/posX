@@ -17,8 +17,5 @@ class ShiftRepositoryInterface(Protocol):
     def get_x_report(self, shift_id: str) -> Report:
         pass
 
-    def get_z_report(self, shift_id: str) -> Report:
-        pass
-
     def get_lifetime_sales_report(self) -> SalesReport:
         pass

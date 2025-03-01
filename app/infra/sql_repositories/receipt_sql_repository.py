@@ -39,6 +39,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             CREATE TABLE IF NOT EXISTS receipts (
                 id TEXT PRIMARY KEY,
                 shift_id TEXT NOT NULL,
+                currency TEXT NOT NULL,
                 status TEXT NOT NULL,
                 total INTEGER NOT NULL
             )
@@ -68,8 +69,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
 
         cursor.execute(
-            "INSERT INTO receipts (id, shift_id, status, total) VALUES (?, ?, ?,?)",
-            (receipt.id, receipt.shift_id, receipt.status, receipt.total),
+            "INSERT INTO receipts (id, shift_id, currency, status, total) VALUES (?, ?, ?,?, ?)",
+            (receipt.id, receipt.shift_id, receipt.currency, receipt.status, receipt.total),
         )
         self.conn.commit()
 

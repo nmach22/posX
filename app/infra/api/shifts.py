@@ -1,5 +1,5 @@
 from http.client import HTTPException
-from typing import Protocol
+from typing import Protocol, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
@@ -40,12 +40,26 @@ class ZReportResponse(BaseModel):
 class NotFoundError:
     pass
 
+class CloseShiftResponse(BaseModel):
+    message: str
+
 
 @shifts_api.post(
     "",
     status_code=201,
     response_model=ShiftResponse,
 )
+
+class ClosedReceiptResponse(BaseModel):
+    receipt_id: str
+    calculated_payment: int
+
+class SalesReportResponse(BaseModel):
+    total_receipts: int
+    total_revenue: Dict[str, int]
+    closed_receipts: list[ClosedReceiptResponse]
+
+
 def create_shift(
     repository: ShiftRepositoryInterface = Depends(create_shift_repository),
 ) -> ShiftResponse:
@@ -74,18 +88,41 @@ def get_x_reports(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@shifts_api.get("/z-reports")
-def get_z_reports(
+@shifts_api.post("/close-shift", response_model=CloseShiftResponse)
+def close_shift(
     shift_id: str,
     repository: ShiftRepositoryInterface = Depends(create_shift_repository),
-) -> ZReportResponse:
+) -> CloseShiftResponse:
     shift_service = ShiftService(repository)
     try:
-        z_response = shift_service.get_z_report(shift_id)
-        return ZReportResponse(z_report=z_response)
+        shift_service.close_shift(shift_id)
+        return CloseShiftResponse(message="Shift closed successfully.")
     except DoesntExistError:
         raise HTTPException(status_code=404, detail="Shift not found.")
     except ValueError:
-        raise HTTPException(status_code=400, detail="Shift is closed.")
+        raise HTTPException(status_code=400, detail="Shift is already closed.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@shifts_api.get("/sales", response_model=SalesReportResponse)
+def get_sales_report(
+    repository: ShiftRepositoryInterface = Depends(create_shift_repository),
+) -> SalesReportResponse:
+    shift_service = ShiftService(repository)
+    try:
+        report = shift_service.get_lifetime_sales_report()
+        return SalesReportResponse(
+            total_receipts=report.total_receipts,
+            total_revenue=report.total_revenue,
+            closed_receipts=[
+                ClosedReceiptResponse(
+                    receipt_id=receipt.receipt_id,
+                    calculated_payment=receipt.calculated_payment,
+                )
+                for receipt in report.closed_receipts
+            ],
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
