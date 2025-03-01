@@ -90,3 +90,6 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
             total_revenue=currency_totals,
             closed_receipts=closed_receipts,
         )
+
+    def read_all_shifts(self) -> list[Shift]:
+        return self.shifts

@@ -1,6 +1,12 @@
 import uuid
 import sqlite3
-from app.core.Interfaces.campaign_interface import Campaign, Discount, Combo, BuyNGetN
+from app.core.Interfaces.campaign_interface import (
+    Campaign,
+    Discount,
+    Combo,
+    BuyNGetN,
+    ReceiptDiscount,
+)
 from app.core.Interfaces.campaign_repository_interface import (
     CampaignRepositoryInterface,
 )
@@ -24,10 +30,11 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
             """
             CREATE TABLE IF NOT EXISTS campaigns (
                 id TEXT PRIMARY KEY,
-                type TEXT NOT NULL CHECK(type IN ('buy_n_get_n', 'discount', 'combo')),
+                type TEXT NOT NULL CHECK(type IN ('buy_n_get_n', 'discount', 'combo', 'receipt_discount')),
                 discount_percentage INTEGER,
-                required_quantity INTEGER,
-                free_quantity INTEGER
+                buy_quantity INTEGER,
+                get_quantity INTEGER,
+                min_amount INTEGER
             )
             """
         )
@@ -51,27 +58,32 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
 
         discount_percentage = (
             campaign.data.discount_percentage
-            if campaign.type in ["discount", "combo"]
+            if campaign.type in ["discount", "combo", "receipt_discount"]
             else None
         )
-        required_quantity = (
-            campaign.data.required_quantity if campaign.type == "buy_n_get_n" else None
+        buy_quantity = (
+            campaign.data.buy_quantity if campaign.type == "buy_n_get_n" else None
         )
-        free_quantity = (
-            campaign.data.free_quantity if campaign.type == "buy_n_get_n" else None
+        get_quantity = (
+            campaign.data.get_quantity if campaign.type == "buy_n_get_n" else None
+        )
+
+        min_amount = (
+            campaign.data.min_amount if campaign.type == "receipt_discount" else None
         )
 
         cursor.execute(
             """
-            INSERT INTO campaigns (id, type, discount_percentage, required_quantity, free_quantity)
+            INSERT INTO campaigns (id, type, discount_percentage, buy_quantity, get_quantity, min_amount)
             VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 campaign.campaign_id,
                 campaign.type,
                 discount_percentage,
-                required_quantity,
-                free_quantity,
+                buy_quantity,
+                get_quantity,
+                min_amount,
             ),
         )
 
@@ -151,10 +163,9 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
                 campaign_id,
                 type_,
                 discount_percentage,
-                required_quantity,
-                free_quantity,
-                is_active,
-                created_at,
+                buy_quantity,
+                get_quantity,
+                min_amount,
             ) = campaign_data
 
             cursor.execute(
@@ -178,8 +189,13 @@ class CampaignSQLRepository(CampaignRepositoryInterface):
             elif type_ == "buy_n_get_n":
                 campaign_data_obj = BuyNGetN(
                     product_id=product_ids[0],
-                    buy_quantity=required_quantity,
-                    get_quantity=free_quantity,
+                    buy_quantity=buy_quantity,
+                    get_quantity=get_quantity,
+                )
+            elif type_ == "receipt_discount":
+                campaign_data_obj = ReceiptDiscount(
+                    min_amount=min_amount,
+                    discount_percentage=discount_percentage,
                 )
             else:
                 raise DoesntExistError(f"Unknown campaign type {type_}")

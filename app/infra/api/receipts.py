@@ -62,13 +62,24 @@ def create_products_repository(request: Request) -> ProductRepositoryInterface:
     return infra.products()
 
 
-@receipts_api.post("", status_code=201, response_model=ReceiptResponse)
+@receipts_api.post(
+    "",
+    status_code=201,
+    responses={404: {"model": ErrorResponse, "description": "Shift not found."}},
+)
 def create_receipt(
     request: CreateReceiptRequest,
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
     created_receipt = receipt_service.create_receipt(request.shift_id, request.currency)
+    try:
+        created_receipt = receipt_service.create_receipt(request.shift_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": {"message": f"Shift with this id does not exist."}},
+        )
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=created_receipt.id,
@@ -117,6 +128,38 @@ def add_product(
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=receipt.id,
+            shift_id=receipt.shift_id,
+            status=receipt.status,
+            products=[
+                ReceiptProductDict(
+                    id=p.id, quantity=p.quantity, price=p.price, total=p.total
+                )
+                for p in receipt.products
+            ],
+            total=receipt.total,
+        )
+    )
+
+
+@receipts_api.get("/{receipt_id}", response_model=ReceiptResponse)
+def get_receipt(
+    receipt_id: str,
+    receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
+) -> ReceiptResponse:
+    receipt_service = ReceiptService(receipts_repo)
+    try:
+        receipt = receipt_service.read_receipt(receipt_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": {"message": f"product or receipt with this id does not exist."}
+            },
+        )
+    return ReceiptResponse(
+        receipt=ReceiptEntry(
+            id=receipt.id,
+            shift_id=receipt.shift_id,
             status=receipt.status,
             products=[
                 ReceiptProductDict(

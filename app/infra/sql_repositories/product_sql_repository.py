@@ -7,7 +7,6 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 )
 
 
-# todo:errorebs chavuwerot risi erroria
 class ProductSQLRepository(ProductRepositoryInterface):
     def __init__(self, connection: sqlite3.Connection):
         self.conn = connection
