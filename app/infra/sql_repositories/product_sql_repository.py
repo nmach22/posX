@@ -51,15 +51,16 @@ class ProductSQLRepository(Repository[Product]):
         raise DoesntExistError
 
     def update(self, product: Product) -> None:
+        self.delete(product.id)
         cursor = self.conn.cursor()
+
         cursor.execute(
             """
-            UPDATE products SET price = ? WHERE id = ?
+            INSERT INTO products (id, name, price, barcode) VALUES (?, ?, ?, ?)
             """,
-            (product.price, product.id),
+            (product.id, product.name, product.price, product.barcode),
         )
-        if cursor.rowcount == 0:
-            raise DoesntExistError
+
         self.conn.commit()
 
     def read_all(self) -> list[Product]:
@@ -70,5 +71,17 @@ class ProductSQLRepository(Repository[Product]):
             Product(id=row[0], name=row[1], barcode=row[2], price=row[3])
             for row in rows
         ]
+
     def delete(self, product_id: str) -> None:
-        raise NotImplementedError("Not implemented yet.")
+        cursor = self.conn.cursor()
+
+        cursor.execute(
+            """
+            DELETE FROM products WHERE id = ?
+            """,
+            (product_id,),
+        )
+        if cursor.rowcount == 0:
+            raise DoesntExistError
+
+        self.conn.commit()
