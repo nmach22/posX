@@ -35,7 +35,7 @@ class ShiftInterface(Protocol):
     def create_shift(self) -> Shift:
         pass
 
-    def close_shift(self, shift_id: str) -> None:
+    def close_shift(self, shift: Shift) -> None:
         pass
 
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
@@ -45,4 +45,7 @@ class ShiftInterface(Protocol):
         pass
 
     def get_lifetime_sales_report(self) -> SalesReport:
+        pass
+
+    def get_shift(self, shift_id: str) -> Shift:
         pass

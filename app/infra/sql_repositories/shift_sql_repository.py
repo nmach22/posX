@@ -50,19 +50,18 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         self.conn.commit()
         return shift
 
-    def update(self, shift_id: str) -> None:
+    def update(self, shift: Shift) -> None:
+        self.delete(shift.shift_id)
         cursor = self.conn.cursor()
-        cursor.execute("SELECT status FROM shifts WHERE shift_id = ?", (shift_id,))
-        row = cursor.fetchone()
-        if row is None:
-            raise DoesntExistError(f"Shift with ID {shift_id} not found.")
-        current_status = row[0]
-        if current_status == "closed":
-            raise ValueError(f"Shift with ID {shift_id} is already closed.")
         cursor.execute(
-            "UPDATE shifts SET status = 'closed' WHERE shift_id = ?", (shift_id,)
+            """
+            INSERT INTO shifts (shift_id, status) VALUES (?, ?)
+            """,
+            (shift.shift_id, shift.status),
         )
         self.conn.commit()
+
+
 
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         """Add a receipt to a shift in the database."""
@@ -79,56 +78,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         #         )
         #     self.conn.commit()
 
-    # def get_x_report(self, shift_id: str) -> Report:
-    #     cursor = self.conn.cursor()
-    #
-    #     cursor.execute("SELECT status FROM shifts WHERE shift_id = ?", (shift_id,))
-    #     result = cursor.fetchone()
-    #     if not result:
-    #         raise DoesntExistError(f"Shift with ID {shift_id} not found.")
-    #     if result[0] != "open":
-    #         raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
-    #
-    #     cursor.execute(
-    #         "SELECT r.id, r.total "
-    #         "FROM receipts r "
-    #         "WHERE r.shift_id = ? AND r.status = 'closed'",
-    #         (shift_id,),
-    #     )
-    #     receipts = cursor.fetchall()
-    #     n_receipts = len(receipts)
-    #     revenue = sum(total for _, total in receipts)
-    #
-    #     product_summary = {}
-    #     cursor.execute(
-    #         """
-    #         SELECT rp.product_id, SUM(rp.quantity) AS total_quantity
-    #         FROM receipt_products rp
-    #         JOIN receipts r ON rp.receipt_id = r.id
-    #         WHERE r.shift_id = ? AND r.status = 'closed'
-    #         GROUP BY rp.product_id
-    #         """,
-    #         (shift_id,),
-    #     )
-    #     for product_id, total_quantity in cursor.fetchall():
-    #         product_summary[product_id] = {
-    #             "quantity": total_quantity
-    #         }
-    #
-    #     products = [
-    #         {
-    #             "id": pid,
-    #             "quantity": data["quantity"]
-    #         }
-    #         for pid, data in product_summary.items()
-    #     ]
-    #
-    #     return Report(
-    #         shift_id=shift_id,
-    #         n_receipts=n_receipts,
-    #         revenue=revenue,
-    #         products=products,
-    #     )
+
 
     def get_x_report(self, shift_id: str) -> Report:
         cursor = self.conn.cursor()
@@ -211,5 +161,29 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             closed_receipts=closed_receipts,
         )
 
-    def delete(self, item_id: str) -> None:
-        raise NotImplementedError("Not implemented yet.")
+
+    def delete(self, shift_id: str) -> None:
+        cursor = self.conn.cursor()
+
+        cursor.execute(
+            """
+            DELETE FROM shifts WHERE shift_id = ?
+            """,
+            (shift_id,),
+        )
+        if cursor.rowcount == 0:
+            raise DoesntExistError
+
+        self.conn.commit()
+
+
+    def read(self, shift_id: str) -> Shift:
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "SELECT shift_id, status FROM shifts WHERE shift_id = ?",
+            (shift_id,),
+        )
+        row = cursor.fetchone()
+        if row:
+            return Shift(shift_id=row[0],receipts=[], status=row[1])
+        raise DoesntExistError
