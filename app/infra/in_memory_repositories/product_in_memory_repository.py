@@ -20,12 +20,13 @@ class AlreadyClosedError(Exception):
 class ProductInMemoryRepository(Repository[Product]):
     products: list[Product] = field(default_factory=list)
 
-    def create(self, product: Product) -> None:
+    def create(self, product: Product) -> Product:
         for existing_product in self.products:
             if existing_product.barcode == product.barcode:
                 raise ExistsError(product.barcode)
 
         self.products.append(product)
+        return product
 
     def read(self, product_id: str) -> Product:
         for product in self.products:

@@ -19,8 +19,19 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 class ShiftInMemoryRepository(ShiftRepositoryInterface):
     shifts: list[Shift] = field(default_factory=list)
 
-    def create(self, shift: Shift) -> None:
+    def create(self, shift: Shift) -> Shift:
         self.shifts.append(deepcopy(shift))
+        return shift
+
+    # def update(self, shift: Shift) -> None:
+    #     find: bool = False
+    #     for _shift in self.shifts:
+    #         if _shift.shift_id == shift.shift_id:
+    #             self.shifts.remove(_shift)
+    #             self.shifts.append(shift)
+    #             return
+    #     if not find:
+    #         raise DoesntExistError(f"Shift with ID {shift.shift_id} not found.")
 
     def update(self, shift_id: str) -> None:
         for shift in self.shifts:

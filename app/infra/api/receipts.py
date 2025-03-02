@@ -9,7 +9,6 @@ from app.core.Interfaces.repository import Repository
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
-    ReceiptStatus,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.infra.api.products import ErrorResponse
@@ -31,7 +30,7 @@ class ReceiptEntry(BaseModel):
     id: str
     shift_id: str
     currency: str
-    status: ReceiptStatus
+    status: str
     products: list[ReceiptProductDict]
     total: int
 
@@ -97,6 +96,8 @@ def close_receipt(
     receipt_id: str,
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ):
+    # TODO
+    receipt_service = ReceiptService(repository)
     try:
         repository.update(receipt_id)
         return {"message": f"Receipt {receipt_id} successfully closed."}

@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, Protocol
 
 from fastapi import APIRouter, Depends, HTTPException
-from mypy.semanal_shared import Protocol
+
 from pydantic import BaseModel
 from starlette.requests import Request
 
