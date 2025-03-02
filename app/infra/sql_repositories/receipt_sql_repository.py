@@ -184,96 +184,95 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def delete(self, item_id: str) -> None:
         raise NotImplementedError("Not implemented yet.")
 
-# TODO: es metodi klasisaa memgoni da shignit unda iyos sheweuli..
-def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
-    cursor = self.conn.cursor()
+    def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
+        cursor = self.conn.cursor()
 
-    cursor.execute("SELECT total FROM receipts WHERE id = ?", (receipt_id,))
-    row = cursor.fetchone()
-    if not row:
-        raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
+        cursor.execute("SELECT total FROM receipts WHERE id = ?", (receipt_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
 
-    original_total = row[0]
-
-    cursor.execute(
-        """
-        SELECT rp.product_id, rp.quantity, rp.price, rp.total
-        FROM receipt_products rp
-        WHERE rp.receipt_id = ?
-        """,
-        (receipt_id,),
-    )
-    products_data = cursor.fetchall()
-
-    total_discounted_price = 0
-
-    for product_data in products_data:
-        product_id, quantity, price, total_price = product_data
+        original_total = row[0]
 
         cursor.execute(
             """
-            SELECT c.id, c.type, cp.discounted_price, c.discount_percentage, c.required_quantity, c.free_quantity
-            FROM campaign_products cp
-            JOIN campaigns c ON cp.campaign_id = c.id
-            WHERE cp.product_id = ?
+            SELECT rp.product_id, rp.quantity, rp.price, rp.total
+            FROM receipt_products rp
+            WHERE rp.receipt_id = ?
             """,
-            (product_id,),
+            (receipt_id,),
         )
-        campaign_row = cursor.fetchone()
+        products_data = cursor.fetchall()
 
-        if campaign_row:
-            (
-                campaign_id,
-                campaign_type,
-                campaign_discounted_price,
-                discount_percentage,
-                required_qty,
-                free_qty,
-            ) = campaign_row
+        total_discounted_price = 0
 
-            if campaign_type == "discount":
-                discounted_price = campaign_discounted_price
-                total_discounted_price += discounted_price * quantity
-            elif campaign_type == "combo":
-                cursor.execute(
-                    """
-                    SELECT cp.product_id
-                    FROM campaign_products cp
-                    WHERE cp.campaign_id = ?
-                    """,
-                    (campaign_id,),
-                )
-                combo_products = [row[0] for row in cursor.fetchall()]
-                receipt_products = {
-                    product_id: quantity for product_id, quantity, _, _ in products_data
-                }
-                if all(prod in receipt_products for prod in combo_products):
+        for product_data in products_data:
+            product_id, quantity, price, total_price = product_data
+
+            cursor.execute(
+                """
+                SELECT c.id, c.type, cp.discounted_price, c.discount_percentage, c.required_quantity, c.free_quantity
+                FROM campaign_products cp
+                JOIN campaigns c ON cp.campaign_id = c.id
+                WHERE cp.product_id = ?
+                """,
+                (product_id,),
+            )
+            campaign_row = cursor.fetchone()
+
+            if campaign_row:
+                (
+                    campaign_id,
+                    campaign_type,
+                    campaign_discounted_price,
+                    discount_percentage,
+                    required_qty,
+                    free_qty,
+                ) = campaign_row
+
+                if campaign_type == "discount":
                     discounted_price = campaign_discounted_price
                     total_discounted_price += discounted_price * quantity
-            elif campaign_type == "buy n get n":
-                if quantity >= required_qty:
-                    result = quantity // (required_qty + free_qty)
-                    discounted_price = result * free_qty
-                    total_discounted_price += discounted_price
+                elif campaign_type == "combo":
+                    cursor.execute(
+                        """
+                        SELECT cp.product_id
+                        FROM campaign_products cp
+                        WHERE cp.campaign_id = ?
+                        """,
+                        (campaign_id,),
+                    )
+                    combo_products = [row[0] for row in cursor.fetchall()]
+                    receipt_products = {
+                        product_id: quantity for product_id, quantity, _, _ in products_data
+                    }
+                    if all(prod in receipt_products for prod in combo_products):
+                        discounted_price = campaign_discounted_price
+                        total_discounted_price += discounted_price * quantity
+                elif campaign_type == "buy n get n":
+                    if quantity >= required_qty:
+                        result = quantity // (required_qty + free_qty)
+                        discounted_price = result * free_qty
+                        total_discounted_price += discounted_price
 
-        reduced_price = original_total - total_discounted_price
-        cursor.execute(
-            """
-            SELECT discount_percentage, min_amount
-            FROM campaigns
-            WHERE type = 'receipt discount' AND min_amount <= ?
-            """,
-            (reduced_price,),
-        )
-        receipt_discount_row = cursor.fetchone()
+            reduced_price = original_total - total_discounted_price
+            cursor.execute(
+                """
+                SELECT discount_percentage, min_amount
+                FROM campaigns
+                WHERE type = 'receipt discount' AND min_amount <= ?
+                """,
+                (reduced_price,),
+            )
+            receipt_discount_row = cursor.fetchone()
 
-        if receipt_discount_row:
-            discount_percentage, min_amount = receipt_discount_row
-            receipt_discount_price = (reduced_price * discount_percentage) / 100
-            reduced_price -= receipt_discount_price
+            if receipt_discount_row:
+                discount_percentage, min_amount = receipt_discount_row
+                receipt_discount_price = (reduced_price * discount_percentage) / 100
+                reduced_price -= receipt_discount_price
 
-        return ReceiptForPayment(
-            receipt=self.read(receipt_id),
-            discounted_price=total_discounted_price,
-            reduced_price=reduced_price,
-        )
+            return ReceiptForPayment(
+                receipt=self.read(receipt_id),
+                discounted_price=total_discounted_price,
+                reduced_price=reduced_price,
+            )
