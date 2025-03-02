@@ -46,3 +46,6 @@ class ProductInMemoryRepository(Repository[Product]):
 
     def read_all(self) -> list[Product]:
         return self.products
+
+    def delete(self, product_id: str) -> None:
+        raise NotImplementedError("Not implemented yet.")

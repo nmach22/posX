@@ -96,6 +96,12 @@ class CampaignInMemoryRepository(Repository[Campaign]):
     def read_all(self) -> list[Campaign]:
         return self.campaigns
 
+    def read(self, campaign_id: str) -> Campaign:
+        raise NotImplementedError("Not implemented yet.")
+
+    def update(self, campaign: Campaign) -> None:
+        raise NotImplementedError("Not implemented yet.")
+
     def product_does_not_exist(self, product_id: str) -> bool:
         for product_from_list in self.products_repo.read_all():
             if product_from_list.id == product_id:

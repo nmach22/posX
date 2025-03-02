@@ -18,12 +18,12 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 class CampaignSQLRepository(Repository[Campaign]):
     def __init__(
         self, connection: sqlite3.Connection, products_repo: Repository[Product]
-    ):
+    ) -> None:
         self.conn = connection
         self.products = products_repo
         self._initialize_db()
 
-    def _initialize_db(self):
+    def _initialize_db(self) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             """
@@ -208,3 +208,9 @@ class CampaignSQLRepository(Repository[Campaign]):
             campaigns.append(campaign)
 
         return campaigns
+
+    def read(self, campaign_id: str) -> Campaign:
+        raise NotImplementedError("Not implemented yet.")
+
+    def update(self, campaign: Campaign) -> None:
+        raise NotImplementedError("Not implemented yet.")

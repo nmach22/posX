@@ -9,11 +9,11 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 
 
 class ProductSQLRepository(Repository[Product]):
-    def __init__(self, connection: sqlite3.Connection):
+    def __init__(self, connection: sqlite3.Connection) -> None:
         self.conn = connection
         self._initialize_db()
 
-    def _initialize_db(self):
+    def _initialize_db(self) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             """
@@ -70,3 +70,5 @@ class ProductSQLRepository(Repository[Product]):
             Product(id=row[0], name=row[1], barcode=row[2], price=row[3])
             for row in rows
         ]
+    def delete(self, product_id: str) -> None:
+        raise NotImplementedError("Not implemented yet.")

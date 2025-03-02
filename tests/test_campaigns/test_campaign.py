@@ -23,7 +23,7 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 
 
 class TestCampaignService(unittest.TestCase):
-    def test_create_campaign(self):
+    def test_create_campaign(self) -> None:
         campaigns: list[Campaign] = []
         campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_repo = ProductInMemoryRepository(
@@ -46,7 +46,7 @@ class TestCampaignService(unittest.TestCase):
             "123" in campaigns_products
         )  # Check if product_id exists in the dictionary
 
-    def test_delete_campaign_success(self):
+    def test_delete_campaign_success(self) -> None:
         campaigns: list[Campaign] = []
         campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_list: list[Product] = [Product("123", "sigareti", 10, "12345")]
@@ -66,7 +66,7 @@ class TestCampaignService(unittest.TestCase):
         assert len(repository.read_all()) == 0
         assert "123" not in campaigns_products  # Ensure the product_id is removed
 
-    def test_delete_campaign_raises_error(self):
+    def test_delete_campaign_raises_error(self) -> None:
         campaigns: list[Campaign] = []
         campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_repo = ProductInMemoryRepository([])
@@ -78,7 +78,7 @@ class TestCampaignService(unittest.TestCase):
         with pytest.raises(DoesntExistError):
             campaign_service.delete_campaign("123")
 
-    def test_read_all_campaigns(self):
+    def test_read_all_campaigns(self) -> None:
         campaigns: list[Campaign] = []
         campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
         product_list: list[Product] = [

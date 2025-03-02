@@ -42,7 +42,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 return
         raise DoesntExistError(f"Shift with ID {shift_id} not found.")
 
-    def add_receipt_to_shift(self, receipt: Receipt):
+    def add_receipt_to_shift(self, receipt: Receipt) -> None:
         for shift in self.shifts:
             if shift.shift_id == receipt.shift_id:
                 shift.receipts.append(deepcopy(receipt))
@@ -110,3 +110,13 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def read_all_shifts(self) -> list[Shift]:
         return self.shifts
+
+
+    def delete(self, shift_id: str) -> None:
+        raise NotImplementedError("Not implemented yet.")
+
+    def read(self, shift_id: str) -> Shift:
+        raise NotImplementedError("Not implemented yet.")
+
+    def read_all(self) -> list[Shift]:
+        raise NotImplementedError("Not implemented yet.")

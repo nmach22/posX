@@ -50,7 +50,7 @@ def setup_receipt_service():
     return service, shift_id, receipt_list
 
 
-def test_should_add_receipt_in_memory(setup_receipt_service):
+def test_should_add_receipt_in_memory(setup_receipt_service) -> None:
     service, shift_id, receipt_list = setup_receipt_service
     service.create_receipt(shift_id, currency="gel")
 
@@ -61,7 +61,7 @@ def test_should_add_receipt_in_memory(setup_receipt_service):
     assert receipt_list[0].total == 0
 
 
-def test_should_close_receipt_in_memory(setup_receipt_service):
+def test_should_close_receipt_in_memory(setup_receipt_service) -> None:
     service, shift_id, receipt_list = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -71,7 +71,7 @@ def test_should_close_receipt_in_memory(setup_receipt_service):
     assert receipt_list[0].status == "closed"
 
 
-def test_should_read_receipt_in_memory(setup_receipt_service):
+def test_should_read_receipt_in_memory(setup_receipt_service) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -85,7 +85,7 @@ def test_should_read_receipt_in_memory(setup_receipt_service):
     assert retrieved_receipt.total == 0
 
 
-def test_should_add_product_to_receipt(setup_receipt_service):
+def test_should_add_product_to_receipt(setup_receipt_service) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -101,7 +101,7 @@ def test_should_add_product_to_receipt(setup_receipt_service):
     assert updated_receipt.total == 20.0
 
 
-def test_should_raise_error_when_reading_nonexistent_receipt(setup_receipt_service):
+def test_should_raise_error_when_reading_nonexistent_receipt(setup_receipt_service) -> None:
     service, _, _ = setup_receipt_service
     with pytest.raises(
         DoesntExistError, match="Receipt with ID nonexistent_id does not exist."
@@ -109,7 +109,7 @@ def test_should_raise_error_when_reading_nonexistent_receipt(setup_receipt_servi
         service.read_receipt("nonexistent_id")
 
 
-def test_should_raise_error_when_closing_nonexistent_receipt(setup_receipt_service):
+def test_should_raise_error_when_closing_nonexistent_receipt(setup_receipt_service) -> None:
     service, _, _ = setup_receipt_service
     with pytest.raises(
         DoesntExistError, match="Receipt with ID nonexistent_id does not exist."
@@ -119,7 +119,7 @@ def test_should_raise_error_when_closing_nonexistent_receipt(setup_receipt_servi
 
 def test_should_raise_error_when_adding_product_to_nonexistent_receipt(
     setup_receipt_service,
-):
+) -> None:
     service, _, _ = setup_receipt_service
     product_request = AddProductRequest(product_id="123", quantity=2)
     with pytest.raises(
@@ -130,7 +130,7 @@ def test_should_raise_error_when_adding_product_to_nonexistent_receipt(
 
 def test_should_raise_error_when_adding_nonexistent_product_to_receipt(
     setup_receipt_service,
-):
+) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -140,7 +140,7 @@ def test_should_raise_error_when_adding_nonexistent_product_to_receipt(
         service.add_product(receipt_id, product_request)
 
 
-def test_should_raise_error_when_closing_already_closed_receipt(setup_receipt_service):
+def test_should_raise_error_when_closing_already_closed_receipt(setup_receipt_service) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -152,7 +152,7 @@ def test_should_raise_error_when_closing_already_closed_receipt(setup_receipt_se
         service.close_receipt(receipt_id)
 
 
-def test_calculate_discount_campaign():
+def test_calculate_discount_campaign() -> None:
     product_list = [
         Product(id="1", name="Product 1", price=100, barcode="12345"),
     ]
@@ -197,7 +197,7 @@ def test_calculate_discount_campaign():
     assert receipt_payment.discounted_price == 180
 
 
-def test_calculate_payment_mixed_campaigns():
+def test_calculate_payment_mixed_campaigns() -> None:
     # Step 1: Create product repository and add products
     product_list = [
         Product(id="1", name="Product 1", price=100, barcode="12345"),
@@ -279,7 +279,7 @@ def test_calculate_payment_mixed_campaigns():
     assert receipt_payment.discounted_price == 580 - 58
 
 
-def test_calculate_payment_combo_discount_multiple_quantities():
+def test_calculate_payment_combo_discount_multiple_quantities() -> None:
     product_list = [
         Product(id="1", name="Product 1", price=100, barcode="12345"),
         Product(id="2", name="Product 2", price=200, barcode="67890"),
@@ -334,7 +334,7 @@ def test_calculate_payment_combo_discount_multiple_quantities():
     assert receipt_payment.discounted_price == 480
 
 
-def test_calculate_payment_buy_n_get_n_with_discount():
+def test_calculate_payment_buy_n_get_n_with_discount() -> None:
     product_list = [
         Product(id="1", name="Product 1", price=100, barcode="12345"),
     ]
@@ -378,7 +378,7 @@ def test_calculate_payment_buy_n_get_n_with_discount():
     assert receipt_payment.discounted_price == 200
 
 
-def test_calculate_payment_large_receipt_discount():
+def test_calculate_payment_large_receipt_discount() -> None:
     product_list = [
         Product(id="1", name="Product 1", price=150, barcode="12345"),
         Product(id="2", name="Product 2", price=250, barcode="67890"),

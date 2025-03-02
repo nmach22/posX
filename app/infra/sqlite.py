@@ -14,7 +14,7 @@ from app.infra.sql_repositories.shift_sql_repository import ShiftSQLRepository
 # @dataclass
 class Sqlite:
     # db_path: str
-    def __init__(self, connection: sqlite3.Connection):
+    def __init__(self, connection: sqlite3.Connection) -> None:
         """Initialize repositories with correct dependencies."""
         self._products = ProductSQLRepository(connection)
         self._campaigns = CampaignSQLRepository(connection, self._products)

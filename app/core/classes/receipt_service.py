@@ -1,11 +1,12 @@
 import uuid
 from dataclasses import dataclass
 
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
     ReceiptForPayment,
-    ReceiptInterface,
+    ReceiptInterface, ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 
@@ -16,7 +17,7 @@ class ReceiptService(ReceiptInterface):
 
     def create_receipt(self, shift_id: str, currency: str) -> Receipt:
         receipt_id = uuid.uuid4()
-        products = []
+        products: list[ReceiptProduct] = []
         status = "open"
         total = 0
         receipt = Receipt(

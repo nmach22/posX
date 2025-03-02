@@ -9,6 +9,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.core.Interfaces.repository import ItemT
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
 )
@@ -207,6 +208,13 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         return ReceiptForPayment(
             receipt, discounted_price, receipt.total - discounted_price
         )
+
+    def delete(self, receipt_id: str) -> None:
+        raise NotImplementedError("Not implemented yet.")
+
+    def read_all(self) -> list[Receipt]:
+        raise NotImplementedError("Not implemented yet.")
+
 
     def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign | None:
         for campaign in self.campaigns_repo.campaigns:

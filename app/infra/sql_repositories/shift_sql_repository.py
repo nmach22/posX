@@ -1,6 +1,6 @@
 import sqlite3
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Any
 
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import Receipt
@@ -23,13 +23,13 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         self,
         connection: sqlite3.Connection,
         products_repo: Repository[Product],
-    ):
+    ) -> None:
         self.conn = connection
         self.products = products_repo
 
         self._initialize_database()
 
-    def _initialize_database(self):
+    def _initialize_database(self) -> None:
         """Create necessary tables if they don't exist."""
 
         cursor = self.conn.cursor()
@@ -41,13 +41,14 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         """)
         self.conn.commit()
 
-    def create(self, shift: Shift) -> None:
+    def create(self, shift: Shift) -> Shift:
         cursor = self.conn.cursor()
         cursor.execute(
             "INSERT INTO shifts (shift_id, status) VALUES (?, ?)",
             (shift.shift_id, shift.status),
         )
         self.conn.commit()
+        return shift
 
     def update(self, shift_id: str) -> None:
         cursor = self.conn.cursor()
@@ -152,7 +153,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         receipts = cursor.fetchall()
         print(receipts)
         n_receipts = len(receipts)
-        currency_revenue = {}
+        currency_revenue : dict[Any, Any] = {}
 
         for receipt_id, total, currency in receipts:
             currency_revenue[currency] = currency_revenue.get(currency, 0) + total
@@ -209,3 +210,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             total_revenue=currency_totals,
             closed_receipts=closed_receipts,
         )
+
+    def delete(self, item_id: str) -> None:
+        raise NotImplementedError("Not implemented yet.")

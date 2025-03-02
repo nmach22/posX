@@ -24,14 +24,14 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         products_repo: Repository[Product],
         shifts_repo: ShiftRepositoryInterface,
         campaigns_repo: Repository[Campaign],
-    ):
+    ) -> None:
         self.conn = connection
         self.products = products_repo
         self.shifts = shifts_repo
         self.campaigns = campaigns_repo
         self._initialize_db()
 
-    def _initialize_db(self):
+    def _initialize_db(self) -> None:
         cursor = self.conn.cursor()
         cursor.execute(
             """
@@ -181,7 +181,10 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
         return self.read(receipt_id)
 
+    def delete(self, item_id: str) -> None:
+        raise NotImplementedError("Not implemented yet.")
 
+# TODO: es metodi klasisaa memgoni da shignit unda iyos sheweuli..
 def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
     cursor = self.conn.cursor()
 
@@ -203,7 +206,6 @@ def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
     products_data = cursor.fetchall()
 
     total_discounted_price = 0
-    products = []
 
     for product_data in products_data:
         product_id, quantity, price, total_price = product_data

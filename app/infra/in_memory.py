@@ -38,7 +38,7 @@ class InMemory:
         init=False,
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._campaigns = CampaignInMemoryRepository(
             products_repo=self._products,
         )
