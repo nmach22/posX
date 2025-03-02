@@ -8,7 +8,7 @@ from app.core.Interfaces.receipt_interface import (
 from app.core.Interfaces.repository import Repository
 
 
-class ReceiptRepositoryInterface(Repository[Receipt], Protocol):
+class ReceiptOperations(Protocol):
     def add_product_to_receipt(
         self, receipt_id: str, product_request: AddProductRequest
     ) -> Receipt:
@@ -19,3 +19,18 @@ class ReceiptRepositoryInterface(Repository[Receipt], Protocol):
         receipt_id: str,
     ) -> ReceiptForPayment:
         pass
+
+class ReceiptRepositoryInterface(Repository[Receipt], ReceiptOperations, Protocol):
+    pass
+
+# class ReceiptRepositoryInterface(Repository[Receipt], Protocol):
+#     def add_product_to_receipt(
+#         self, receipt_id: str, product_request: AddProductRequest
+#     ) -> Receipt:
+#         pass
+#
+#     def calculate_payment(
+#         self,
+#         receipt_id: str,
+#     ) -> ReceiptForPayment:
+#         pass
