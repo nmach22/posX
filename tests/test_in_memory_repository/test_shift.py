@@ -40,6 +40,7 @@ def test_should_add_receipt_to_shift() -> None:
         products=[product],
         status="open",
         total=100,
+        discounted_total=0,
     )
 
     service.add_receipt_to_shift(receipt)
@@ -61,6 +62,7 @@ def test_close_shift() -> None:
         products=[],
         status="open",
         total=100,
+        discounted_total=0,
     )
     service.add_receipt_to_shift(receipt)
     service.close_shift(shift.shift_id)
@@ -81,6 +83,7 @@ def test_should_generate_x_report_for_open_shift() -> None:
         products=[product],
         status="closed",  # Assuming receipts are closed for X report generation
         total=100,
+        discounted_total=0,
     )
     service.add_receipt_to_shift(receipt)
 
@@ -120,6 +123,7 @@ def test_should_generate_lifetime_sales_report() -> None:
         products=[product1],
         status="closed",
         total=50,
+        discounted_total=0,
     )
     service.add_receipt_to_shift(receipt1)
 
@@ -132,6 +136,7 @@ def test_should_generate_lifetime_sales_report() -> None:
         products=[product2],
         status="closed",
         total=90,
+        discounted_total=0,
     )
     service.add_receipt_to_shift(receipt2)
 
@@ -158,6 +163,7 @@ def test_should_generate_empty_lifetime_sales_report_for_no_closed_receipts() ->
         products=[product],
         status="open",  # Receipt is open
         total=60,
+        discounted_total=0,
     )
     service.add_receipt_to_shift(receipt)
 

@@ -31,7 +31,7 @@ class ReceiptService(ReceiptInterface):
             status=status,
             products=products,
             total=total,
-            total_payment=total_payment,
+            discounted_total=total_payment,
         )
         self.repository.create(receipt)
         return receipt

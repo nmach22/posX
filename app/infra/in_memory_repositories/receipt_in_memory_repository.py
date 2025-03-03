@@ -70,6 +70,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     def read(self, receipt_id: str) -> Receipt:
         for receipt in self.receipts:
             if receipt.id == receipt_id:
+                #    receipt.discounted_total = self.calculate_payment(receipt.id)
                 return receipt
         raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
 
