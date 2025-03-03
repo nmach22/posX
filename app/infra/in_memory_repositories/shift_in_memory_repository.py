@@ -63,7 +63,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                     product_summary[product.id]["quantity"] += product.quantity
 
         products = [
-            {"id": int(pid), "quantity": int(data["quantity"])}
+            {"id": str(pid), "quantity": int(data["quantity"])}
             for pid, data in product_summary.items()
         ]
 
