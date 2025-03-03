@@ -73,8 +73,10 @@ def create_receipt(
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
     try:
-        created_receipt = receipt_service.create_receipt(request.shift_id, request.currency)
-    except DoesntExistError:
+        created_receipt = receipt_service.create_receipt(
+            request.shift_id, request.currency
+        )
+    except rDoesntExistEror:
         raise HTTPException(
             status_code=404,
             detail={"error": {"message": "Shift with this id does not exist."}},

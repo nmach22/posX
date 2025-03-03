@@ -99,14 +99,14 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             if receipt.id == receipt_id:
                 total_price = product_request.quantity * product_price
 
-                product = ReceiptProduct(
+                new_product = ReceiptProduct(
                     id=product_request.product_id,
                     quantity=product_request.quantity,
                     price=product_price,
                     total=total_price,
                 )
 
-                receipt.products.append(deepcopy(product))
+                receipt.products.append(deepcopy(new_product))
                 receipt.total += total_price
 
                 return receipt
