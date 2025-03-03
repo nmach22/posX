@@ -23,16 +23,6 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
         self.shifts.append(deepcopy(shift))
         return shift
 
-    # def update(self, shift: Shift) -> None:
-    #     find: bool = False
-    #     for _shift in self.shifts:
-    #         if _shift.shift_id == shift.shift_id:
-    #             self.shifts.remove(_shift)
-    #             self.shifts.append(shift)
-    #             return
-    #     if not find:
-    #         raise DoesntExistError(f"Shift with ID {shift.shift_id} not found.")
-
     def update(self, shift: Shift) -> None:
         find: bool = False
         for _shift in self.shifts:
@@ -111,7 +101,6 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def read_all_shifts(self) -> list[Shift]:
         return self.shifts
-
 
     def delete(self, shift_id: str) -> None:
         raise NotImplementedError("Not implemented yet.")
