@@ -97,18 +97,10 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
     def update(self, receipt: Receipt) -> None:
         self.delete(receipt.id)
-        # todo:create doesnt test if receipt id already exists
         self.create(receipt)
-        # cursor = self.conn.cursor()
-        # cursor.execute(
-        #     "UPDATE receipts SET status = ? WHERE id = ?",
-        #     ("closed", receipt.id),
-        # )
-        # if cursor.rowcount == 0:
-        #     raise DoesntExistError(f"Receipt with ID {receipt.id} does not exist.")
-        # self.conn.commit()
 
     def read(self, receipt_id: str) -> Receipt:
+        self.calculate_payment(receipt_id)
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT id, shift_id, currency, status, total,total_payment FROM receipts WHERE id = ?",
