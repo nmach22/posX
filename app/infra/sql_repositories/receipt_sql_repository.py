@@ -39,7 +39,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 shift_id TEXT NOT NULL,
                 currency TEXT NOT NULL,
                 status TEXT NOT NULL,
-                total INTEGER NOT NULL
+                total INTEGER NOT NULL,
+                total_payment INTEGER NOT NULL,
             )
             """
         )
@@ -66,13 +67,14 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
 
         cursor.execute(
-            "INSERT INTO receipts (id, shift_id, currency, status, total) VALUES (?, ?, ?,?, ?)",
+            "INSERT INTO receipts (id, shift_id, currency, status, total, total_payment) VALUES (?, ?, ?,?, ?)",
             (
                 receipt.id,
                 receipt.shift_id,
                 receipt.currency,
                 receipt.status,
                 receipt.total,
+                receipt.total_payment,
             ),
         )
 
@@ -94,7 +96,6 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         return receipt
 
     def update(self, receipt: Receipt) -> None:
-        print(receipt.shift_id)
         self.delete(receipt.id)
         # todo:create doesnt test if receipt id already exists
         self.create(receipt)
@@ -110,7 +111,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def read(self, receipt_id: str) -> Receipt:
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT id, shift_id, currency, status, total FROM receipts WHERE id = ?",
+            "SELECT id, shift_id, currency, status, total,total_payment FROM receipts WHERE id = ?",
             (receipt_id,),
         )
         row = cursor.fetchone()
@@ -142,6 +143,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 status=row[3],
                 total=row[4],
                 products=products,
+                total_payment=row[5],
             )
             return receipt
         raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
@@ -149,7 +151,6 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def add_product_to_receipt(
         self, receipt_id: str, product_request: AddProductRequest
     ) -> Receipt:
-        # product_price = 0
         cursor = self.conn.cursor()
 
         cursor.execute("SELECT id FROM receipts WHERE id = ?", (receipt_id,))
