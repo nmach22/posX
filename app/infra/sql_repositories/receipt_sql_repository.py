@@ -11,6 +11,7 @@ from app.core.Interfaces.receipt_interface import (
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
+from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     AlreadyClosedError,
     DoesntExistError,
@@ -24,11 +25,13 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         products_repo: Repository[Product],
         shifts_repo: ShiftRepositoryInterface,
         campaigns_repo: Repository[Campaign],
+        exchange_rate_service: ExchangeRateService,
     ) -> None:
         self.conn = connection
         self.products = products_repo
         self.shifts = shifts_repo
         self.campaigns = campaigns_repo
+        self.exchange_rate_service = exchange_rate_service
         self._initialize_db()
 
     def _initialize_db(self) -> None:
@@ -271,8 +274,18 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 receipt_discount_price = (reduced_price * discount_percentage) / 100
                 reduced_price -= receipt_discount_price
 
+
+            receipt = self.read(receipt_id)
+            if receipt.currency != "GEL":
+                conversion_rate = self.exchange_rate_service.get_exchange_rate("GEL", receipt.currency)
+                discounted_price_in_target_currency = total_discounted_price * conversion_rate
+                reduced_price_in_target_currency = reduced_price * conversion_rate
+            else:
+                discounted_price_in_target_currency = total_discounted_price
+                reduced_price_in_target_currency = reduced_price
+
             return ReceiptForPayment(
-                receipt=self.read(receipt_id),
-                discounted_price=total_discounted_price,
-                reduced_price=reduced_price,
+                receipt,
+                discounted_price=discounted_price_in_target_currency,
+                reduced_price=reduced_price_in_target_currency,
             )

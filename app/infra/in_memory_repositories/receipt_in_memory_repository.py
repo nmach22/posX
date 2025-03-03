@@ -1,6 +1,5 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-
 from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
@@ -10,6 +9,7 @@ from app.core.Interfaces.receipt_interface import (
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import ItemT
+from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
 )
@@ -24,6 +24,7 @@ from app.infra.in_memory_repositories.shift_in_memory_repository import (
 )
 
 
+
 @dataclass
 class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     receipts: list[Receipt] = field(default_factory=list)
@@ -33,6 +34,9 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     shifts: ShiftInMemoryRepository = field(default_factory=ShiftInMemoryRepository)
     campaigns_repo: CampaignInMemoryRepository = field(
         default_factory=CampaignInMemoryRepository
+    )
+    exchange_rate_service: ExchangeRateService = field(
+        default_factory=ExchangeRateService
     )
 
     def create(self, receipt: Receipt) -> Receipt:
@@ -106,6 +110,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 return receipt
         raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
 
+
     def calculate_payment(
         self,
         receipt_id: str,
@@ -117,6 +122,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         receipt = self.read(receipt_id)
         receipt_products_from_receipt = receipt.products
         campaigns_and_products = self.campaigns_repo.campaigns_product_list
+
         for receipt_product in receipt_products_from_receipt:
             if (
                 already_checkouted_product_from_combo.get(receipt_product.id)
@@ -205,9 +211,20 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 )
                 break
 
+        total_price = receipt.total
+        if receipt.currency != "GEL":
+            conversion_rate = (self.exchange_rate_service.
+                               get_exchange_rate("GEL", receipt.currency))
+            discounted_price = discounted_price * conversion_rate
+            total_price = total_price * conversion_rate
+
+
         return ReceiptForPayment(
-            receipt, discounted_price, receipt.total - discounted_price
+            receipt, discounted_price, total_price - discounted_price
         )
+
+
+
 
     def delete(self, receipt_id: str) -> None:
         raise NotImplementedError("Not implemented yet.")

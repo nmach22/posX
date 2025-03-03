@@ -5,6 +5,7 @@ from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
+from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.sql_repositories.campaign_sql_repository import CampaignSQLRepository
 from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
 from app.infra.sql_repositories.receipt_sql_repository import ReceiptSQLRepository
@@ -19,8 +20,9 @@ class Sqlite:
         self._products = ProductSQLRepository(connection)
         self._campaigns = CampaignSQLRepository(connection, self._products)
         self._shifts = ShiftSQLRepository(connection)
+        self._exchange_rate_service = ExchangeRateService()
         self._receipts = ReceiptSQLRepository(
-            connection, self._products, self._shifts, self._campaigns
+            connection, self._products, self._shifts, self._campaigns, self._exchange_rate_service
         )
 
     def products(self) -> Repository[Product]:
