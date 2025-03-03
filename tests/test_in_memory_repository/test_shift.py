@@ -49,7 +49,7 @@ def test_should_add_receipt_to_shift() -> None:
     assert shift_list[0].receipts[0].total == 100
 
 
-def test_close_shift():
+def test_close_shift() -> None:
     shift_list: list[Shift] = []
     service = ShiftService(ShiftInMemoryRepository(shift_list))
 
