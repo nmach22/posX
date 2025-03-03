@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Protocol
+from typing import Dict, Protocol, Any
 
 from app.core.Interfaces.receipt_interface import Receipt
 
@@ -16,7 +16,7 @@ class Report:
     shift_id: str
     n_receipts: int
     revenue: Dict[str, int]
-    products: list[Dict[str, int]]
+    products: list[Dict[str, Any]]
 
 
 @dataclass

@@ -1,6 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Any
 
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.shift_interface import (
@@ -58,7 +58,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
             raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
         n_receipts = 0
         currency_revenue: Dict[str, int] = {}
-        product_summary: Dict[str, Dict[str, int]] = {}
+        product_summary: Dict[str, Dict[str, Any]] = {}
 
         for receipt in shift.receipts:
             if receipt.status == "closed":
@@ -86,7 +86,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def get_lifetime_sales_report(self) -> SalesReport:
         total_receipts = 0
-        currency_totals: Dict[str, int] = {}  # Supports multiple currencies
+        currency_totals: Dict[str, int] = {}
         closed_receipts: list[ClosedReceipt] = []
 
         for shift in self.shifts:
