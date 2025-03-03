@@ -1,6 +1,5 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-from app.core.Interfaces.campaign_interface import Campaign
 
 from app.core.Interfaces.campaign_interface import (
     BuyNGetN,
@@ -16,7 +15,6 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.Interfaces.repository import ItemT
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
