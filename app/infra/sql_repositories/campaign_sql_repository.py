@@ -58,17 +58,29 @@ class CampaignSQLRepository(Repository[Campaign]):
         discount_percentage = (
             campaign.data.discount_percentage
             if campaign.type in ["discount", "combo", "receipt discount"]
+            and (
+                isinstance(campaign.data, Discount)
+                or isinstance(campaign.data, ReceiptDiscount)
+                or isinstance(campaign.data, Combo)
+            )
             else None
         )
         buy_quantity = (
-            campaign.data.buy_quantity if campaign.type == "buy n get n" else None
+            campaign.data.buy_quantity
+            if campaign.type == "buy n get n" and isinstance(campaign.data, BuyNGetN)
+            else None
         )
         get_quantity = (
-            campaign.data.get_quantity if campaign.type == "buy n get n" else None
+            campaign.data.get_quantity
+            if campaign.type == "buy n get n" and isinstance(campaign.data, BuyNGetN)
+            else None
         )
 
         min_amount = (
-            campaign.data.min_amount if campaign.type == "receipt discount" else None
+            campaign.data.min_amount
+            if campaign.type == "receipt discount"
+            and isinstance(campaign.data, ReceiptDiscount)
+            else None
         )
 
         cursor.execute(
@@ -86,7 +98,7 @@ class CampaignSQLRepository(Repository[Campaign]):
             ),
         )
 
-        if campaign.type == "discount":
+        if campaign.type == "discount" and isinstance(campaign.data, Discount):
             old_price = self.products.read(campaign.data.product_id).price
             discount = campaign.data.discount_percentage
             new_price = old_price - (old_price * discount / 100)
@@ -102,7 +114,7 @@ class CampaignSQLRepository(Repository[Campaign]):
                     new_price,
                 ),
             )
-        elif campaign.type == "combo":
+        elif campaign.type == "combo" and isinstance(campaign.data, Combo):
             for product_id in campaign.data.products:
                 old_price = self.products.read(product_id).price
                 discount = campaign.data.discount_percentage
@@ -119,7 +131,7 @@ class CampaignSQLRepository(Repository[Campaign]):
                         new_price,
                     ),
                 )
-        elif campaign.type == "buy n get n":
+        elif campaign.type == "buy n get n" and isinstance(campaign.data, BuyNGetN):
             cursor.execute(
                 """
                 INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price)

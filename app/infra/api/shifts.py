@@ -1,12 +1,12 @@
-from typing import Protocol, Dict, Any
+from typing import Dict, Protocol
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
-from app.core.Interfaces.shift_interface import Shift, Report
-from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.core.classes.shift_service import ShiftService
+from app.core.Interfaces.shift_interface import Report, Shift
+from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )

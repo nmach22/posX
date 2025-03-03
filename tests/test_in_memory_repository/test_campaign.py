@@ -40,8 +40,11 @@ class TestCampaignService(unittest.TestCase):
             )
         )
         assert campaign.type == "discount"
-        assert campaign.data.discount_percentage == 10
-        assert campaign.data.product_id == "123"
+        assert (
+            isinstance(campaign.data, Discount)
+            and campaign.data.discount_percentage == 10
+        )
+        assert isinstance(campaign.data, Discount) and campaign.data.product_id == "123"
         assert (
             "123" in campaigns_products
         )  # Check if product_id exists in the dictionary
@@ -118,8 +121,14 @@ class TestCampaignService(unittest.TestCase):
         assert returned_campaigns[0].type == "discount"
         assert returned_campaigns[1].type == "combo"
         assert returned_campaigns[2].type == "buy n get n"
-        assert returned_campaigns[0].data.discount_percentage == 10
-        assert returned_campaigns[1].data.discount_percentage == 20
+        assert (
+            isinstance(returned_campaigns[0].data, Discount)
+            and returned_campaigns[0].data.discount_percentage == 10
+        )
+        assert (
+            isinstance(returned_campaigns[1].data, Combo)
+            and returned_campaigns[1].data.discount_percentage == 20
+        )
         assert (
             "123" in campaigns_products
         )  # Check if product_id exists in the dictionary

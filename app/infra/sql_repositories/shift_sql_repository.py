@@ -1,10 +1,8 @@
 import sqlite3
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any, Dict
 
-from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import Receipt
-from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_interface import (
     ClosedReceipt,
     Report,
@@ -58,8 +56,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         )
         self.conn.commit()
 
-
-
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         """Add a receipt to a shift in the database."""
         # with sqlite3.connect(self.db_path) as conn:
@@ -74,8 +70,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         #             (product.id, receipt.receipt_id, product.quantity, product.total)
         #         )
         #     self.conn.commit()
-
-
 
     def get_x_report(self, shift_id: str) -> Report:
         cursor = self.conn.cursor()
@@ -98,7 +92,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         receipts = cursor.fetchall()
         print(receipts)
         n_receipts = len(receipts)
-        currency_revenue : dict[Any, Any] = {}
+        currency_revenue: dict[Any, Any] = {}
 
         for receipt_id, total, currency in receipts:
             currency_revenue[currency] = currency_revenue.get(currency, 0) + total
@@ -156,7 +150,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             closed_receipts=closed_receipts,
         )
 
-
     def delete(self, shift_id: str) -> None:
         cursor = self.conn.cursor()
 
@@ -171,7 +164,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
 
         self.conn.commit()
 
-
     def read(self, shift_id: str) -> Shift:
         cursor = self.conn.cursor()
         cursor.execute(
@@ -180,5 +172,5 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         )
         row = cursor.fetchone()
         if row:
-            return Shift(shift_id=row[0],receipts=[], status=row[1])
+            return Shift(shift_id=row[0], receipts=[], status=row[1])
         raise DoesntExistError

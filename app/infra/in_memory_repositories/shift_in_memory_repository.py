@@ -63,7 +63,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                     product_summary[product.id]["quantity"] += product.quantity
 
         products = [
-            {"id": pid, "quantity": data["quantity"]}
+            {"id": int(pid), "quantity": int(data["quantity"])}
             for pid, data in product_summary.items()
         ]
 
@@ -101,7 +101,6 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def read_all_shifts(self) -> list[Shift]:
         return self.shifts
-
 
     def delete(self, shift_id: str) -> None:
         raise NotImplementedError("Not implemented yet.")
