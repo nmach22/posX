@@ -50,6 +50,7 @@ class ProductSQLRepository(Repository[Product]):
             return Product(id=row[0], name=row[1], barcode=row[2], price=row[3])
         raise DoesntExistError
 
+    # todo: we can use self.create here
     def update(self, product: Product) -> None:
         self.delete(product.id)
         cursor = self.conn.cursor()

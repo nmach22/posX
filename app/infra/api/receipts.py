@@ -101,7 +101,8 @@ def close_receipt(
     # TODO
     receipt_service = ReceiptService(repository)
     try:
-        repository.update(receipt_id)
+        receipt_service.close_receipt(receipt_id)
+        # repository.update(receipt_id)
         return {"message": f"Receipt {receipt_id} successfully closed."}
     except DoesntExistError as e:
         raise HTTPException(status_code=404, detail=str(e))
