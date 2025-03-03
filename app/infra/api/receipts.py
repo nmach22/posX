@@ -14,6 +14,7 @@ from app.core.Interfaces.repository import Repository
 from app.infra.api.products import ErrorResponse
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
+    AlreadyClosedError,
 )
 
 receipts_api = APIRouter()
@@ -81,6 +82,16 @@ def create_receipt(
             status_code=404,
             detail={"error": {"message": "Shift with this id does not exist."}},
         )
+    except AlreadyClosedError:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": {
+                    "message": f"Shift with id<{request.shift_id}> is already closed."
+                }
+            },
+        )
+
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=created_receipt.id,
