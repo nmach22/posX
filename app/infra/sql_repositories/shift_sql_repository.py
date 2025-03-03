@@ -22,11 +22,8 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
     def __init__(
         self,
         connection: sqlite3.Connection,
-        products_repo: Repository[Product],
     ) -> None:
         self.conn = connection
-        self.products = products_repo
-
         self._initialize_database()
 
     def _initialize_database(self) -> None:
@@ -90,7 +87,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             raise DoesntExistError(f"Shift with ID {shift_id} not found.")
         if result[0] != "open":
             raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
-        print("aq movedi")
         cursor.execute(
             """
             SELECT r.id, r.total, r.currency
@@ -99,7 +95,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             """,
             (shift_id,),
         )
-        print("aqac movedi vau")
         receipts = cursor.fetchall()
         print(receipts)
         n_receipts = len(receipts)

@@ -18,7 +18,7 @@ class Sqlite:
         """Initialize repositories with correct dependencies."""
         self._products = ProductSQLRepository(connection)
         self._campaigns = CampaignSQLRepository(connection, self._products)
-        self._shifts = ShiftSQLRepository(connection, self._products)
+        self._shifts = ShiftSQLRepository(connection)
         self._receipts = ReceiptSQLRepository(
             connection, self._products, self._shifts, self._campaigns
         )

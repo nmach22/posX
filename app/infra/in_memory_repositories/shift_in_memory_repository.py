@@ -118,7 +118,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def read(self, shift_id: str) -> Shift:
         for shift in self.shifts:
-            if shift.id == shift_id:
+            if shift.shift_id == shift_id:
                 return shift
         raise DoesntExistError
 
