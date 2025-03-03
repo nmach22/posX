@@ -293,6 +293,11 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 receipt_discount_price = (reduced_price * discount_percentage) / 100
                 reduced_price -= receipt_discount_price
 
+            cursor.execute(
+                "UPDATE receipts SET total_payment = ? WHERE id = ?",
+                (total_discounted_price, receipt_id),
+            )
+
             return ReceiptForPayment(
                 receipt=self.read(receipt_id),
                 discounted_price=total_discounted_price,
