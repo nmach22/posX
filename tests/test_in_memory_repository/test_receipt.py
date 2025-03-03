@@ -1,4 +1,6 @@
 import uuid
+from typing import Tuple
+
 import pytest
 
 from app.core.Interfaces.campaign_interface import (
@@ -34,7 +36,7 @@ from app.infra.in_memory_repositories.shift_in_memory_repository import (
 
 
 @pytest.fixture
-def setup_receipt_service():
+def setup_receipt_service() -> Tuple[ReceiptService, str, list[Receipt]]:
     receipt_list: list[Receipt] = []
     shift_id = "random_shift_id"
     shift_list: list[Shift] = [Shift(shift_id=shift_id, receipts=[], status="open")]
@@ -50,7 +52,9 @@ def setup_receipt_service():
     return service, shift_id, receipt_list
 
 
-def test_should_add_receipt_in_memory(setup_receipt_service) -> None:
+def test_should_add_receipt_in_memory(
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
+) -> None:
     service, shift_id, receipt_list = setup_receipt_service
     service.create_receipt(shift_id, currency="gel")
 
@@ -61,7 +65,9 @@ def test_should_add_receipt_in_memory(setup_receipt_service) -> None:
     assert receipt_list[0].total == 0
 
 
-def test_should_close_receipt_in_memory(setup_receipt_service) -> None:
+def test_should_close_receipt_in_memory(
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
+) -> None:
     service, shift_id, receipt_list = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -71,7 +77,9 @@ def test_should_close_receipt_in_memory(setup_receipt_service) -> None:
     assert receipt_list[0].status == "closed"
 
 
-def test_should_read_receipt_in_memory(setup_receipt_service) -> None:
+def test_should_read_receipt_in_memory(
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
+) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -85,7 +93,9 @@ def test_should_read_receipt_in_memory(setup_receipt_service) -> None:
     assert retrieved_receipt.total == 0
 
 
-def test_should_add_product_to_receipt(setup_receipt_service) -> None:
+def test_should_add_product_to_receipt(
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
+) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -101,7 +111,9 @@ def test_should_add_product_to_receipt(setup_receipt_service) -> None:
     assert updated_receipt.total == 20.0
 
 
-def test_should_raise_error_when_reading_nonexistent_receipt(setup_receipt_service) -> None:
+def test_should_raise_error_when_reading_nonexistent_receipt(
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
+) -> None:
     service, _, _ = setup_receipt_service
     with pytest.raises(
         DoesntExistError, match="Receipt with ID nonexistent_id does not exist."
@@ -109,7 +121,9 @@ def test_should_raise_error_when_reading_nonexistent_receipt(setup_receipt_servi
         service.read_receipt("nonexistent_id")
 
 
-def test_should_raise_error_when_closing_nonexistent_receipt(setup_receipt_service) -> None:
+def test_should_raise_error_when_closing_nonexistent_receipt(
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
+) -> None:
     service, _, _ = setup_receipt_service
     with pytest.raises(
         DoesntExistError, match="Receipt with ID nonexistent_id does not exist."
@@ -118,7 +132,7 @@ def test_should_raise_error_when_closing_nonexistent_receipt(setup_receipt_servi
 
 
 def test_should_raise_error_when_adding_product_to_nonexistent_receipt(
-    setup_receipt_service,
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, _, _ = setup_receipt_service
     product_request = AddProductRequest(product_id="123", quantity=2)
@@ -129,7 +143,7 @@ def test_should_raise_error_when_adding_product_to_nonexistent_receipt(
 
 
 def test_should_raise_error_when_adding_nonexistent_product_to_receipt(
-    setup_receipt_service,
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
@@ -140,7 +154,9 @@ def test_should_raise_error_when_adding_nonexistent_product_to_receipt(
         service.add_product(receipt_id, product_request)
 
 
-def test_should_raise_error_when_closing_already_closed_receipt(setup_receipt_service) -> None:
+def test_should_raise_error_when_closing_already_closed_receipt(
+    setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
+) -> None:
     service, shift_id, _ = setup_receipt_service
     receipt = service.create_receipt(shift_id, currency="gel")
     receipt_id = receipt.id
@@ -446,5 +462,5 @@ def test_calculate_payment_large_receipt_discount() -> None:
     # 2 x 135 = 270 (Discounted Product 1)
     # 2 x 250 = 500 (Buy 2 Get 1 Product 2)
     # Total: 770
-    # 15% receipt discount: 770 - 115.5 = 654.5
-    assert receipt_payment.discounted_price == 654.5
+    # 15% receipt discount: 770 - 115.5 = int(654.5) = 655
+    assert receipt_payment.discounted_price == 655

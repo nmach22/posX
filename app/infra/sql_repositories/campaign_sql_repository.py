@@ -58,6 +58,11 @@ class CampaignSQLRepository(Repository[Campaign]):
         discount_percentage = (
             campaign.data.discount_percentage
             if campaign.type in ["discount", "combo", "receipt discount"]
+            and (
+                isinstance(campaign.data, Discount)
+                or isinstance(campaign.data, ReceiptDiscount)
+                or isinstance(campaign.data, Combo)
+            )
             else None
         )
         buy_quantity = (

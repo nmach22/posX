@@ -1,7 +1,13 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
-from app.core.Interfaces.campaign_interface import Campaign
+from app.core.Interfaces.campaign_interface import (
+    Campaign,
+    Discount,
+    BuyNGetN,
+    Combo,
+    ReceiptDiscount,
+)
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -113,7 +119,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         already_checkouted_product_from_combo: dict[
             str, int
         ] = {}  # {product_id: discount_percentage}
-        discounted_price = 0
+        discounted_price: int = 0
         receipt = self.read(receipt_id)
         receipt_products_from_receipt = receipt.products
         campaigns_and_products = self.campaigns_repo.campaigns_product_list
@@ -141,7 +147,11 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 campaign_with_type_on_this_product = self.get_campaign_with_campaign_id(
                     campaign_without_type_on_this_product.campaign_id
                 )
-                if campaign_with_type_on_this_product.type == "discount":
+                if (
+                    isinstance(campaign_with_type_on_this_product, Campaign)
+                    and campaign_with_type_on_this_product.type == "discount"
+                    and isinstance(campaign_with_type_on_this_product.data, Discount)
+                ):
                     new_price = receipt_product.total - (
                         (
                             receipt_product.total
@@ -149,10 +159,11 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                         )
                         / 100
                     )
-                    discounted_price += new_price
+                    discounted_price += int(new_price)
                 elif (
-                    campaign_with_type_on_this_product.type == "buy n get n"
-                    and isinstance(campaign_with_type_on_this_product, Campaign)
+                    isinstance(campaign_with_type_on_this_product, Campaign)
+                    and campaign_with_type_on_this_product.type == "buy n get n"
+                    and isinstance(campaign_with_type_on_this_product.data, BuyNGetN)
                 ):
                     n = campaign_with_type_on_this_product.data.buy_quantity
                     m = campaign_with_type_on_this_product.data.get_quantity
@@ -165,7 +176,11 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     discounted_price += receipt_product.total - (
                         receipt_product.price * amount_of_product_got_without_price
                     )
-                elif campaign_with_type_on_this_product.type == "combo":
+                elif (
+                    isinstance(campaign_with_type_on_this_product, Campaign)
+                    and campaign_with_type_on_this_product.type == "combo"
+                    and isinstance(campaign_with_type_on_this_product.data, Combo)
+                ):
                     other_products_in_combo = (
                         self.get_other_products_with_same_campaign(
                             campaign_without_type_on_this_product.campaign_id
@@ -190,8 +205,9 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     discount_percentage = (
                         campaign_with_type_on_this_product.data.discount_percentage
                     )
-                    discounted_price += receipt_product.total - (
-                        receipt_product.total * discount_percentage / 100
+                    discounted_price += int(
+                        receipt_product.total
+                        - (receipt_product.total * discount_percentage / 100)
                     )
                     for next_product_id_in_combo in other_products_in_combo:
                         already_checkouted_product_from_combo[
@@ -201,9 +217,10 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         for campaign in self.campaigns_repo.campaigns:
             if (
                 campaign.type == "receipt discount"
+                and isinstance(campaign.data, ReceiptDiscount)
                 and discounted_price >= campaign.data.min_amount
             ):
-                discounted_price -= (
+                discounted_price -= int(
                     discounted_price * campaign.data.discount_percentage / 100
                 )
                 break
