@@ -54,16 +54,13 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         self.shifts.add_receipt_to_shift(receipt)
         return receipt
 
-    def update(self, receipt_id: str) -> None:
+    def update(self, updated_receipt: Receipt) -> None:
         for receipt in self.receipts:
-            if receipt.id == receipt_id:
-                if receipt.status == "closed":
-                    raise AlreadyClosedError(
-                        f"Receipt with ID {receipt_id} is already closed."
-                    )
-                receipt.status = "closed"
+            if receipt.id == updated_receipt.id:
+                self.receipts.remove(receipt)
+                self.receipts.append(updated_receipt)
                 return
-        raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
+            raise DoesntExistError(f"Receipt with ID {receipt.id} does not exist.")
 
     def read(self, receipt_id: str) -> Receipt:
         for receipt in self.receipts:
@@ -214,7 +211,6 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
 
     def read_all(self) -> list[Receipt]:
         raise NotImplementedError("Not implemented yet.")
-
 
     def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign | None:
         for campaign in self.campaigns_repo.campaigns:

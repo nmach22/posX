@@ -73,7 +73,9 @@ def create_receipt(
 ) -> ReceiptResponse:
     receipt_service = ReceiptService(repository)
     try:
-        created_receipt = receipt_service.create_receipt(request.shift_id, request.currency)
+        created_receipt = receipt_service.create_receipt(
+            request.shift_id, request.currency
+        )
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
@@ -99,7 +101,8 @@ def close_receipt(
     # TODO
     receipt_service = ReceiptService(repository)
     try:
-        repository.update(receipt_id)
+        receipt_service.close_receipt(receipt_id)
+        # repository.update(receipt_id)
         return {"message": f"Receipt {receipt_id} successfully closed."}
     except DoesntExistError as e:
         raise HTTPException(status_code=404, detail=str(e))

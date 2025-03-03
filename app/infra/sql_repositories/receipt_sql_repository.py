@@ -60,7 +60,9 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
     def create(self, receipt: Receipt) -> Receipt:
         cursor = self.conn.cursor()
-        cursor.execute("SELECT shift_id FROM shifts WHERE shift_id = ?", (receipt.shift_id,))
+        cursor.execute(
+            "SELECT shift_id FROM shifts WHERE shift_id = ?", (receipt.shift_id,)
+        )
         if not cursor.fetchone():
             raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
 
@@ -79,23 +81,18 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         # self.shifts.add_receipt_to_shift(receipt)
         return receipt
 
-    def update(self, receipt_id: str) -> None:
-        cursor = self.conn.cursor()
-        cursor.execute(
-            "SELECT status FROM receipts WHERE id = ?",
-            (receipt_id,),
-        )
-        row = cursor.fetchone()
-        if row and row[0] == "closed":
-            raise AlreadyClosedError(f"Receipt with ID {receipt_id} is already closed.")
-
-        cursor.execute(
-            "UPDATE receipts SET status = ? WHERE id = ?",
-            ("closed", receipt_id),
-        )
-        if cursor.rowcount == 0:
-            raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
-        self.conn.commit()
+    def update(self, receipt: Receipt) -> None:
+        self.delete(receipt.id)
+        # todo:create doesnt test if receipt id already exists
+        self.create(receipt)
+        # cursor = self.conn.cursor()
+        # cursor.execute(
+        #     "UPDATE receipts SET status = ? WHERE id = ?",
+        #     ("closed", receipt.id),
+        # )
+        # if cursor.rowcount == 0:
+        #     raise DoesntExistError(f"Receipt with ID {receipt.id} does not exist.")
+        # self.conn.commit()
 
     def read(self, receipt_id: str) -> Receipt:
         cursor = self.conn.cursor()
@@ -244,7 +241,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                     )
                     combo_products = [row[0] for row in cursor.fetchall()]
                     receipt_products = {
-                        product_id: quantity for product_id, quantity, _, _ in products_data
+                        product_id: quantity
+                        for product_id, quantity, _, _ in products_data
                     }
                     if all(prod in receipt_products for prod in combo_products):
                         discounted_price = campaign_discounted_price

@@ -6,9 +6,13 @@ from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
     ReceiptForPayment,
-    ReceiptInterface, ReceiptProduct,
+    ReceiptInterface,
+    ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.infra.in_memory_repositories.product_in_memory_repository import (
+    AlreadyClosedError,
+)
 
 
 @dataclass
@@ -35,7 +39,11 @@ class ReceiptService(ReceiptInterface):
         return self.repository.read(receipt_id)
 
     def close_receipt(self, receipt_id: str) -> None:
-        self.repository.update(receipt_id)
+        receipt = self.read_receipt(receipt_id)
+        if receipt.status == "closed":
+            raise AlreadyClosedError(f"Receipt with ID {receipt.id} is already closed.")
+        receipt.status = "closed"
+        self.repository.update(receipt)
 
     def add_product(
         self, receipt_id: str, product_request: AddProductRequest
