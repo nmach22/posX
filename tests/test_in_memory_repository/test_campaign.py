@@ -40,8 +40,11 @@ class TestCampaignService(unittest.TestCase):
             )
         )
         assert campaign.type == "discount"
-        assert campaign.data.discount_percentage == 10
-        assert campaign.data.product_id == "123"
+        assert (
+            isinstance(campaign.data, Discount)
+            and campaign.data.discount_percentage == 10
+        )
+        assert isinstance(campaign.data, Discount) and campaign.data.product_id == "123"
         assert (
             "123" in campaigns_products
         )  # Check if product_id exists in the dictionary

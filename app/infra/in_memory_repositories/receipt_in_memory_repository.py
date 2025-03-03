@@ -150,7 +150,10 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                         / 100
                     )
                     discounted_price += new_price
-                elif campaign_with_type_on_this_product.type == "buy n get n":
+                elif (
+                    campaign_with_type_on_this_product.type == "buy n get n"
+                    and isinstance(campaign_with_type_on_this_product, Campaign)
+                ):
                     n = campaign_with_type_on_this_product.data.buy_quantity
                     m = campaign_with_type_on_this_product.data.get_quantity
                     amount_of_campaign_costumer_use = receipt_product.quantity // (
@@ -214,7 +217,6 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
 
     def read_all(self) -> list[Receipt]:
         raise NotImplementedError("Not implemented yet.")
-
 
     def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign | None:
         for campaign in self.campaigns_repo.campaigns:
