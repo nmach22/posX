@@ -24,7 +24,7 @@ class Receipt:
     products: list[ReceiptProduct]
     status: str
     total: int
-    total_payment: int
+    discounted_total: int
 
 
 @dataclass

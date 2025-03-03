@@ -194,7 +194,13 @@ def test_calculate_discount_campaign() -> None:
     )
 
     receipt = Receipt(
-        id="1", shift_id="1", currency="gel", products=[], status="open", total=0
+        id="1",
+        shift_id="1",
+        currency="gel",
+        products=[],
+        status="open",
+        total=0,
+        discounted_total=0,
     )
     receipt_repo.create(receipt)
 
@@ -268,7 +274,13 @@ def test_calculate_payment_mixed_campaigns() -> None:
 
     # Step 4: Create a receipt and add products to it
     receipt = Receipt(
-        id="1", shift_id="1", currency="gel", products=[], status="open", total=0
+        id="1",
+        shift_id="1",
+        currency="gel",
+        products=[],
+        status="open",
+        total=0,
+        discounted_total=0,
     )
     receipt_repo.create(receipt)
 
@@ -330,7 +342,13 @@ def test_calculate_payment_combo_discount_multiple_quantities() -> None:
     )
 
     receipt = Receipt(
-        id="1", shift_id="1", currency="gel", products=[], status="open", total=0
+        id="1",
+        shift_id="1",
+        currency="gel",
+        products=[],
+        status="open",
+        total=0,
+        discounted_total=0,
     )
     receipt_repo.create(receipt)
 
@@ -376,7 +394,13 @@ def test_calculate_payment_buy_n_get_n_with_discount() -> None:
     )
 
     receipt = Receipt(
-        id="1", shift_id="1", currency="gel", products=[], status="open", total=0
+        id="1",
+        shift_id="1",
+        currency="gel",
+        products=[],
+        status="open",
+        total=0,
+        discounted_total=0,
     )
     receipt_repo.create(receipt)
 
@@ -441,7 +465,13 @@ def test_calculate_payment_large_receipt_discount() -> None:
     )
 
     receipt = Receipt(
-        id="1", shift_id="1", currency="gel", products=[], status="open", total=0
+        id="1",
+        shift_id="1",
+        currency="gel",
+        products=[],
+        status="open",
+        total=0,
+        discounted_total=0,
     )
     receipt_repo.create(receipt)
 
