@@ -41,9 +41,6 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     )
 
     def create(self, receipt: Receipt) -> Receipt:
-        if any(rec.id == receipt.id for rec in self.receipts):
-            raise ExistsError(f"Receipt with ID {receipt.id} already exists.")
-
         shift_found = False
         for shift in self.shifts.read_all_shifts():
             if shift.shift_id == receipt.shift_id:
