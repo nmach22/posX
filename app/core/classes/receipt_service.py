@@ -23,6 +23,7 @@ class ReceiptService(ReceiptInterface):
         products: list[ReceiptProduct] = []
         status = "open"
         total = 0
+        total_payment = 0
         receipt = Receipt(
             id=str(receipt_id),
             shift_id=shift_id,
@@ -30,6 +31,7 @@ class ReceiptService(ReceiptInterface):
             status=status,
             products=products,
             total=total,
+            total_payment=total_payment,
         )
         self.repository.create(receipt)
         return receipt
