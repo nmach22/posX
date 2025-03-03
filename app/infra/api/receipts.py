@@ -146,7 +146,10 @@ def add_product(
     )
 
 
-@receipts_api.get("/{receipt_id}", response_model=ReceiptResponse)
+@receipts_api.get(
+    "/{receipt_id}",
+    responses={404: {"model": ErrorResponse, "description": "Product not found."}},
+)
 def get_receipt(
     receipt_id: str,
     receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
