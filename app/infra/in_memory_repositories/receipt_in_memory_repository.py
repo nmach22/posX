@@ -2,10 +2,10 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 
 from app.core.Interfaces.campaign_interface import (
-    Campaign,
-    Discount,
     BuyNGetN,
+    Campaign,
     Combo,
+    Discount,
     ReceiptDiscount,
 )
 from app.core.Interfaces.receipt_interface import (
@@ -19,7 +19,6 @@ from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    AlreadyClosedError,
     DoesntExistError,
     ExistsError,
     ProductInMemoryRepository,

@@ -12,7 +12,6 @@ from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryIn
 from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    AlreadyClosedError,
     DoesntExistError,
 )
 
