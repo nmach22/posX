@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
-from app.core.Interfaces.product_interface import Product
-from app.core.Interfaces.repository import Repository
 from app.core.classes.receipt_service import ReceiptService
+from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
+from app.core.Interfaces.repository import Repository
 from app.infra.api.products import ErrorResponse
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,

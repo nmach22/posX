@@ -1,7 +1,6 @@
 import uuid
 from dataclasses import dataclass
 
-from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,

@@ -5,7 +5,6 @@ from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_interface import Report, SalesReport, Shift
 
 
-
 class ShiftOperations(Protocol):
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         pass

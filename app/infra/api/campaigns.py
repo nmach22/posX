@@ -1,16 +1,15 @@
 from typing import Any, Protocol
 
 from fastapi import APIRouter, Depends, HTTPException
-
 from pydantic import BaseModel
 from starlette.requests import Request
 
-from app.core.Interfaces.repository import Repository
 from app.core.classes.campaign_service import CampaignService
 from app.core.Interfaces.campaign_interface import (
     Campaign,
     CampaignRequest,
 )
+from app.core.Interfaces.repository import Repository
 from app.infra.api.products import ErrorResponse
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
@@ -33,19 +32,30 @@ class ResponseCampaign(BaseModel):
     campaign: Campaign
 
 
-@campaigns_api.post("", status_code=201, response_model=ResponseCampaign)
+@campaigns_api.post(
+    "",
+    status_code=201,
+    responses={404: {"model": ErrorResponse, "description": "Product not found."}},
+)
 def add_campaign(
     request: CampaignRequest,
     repository: Repository[Campaign] = Depends(create_campaigns_repository),
 ) -> ResponseCampaign:
     campaign_service = CampaignService(repository)
-    created_campaign = campaign_service.create_campaign(request)
+
+    try:
+        created_campaign = campaign_service.create_campaign(request)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": {"message": "product with this id does not exist."}},
+        )
     return ResponseCampaign(campaign=created_campaign)
 
 
 @campaigns_api.delete(
     "{campaign_id}",
-    responses={404: {"model": ErrorResponse, "description": "Shift not found."}},
+    responses={404: {"model": ErrorResponse, "description": "Campaign not found"}},
 )
 def delete_campaign(
     campaign_id: str,
