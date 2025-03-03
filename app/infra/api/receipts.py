@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
@@ -97,12 +97,10 @@ def create_receipt(
 def close_receipt(
     receipt_id: str,
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
-):
-    # TODO
+) -> dict[Any, Any]:
     receipt_service = ReceiptService(repository)
     try:
         receipt_service.close_receipt(receipt_id)
-        # repository.update(receipt_id)
         return {"message": f"Receipt {receipt_id} successfully closed."}
     except DoesntExistError as e:
         raise HTTPException(status_code=404, detail=str(e))
