@@ -85,7 +85,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 receipt.currency,
                 receipt.status,
                 receipt.total,
-                receipt.total_payment,
+                receipt.discounted_total,
             ),
         )
 
@@ -146,7 +146,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 status=row[3],
                 total=row[4],
                 products=products,
-                total_payment=row[5],
+                discounted_total=row[5],
             )
             return receipt
         raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
