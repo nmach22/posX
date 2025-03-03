@@ -23,24 +23,15 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
         self.shifts.append(deepcopy(shift))
         return shift
 
-    # def update(self, shift: Shift) -> None:
-    #     find: bool = False
-    #     for _shift in self.shifts:
-    #         if _shift.shift_id == shift.shift_id:
-    #             self.shifts.remove(_shift)
-    #             self.shifts.append(shift)
-    #             return
-    #     if not find:
-    #         raise DoesntExistError(f"Shift with ID {shift.shift_id} not found.")
-
-    def update(self, shift_id: str) -> None:
-        for shift in self.shifts:
-            if shift.shift_id == shift_id:
-                if shift.status != "open":
-                    raise ValueError(f"Shift with ID {shift_id} is already closed.")
-                shift.status = "closed"
+    def update(self, shift: Shift) -> None:
+        find: bool = False
+        for _shift in self.shifts:
+            if _shift.shift_id == shift.shift_id:
+                self.shifts.remove(_shift)
+                self.shifts.append(shift)
                 return
-        raise DoesntExistError(f"Shift with ID {shift_id} not found.")
+        if not find:
+            raise DoesntExistError
 
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         for shift in self.shifts:
@@ -111,12 +102,14 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
     def read_all_shifts(self) -> list[Shift]:
         return self.shifts
 
-
     def delete(self, shift_id: str) -> None:
         raise NotImplementedError("Not implemented yet.")
 
     def read(self, shift_id: str) -> Shift:
-        raise NotImplementedError("Not implemented yet.")
+        for shift in self.shifts:
+            if shift.shift_id == shift_id:
+                return shift
+        raise DoesntExistError
 
     def read_all(self) -> list[Shift]:
         raise NotImplementedError("Not implemented yet.")

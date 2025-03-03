@@ -1,4 +1,4 @@
-from typing import Protocol, Dict
+from typing import Protocol, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
@@ -68,7 +68,7 @@ def create_shift(
         created_shift = shift_service.create_shift()
         return ShiftResponse(shift=created_shift)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))  # ✅ Now works correctly
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @shifts_api.get("/x-reports")
@@ -92,17 +92,29 @@ def get_x_reports(
 def close_shift(
     shift_id: str,
     repository: ShiftRepositoryInterface = Depends(create_shift_repository),
-) -> CloseShiftResponse:
+) ->  CloseShiftResponse:
     shift_service = ShiftService(repository)
     try:
         shift_service.close_shift(shift_id)
-        return CloseShiftResponse(message="Shift closed successfully.")
     except DoesntExistError:
-        raise HTTPException(status_code=404, detail="Shift not found.")
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": {"message": f"shift with id<{shift_id}> does not exist."}
+            },
+        )
     except ValueError:
-        raise HTTPException(status_code=400, detail="Shift is already closed.")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": {
+                    "message": f"Shift with id<{shift_id}> is already closed."
+                }
+            },
+        )
+    return CloseShiftResponse(message=f"Shift {shift_id} successfully closed.")
+
+
 
 
 @shifts_api.get("/sales", response_model=SalesReportResponse)
@@ -124,4 +136,4 @@ def get_sales_report(
             ],
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))  # ✅ Fixed
+        raise HTTPException(status_code=500, detail=str(e))

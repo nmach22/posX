@@ -46,3 +46,6 @@ class ShiftInterface(Protocol):
 
     def get_lifetime_sales_report(self) -> SalesReport:
         pass
+
+    def get_shift(self, shift_id: str) -> Shift:
+        pass

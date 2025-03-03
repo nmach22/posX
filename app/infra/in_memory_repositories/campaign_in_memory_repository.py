@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Dict
 
-from app.core.Interfaces.campaign_interface import Campaign
+from app.core.Interfaces.campaign_interface import Campaign, Discount, Combo, BuyNGetN
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
 from app.infra.in_memory_repositories.product_in_memory_repository import (
@@ -30,7 +30,7 @@ class CampaignInMemoryRepository(Repository[Campaign]):
 
     def create(self, campaign: Campaign) -> Campaign:
         self.campaigns.append(campaign)
-        if campaign.type == "discount":
+        if campaign.type == "discount" and isinstance(campaign.data, Discount):
             if self.product_does_not_exist(campaign.data.product_id):
                 raise DoesntExistError
             old_price = self.products_repo.read(campaign.data.product_id).price
@@ -44,7 +44,7 @@ class CampaignInMemoryRepository(Repository[Campaign]):
             )
             # self.campaign_product_list.append(product_for_campaign)
             self.campaigns_product_list[campaign.data.product_id] = product_for_campaign
-        if campaign.type == "combo":
+        if campaign.type == "combo" and isinstance(campaign.data, Combo):
             for product_id in campaign.data.products:
                 if self.product_does_not_exist(product_id):
                     raise DoesntExistError
@@ -63,7 +63,7 @@ class CampaignInMemoryRepository(Repository[Campaign]):
                 # self.campaign_product_list.append(product_for_campaign)
                 self.campaigns_product_list[product_id] = product_for_campaign
 
-        if campaign.type == "Buy n get n":
+        if campaign.type == "Buy n get n" and isinstance(campaign.data, BuyNGetN):
             if self.product_does_not_exist(campaign.data.product_id):
                 raise DoesntExistError
             product_for_campaign = CampaignAndProducts(
