@@ -81,7 +81,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             )
 
         cursor.execute(
-            "INSERT INTO receipts (id, shift_id, currency, status, total, total_payment) VALUES (?, ?, ?,?, ?)",
+            "INSERT INTO receipts (id, shift_id, currency, status, total, total_payment) VALUES (?, ?, ?,?, ?, ?)",
             (
                 receipt.id,
                 receipt.shift_id,
@@ -311,7 +311,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
             cursor.execute(
                 "UPDATE receipts SET total_payment = ? WHERE id = ?",
-                (total_discounted_price, receipt_id),
+                (discounted_price_in_target_currency, receipt_id),
             )
 
             return ReceiptForPayment(

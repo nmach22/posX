@@ -128,7 +128,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     receipt_product.total
                     * already_checkouted_product_from_combo.get(
                         receipt_product.id, 0
-                    )  # Default 0
+                    )
                     / 100
                 )
 

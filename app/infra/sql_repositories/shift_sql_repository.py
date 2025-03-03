@@ -83,19 +83,18 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
         cursor.execute(
             """
-            SELECT r.id, r.total, r.currency
+            SELECT r.id, r.total_payment, r.currency
             FROM receipts r
             WHERE r.shift_id = ? AND r.status = 'closed'
             """,
             (shift_id,),
         )
         receipts = cursor.fetchall()
-        print(receipts)
         n_receipts = len(receipts)
         currency_revenue: dict[Any, Any] = {}
 
-        for receipt_id, total, currency in receipts:
-            currency_revenue[currency] = currency_revenue.get(currency, 0) + total
+        for receipt_id, total_payment, currency in receipts:
+            currency_revenue[currency] = currency_revenue.get(currency, 0) + total_payment
 
         product_summary = {}
         cursor.execute(
@@ -127,7 +126,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         cursor = self.conn.cursor()
         cursor.execute(
             """
-            SELECT r.id, r.currency, r.total
+            SELECT r.id, r.currency, r.total_payment
             FROM receipts r
             WHERE r.status = 'closed'
             """
@@ -138,10 +137,10 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         currency_totals: Dict[str, int] = {}  # Ensure float values
         closed_receipts: list[ClosedReceipt] = []
 
-        for receipt_id, currency, total in receipts:
-            currency_totals[currency] = currency_totals.get(currency, 0) + total
+        for receipt_id, currency, total_payment in receipts:
+            currency_totals[currency] = currency_totals.get(currency, 0) + total_payment
             closed_receipts.append(
-                ClosedReceipt(receipt_id=receipt_id, calculated_payment=total)
+                ClosedReceipt(receipt_id=receipt_id, calculated_payment=total_payment)
             )
 
         return SalesReport(
