@@ -13,6 +13,7 @@ from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
+    AlreadyClosedError,
 )
 
 
@@ -40,10 +41,11 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 currency TEXT NOT NULL,
                 status TEXT NOT NULL,
                 total INTEGER NOT NULL,
-                total_payment INTEGER NOT NULL,
+                total_payment INTEGER NOT NULL
             )
             """
         )
+
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS receipt_products (
@@ -61,10 +63,19 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def create(self, receipt: Receipt) -> Receipt:
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT shift_id FROM shifts WHERE shift_id = ?", (receipt.shift_id,)
+            "SELECT shift_id, status FROM shifts WHERE shift_id = ?",
+            (receipt.shift_id,),
         )
-        if not cursor.fetchone():
+        row = cursor.fetchone()
+        # todo: should i leave these errors here or write them in service?
+        # todo: if i write them in service then i need Shift(so new function)
+        if not row:
             raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
+
+        if row[1] == "closed":
+            raise AlreadyClosedError(
+                f"Shift with ID {receipt.shift_id} is already closed."
+            )
 
         cursor.execute(
             "INSERT INTO receipts (id, shift_id, currency, status, total, total_payment) VALUES (?, ?, ?,?, ?)",
@@ -100,7 +111,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         self.create(receipt)
 
     def read(self, receipt_id: str) -> Receipt:
-        self.calculate_payment(receipt_id)
+        # self.calculate_payment(receipt_id)
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT id, shift_id, currency, status, total,total_payment FROM receipts WHERE id = ?",
