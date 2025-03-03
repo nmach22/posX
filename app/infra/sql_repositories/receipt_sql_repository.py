@@ -306,6 +306,11 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 discounted_price_in_target_currency = total_discounted_price
                 reduced_price_in_target_currency = reduced_price
 
+            cursor.execute(
+                "UPDATE receipts SET total_payment = ? WHERE id = ?",
+                (total_discounted_price, receipt_id),
+            )
+
             return ReceiptForPayment(
                 receipt,
                 discounted_price=discounted_price_in_target_currency,
