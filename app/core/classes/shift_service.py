@@ -22,9 +22,20 @@ class ShiftService(ShiftInterface):
         self.repository.create(shift)
         return shift
 
-    def close_shift(self, shift: Shift) -> None:
+    def close_shift(self, shift_id: str) -> None:
         try:
-            self.repository.update(shift)
+            existing_shift = self.get_shift(shift_id)
+        except DoesntExistError:
+            raise DoesntExistError
+        if existing_shift.status != "open":
+            raise ValueError("shift is closed already")
+        updated_shift = Shift(
+            shift_id=existing_shift.shift_id,
+            receipts=existing_shift.receipts,
+            status="closed",
+        )
+        try:
+            self.repository.update(updated_shift)
         except DoesntExistError:
             raise DoesntExistError
 

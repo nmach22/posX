@@ -95,7 +95,7 @@ def close_shift(
 ) ->  CloseShiftResponse:
     shift_service = ShiftService(repository)
     try:
-        existing_shift = shift_service.get_shift(shift_id)
+        shift_service.close_shift(shift_id)
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
@@ -103,27 +103,13 @@ def close_shift(
                 "error": {"message": f"shift with id<{shift_id}> does not exist."}
             },
         )
-    if existing_shift.status != "open":
+    except ValueError:
         raise HTTPException(
             status_code=400,
             detail={
                 "error": {
                     "message": f"Shift with id<{shift_id}> is already closed."
                 }
-            },
-        )
-    updated_shift = Shift(
-        shift_id=existing_shift.shift_id,
-        receipts=existing_shift.receipts,
-        status="closed",
-    )
-    try:
-        shift_service.close_shift(updated_shift)
-    except DoesntExistError:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "error": {"message": f"shift with id<{shift_id}> does not exist."}
             },
         )
     return CloseShiftResponse(message=f"Shift {shift_id} successfully closed.")
