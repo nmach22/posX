@@ -156,7 +156,7 @@ class CampaignSQLRepository(Repository[Campaign]):
         campaign = cursor.fetchone()
         if not campaign:
             raise DoesntExistError(f"Campaign with ID {campaign_id} does not exist.")
-
+        print("i am deleting")
         cursor.execute(
             "DELETE FROM campaign_products WHERE campaign_id = ?", (campaign_id,)
         )
