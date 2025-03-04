@@ -235,7 +235,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             receipt, discounted_price, total_price - discounted_price
         )
 
-    def add_payment_to_the_receipt(
+    def add_payment(
         self,
         receipt_id: str,
     ) -> ReceiptForPayment:

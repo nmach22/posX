@@ -284,23 +284,23 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                         discounted_price = result * free_qty
                         total_discounted_price += discounted_price
 
-            reduced_price = original_total - total_discounted_price
-            cursor.execute(
-                """
-                SELECT discount_percentage, min_amount
-                FROM campaigns
-                WHERE type = 'receipt discount' AND min_amount <= ?
-                """,
-                (total_discounted_price,),
-            )
-            receipt_discount_row = cursor.fetchone()
+        reduced_price = original_total - total_discounted_price
+        cursor.execute(
+            """
+            SELECT discount_percentage, min_amount
+            FROM campaigns
+            WHERE type = 'receipt discount' AND min_amount <= ?
+            """,
+            (total_discounted_price,),
+        )
+        receipt_discount_row = cursor.fetchone()
 
-            if receipt_discount_row:
-                discount_percentage, min_amount = receipt_discount_row
-                total_discounted_price = (
-                    total_discounted_price * (100 - discount_percentage)
-                ) / 100
-                reduced_price += (total_discounted_price * discount_percentage) / 100
+        if receipt_discount_row:
+            discount_percentage, min_amount = receipt_discount_row
+            total_discounted_price = (
+                total_discounted_price * (100 - discount_percentage)
+            ) / 100
+            reduced_price += (total_discounted_price * discount_percentage) / 100
 
         receipt = self.read(receipt_id)
         receipt.currency = receipt.currency.upper()
@@ -315,23 +315,26 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         else:
             discounted_price_in_target_currency = int(total_discounted_price)
             reduced_price_in_target_currency = int(reduced_price)
+
+        print("calcshi")
+        print(discounted_price_in_target_currency)
+
         return ReceiptForPayment(
             receipt,
-            discounted_price=discounted_price_in_target_currency/100,
-            reduced_price=reduced_price_in_target_currency/100,
+            discounted_price=discounted_price_in_target_currency,
+            reduced_price=reduced_price_in_target_currency,
         )
 
     def add_payment(self, receipt_id) -> ReceiptForPayment:
         cursor = self.conn.cursor()
         receipt_for_payment = self.calculate_payment(receipt_id)
         discounted_price = receipt_for_payment.discounted_price
-
+        print("addshi")
+        print(discounted_price)
         cursor.execute(
             "UPDATE receipts SET discounted_total = ? WHERE id = ?",
             (discounted_price, receipt_id),
         )
-
         receipt = self.read(receipt_id)
         receipt_for_payment.receipt = receipt
-
         return receipt_for_payment

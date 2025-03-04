@@ -116,7 +116,7 @@ def create_receipt(
     )
 
 
-@receipts_api.post("/receipts/{receipt_id}/close")
+@receipts_api.post("/{receipt_id}/close")
 def close_receipt(
     receipt_id: str,
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
@@ -211,20 +211,20 @@ def get_receipt(
 def calculate_payment(
     receipt_id: str,
     receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
-) -> ReceiptForPayment:
+) -> PaymentResponse:
     receipt_service = ReceiptService(receipts_repo)
 
     # Call the repository method to calculate payment
     receipt_payment = receipt_service.calculate_payment(receipt_id)
 
-    return receipt_payment
-    # return PaymentResponse(
-    #     id=receipt_payment.receipt.id,
-    #     total=receipt_payment.receipt.total,
-    #     discounted_total=receipt_payment.discounted_price,
-    #     reduced_price=receipt_payment.reduced_price,
-    #     currency=receipt_payment.receipt.currency,
-    # )
+    #return receipt_payment
+    return PaymentResponse(
+        id=receipt_payment.receipt.id,
+        total=receipt_payment.receipt.total/100,
+        discounted_total=receipt_payment.discounted_price,
+        reduced_price=receipt_payment.reduced_price,
+        currency=receipt_payment.receipt.currency,
+    )
 
 
 @receipts_api.post(
@@ -234,8 +234,14 @@ def calculate_payment(
 def add_payment(
     receipt_id: str,
     receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
-) -> ReceiptForPayment:
+) -> PaymentResponse:
     receipt_service = ReceiptService(receipts_repo)
     receipt_payment = receipt_service.add_payment(receipt_id)
 
-    return receipt_payment
+    return PaymentResponse(
+        id=receipt_payment.receipt.id,
+        total=receipt_payment.receipt.total / 100,
+        discounted_total=receipt_payment.discounted_price,
+        reduced_price=receipt_payment.reduced_price,
+        currency=receipt_payment.receipt.currency,
+    )

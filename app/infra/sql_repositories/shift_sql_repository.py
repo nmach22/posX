@@ -93,9 +93,9 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         n_receipts = len(receipts)
         currency_revenue: dict[Any, Any] = {}
 
-        for receipt_id, total_payment, currency in receipts:
-            print(total_payment)
-            currency_revenue[currency] = currency_revenue.get(currency, 0) + total_payment
+        for receipt_id, discounted_total, currency in receipts:
+            print(discounted_total)
+            currency_revenue[currency] = currency_revenue.get(currency, 0) + discounted_total
 
         product_summary = {}
         cursor.execute(
