@@ -8,6 +8,7 @@ from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
+    ReceiptForPayment,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
@@ -210,25 +211,31 @@ def get_receipt(
 def calculate_payment(
     receipt_id: str,
     receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
-) -> PaymentResponse:
+) -> ReceiptForPayment:
     receipt_service = ReceiptService(receipts_repo)
-
-    try:
-        receipt = receipt_service.read_receipt(receipt_id)
-    except DoesntExistError:
-        raise HTTPException(
-            status_code=404,
-            detail={"error": {"message": "Receipt with this ID does not exist."}},
-        )
 
     # Call the repository method to calculate payment
     receipt_payment = receipt_service.calculate_payment(receipt_id)
-    print("-----------------")
-    print(receipt_payment.receipt)
-    return PaymentResponse(
-        id=receipt_payment.receipt.id,
-        total=receipt_payment.receipt.total/100,
-        discounted_total=receipt_payment.discounted_price,
-        reduced_price=receipt_payment.reduced_price,
-        currency=receipt_payment.receipt.currency,
-    )
+
+    return receipt_payment
+    # return PaymentResponse(
+    #     id=receipt_payment.receipt.id,
+    #     total=receipt_payment.receipt.total,
+    #     discounted_total=receipt_payment.discounted_price,
+    #     reduced_price=receipt_payment.reduced_price,
+    #     currency=receipt_payment.receipt.currency,
+    # )
+
+
+@receipts_api.post(
+    "/{receipt_id}/payments",
+    responses={404: {"model": ErrorResponse, "description": "Receipt not found."}},
+)
+def add_payment(
+    receipt_id: str,
+    receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
+) -> ReceiptForPayment:
+    receipt_service = ReceiptService(receipts_repo)
+    receipt_payment = receipt_service.add_payment(receipt_id)
+
+    return receipt_payment

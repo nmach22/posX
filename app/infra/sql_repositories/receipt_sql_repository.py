@@ -279,25 +279,28 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                         total_discounted_price += discounted_price * quantity
                 elif campaign_type == "buy n get n":
                     if quantity >= required_qty:
+                        # todo: es ra logikaa? mgoni arasworia!!!
                         result = quantity // (required_qty + free_qty)
                         discounted_price = result * free_qty
                         total_discounted_price += discounted_price
 
-        reduced_price = original_total - total_discounted_price
-        cursor.execute(
-            """
-            SELECT discount_percentage, min_amount
-            FROM campaigns
-            WHERE type = 'receipt discount' AND min_amount <= ?
-            """,
-            (reduced_price,),
-        )
-        receipt_discount_row = cursor.fetchone()
+            reduced_price = original_total - total_discounted_price
+            cursor.execute(
+                """
+                SELECT discount_percentage, min_amount
+                FROM campaigns
+                WHERE type = 'receipt discount' AND min_amount <= ?
+                """,
+                (total_discounted_price,),
+            )
+            receipt_discount_row = cursor.fetchone()
 
-        if receipt_discount_row:
-            discount_percentage, min_amount = receipt_discount_row
-            receipt_discount_price = (reduced_price * discount_percentage) / 100
-            reduced_price -= receipt_discount_price
+            if receipt_discount_row:
+                discount_percentage, min_amount = receipt_discount_row
+                total_discounted_price = (
+                    total_discounted_price * (100 - discount_percentage)
+                ) / 100
+                reduced_price += (total_discounted_price * discount_percentage) / 100
 
         receipt = self.read(receipt_id)
         receipt.currency = receipt.currency.upper()
