@@ -44,7 +44,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 currency TEXT NOT NULL,
                 status TEXT NOT NULL,
                 total INTEGER NOT NULL,
-                total_payment INTEGER NOT NULL
+                discounted_total INTEGER NOT NULL
             )
             """
         )
@@ -81,7 +81,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             )
 
         cursor.execute(
-            "INSERT INTO receipts (id, shift_id, currency, status, total, total_payment) VALUES (?, ?, ?,?, ?, ?)",
+            "INSERT INTO receipts (id, shift_id, currency, status, total, discounted_total) VALUES (?, ?, ?,?,?,?)",
             (
                 receipt.id,
                 receipt.shift_id,
@@ -117,7 +117,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         # self.calculate_payment(receipt_id)
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT id, shift_id, currency, status, total,total_payment FROM receipts WHERE id = ?",
+            "SELECT id, shift_id, currency, status, total, discounted_total FROM receipts WHERE id = ?",
             (receipt_id,),
         )
         row = cursor.fetchone()
@@ -238,7 +238,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
             cursor.execute(
                 """
-                SELECT c.id, c.type, cp.discounted_price, c.discount_percentage, c.required_quantity, c.free_quantity
+                SELECT c.id, c.type, cp.discounted_price, c.discount_percentage, c.buy_quantity, c.get_quantity
                 FROM campaign_products cp
                 JOIN campaigns c ON cp.campaign_id = c.id
                 WHERE cp.product_id = ?
@@ -303,15 +303,15 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             receipt = self.read(receipt_id)
             if receipt.currency != "GEL":
                 conversion_rate = self.exchange_rate_service.get_exchange_rate("GEL", receipt.currency)
-                discounted_price_in_target_currency = total_discounted_price * conversion_rate
-                reduced_price_in_target_currency = reduced_price * conversion_rate
+                discounted_price_in_target_currency = int(total_discounted_price * conversion_rate)
+                reduced_price_in_target_currency = int(reduced_price * conversion_rate)
             else:
-                discounted_price_in_target_currency = total_discounted_price
-                reduced_price_in_target_currency = reduced_price
+                discounted_price_in_target_currency = int(total_discounted_price)
+                reduced_price_in_target_currency = int(reduced_price)
 
             cursor.execute(
-                "UPDATE receipts SET total_payment = ? WHERE id = ?",
-                (discounted_price_in_target_currency, receipt_id),
+                "UPDATE receipts SET discounted_total = ? WHERE id = ?",
+                (reduced_price_in_target_currency, receipt_id),
             )
 
             return ReceiptForPayment(

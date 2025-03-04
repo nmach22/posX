@@ -35,6 +35,12 @@ class ReceiptEntry(BaseModel):
     products: list[ReceiptProductDict]
     total: int
 
+class PaymentResponse(BaseModel):
+    id: str
+    total: int
+    discounted_total: int
+    reduced_price: int
+    currency: str
 
 class CreateReceiptRequest(BaseModel):
     shift_id: str
@@ -189,4 +195,38 @@ def get_receipt(
             ],
             total=receipt.total,
         )
+    )
+
+
+
+@receipts_api.post(
+    "/{receipt_id}/quotes",
+    responses={404: {"model": ErrorResponse, "description": "Receipt not found."}},
+)
+def calculate_payment(
+    receipt_id: str,
+    receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
+) -> PaymentResponse:
+    receipt_service = ReceiptService(receipts_repo)
+
+    try:
+        receipt = receipt_service.read_receipt(receipt_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": {"message": "Receipt with this ID does not exist."}},
+        )
+
+    # Call the repository method to calculate payment
+    receipt_payment = receipt_service.calculate_payment(receipt_id)
+    print("--------------------")
+    print(receipt_payment)
+
+
+    return PaymentResponse(
+        id=receipt_payment.receipt.id,
+        total=receipt_payment.receipt.total,
+        discounted_total=receipt_payment.discounted_price,
+        reduced_price=receipt_payment.reduced_price,
+        currency=receipt_payment.receipt.currency,
     )

@@ -83,7 +83,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
             raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
         cursor.execute(
             """
-            SELECT r.id, r.total_payment, r.currency
+            SELECT r.id, r.discounted_total, r.currency
             FROM receipts r
             WHERE r.shift_id = ? AND r.status = 'closed'
             """,
@@ -94,6 +94,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         currency_revenue: dict[Any, Any] = {}
 
         for receipt_id, total_payment, currency in receipts:
+            print(total_payment)
             currency_revenue[currency] = currency_revenue.get(currency, 0) + total_payment
 
         product_summary = {}
@@ -126,7 +127,7 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         cursor = self.conn.cursor()
         cursor.execute(
             """
-            SELECT r.id, r.currency, r.total_payment
+            SELECT r.id, r.currency, r.discounted_total
             FROM receipts r
             WHERE r.status = 'closed'
             """
