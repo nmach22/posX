@@ -34,8 +34,13 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
             raise DoesntExistError
 
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
+        new_receipt_id = receipt.id
         for shift in self.shifts:
             if shift.shift_id == receipt.shift_id:
+                for _receipt in shift.receipts:
+                    if _receipt.id == new_receipt_id:
+                        shift.receipts.remove(_receipt)
+
                 shift.receipts.append(deepcopy(receipt))
                 return
         raise DoesntExistError(f"Shift with ID {receipt.shift_id} not found.")
@@ -54,7 +59,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
             if receipt.status == "closed":
                 n_receipts += 1
                 currency_revenue[receipt.currency] = (
-                    currency_revenue.get(receipt.currency, 0) + receipt.total
+                    currency_revenue.get(receipt.currency, 0) + receipt.discounted_total
                 )
 
                 for product in receipt.products:
@@ -84,7 +89,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 if receipt.status == "closed":
                     total_receipts += 1
                     currency_totals[receipt.currency] = (
-                        currency_totals.get(receipt.currency, 0) + receipt.total
+                        currency_totals.get(receipt.currency, 0) + receipt.discounted_total
                     )
 
                     closed_receipts.append(

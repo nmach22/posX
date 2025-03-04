@@ -52,7 +52,7 @@ def test_should_add_receipt_in_memory(
     setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, shift_id, receipt_list = setup_receipt_service
-    service.create_receipt(shift_id, currency="gel")
+    service.create_receipt(shift_id, currency="GEL")
 
     assert len(receipt_list) == 1
     assert receipt_list[0].status == "open"
@@ -65,7 +65,7 @@ def test_should_close_receipt_in_memory(
     setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, shift_id, receipt_list = setup_receipt_service
-    receipt = service.create_receipt(shift_id, currency="gel")
+    receipt = service.create_receipt(shift_id, currency="GEL")
     receipt_id = receipt.id
 
     assert receipt.status == "open"
@@ -77,7 +77,7 @@ def test_should_read_receipt_in_memory(
     setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, shift_id, _ = setup_receipt_service
-    receipt = service.create_receipt(shift_id, currency="gel")
+    receipt = service.create_receipt(shift_id, currency="GEL")
     receipt_id = receipt.id
 
     retrieved_receipt = service.read_receipt(receipt_id)
@@ -93,7 +93,7 @@ def test_should_add_product_to_receipt(
     setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, shift_id, _ = setup_receipt_service
-    receipt = service.create_receipt(shift_id, currency="gel")
+    receipt = service.create_receipt(shift_id, currency="GEL")
     receipt_id = receipt.id
 
     product_request = AddProductRequest(product_id="123", quantity=2)
@@ -142,7 +142,7 @@ def test_should_raise_error_when_adding_nonexistent_product_to_receipt(
     setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, shift_id, _ = setup_receipt_service
-    receipt = service.create_receipt(shift_id, currency="gel")
+    receipt = service.create_receipt(shift_id, currency="GEL")
     receipt_id = receipt.id
 
     product_request = AddProductRequest(product_id="999", quantity=1)
@@ -154,7 +154,7 @@ def test_should_raise_error_when_closing_already_closed_receipt(
     setup_receipt_service: Tuple[ReceiptService, str, list[Receipt]],
 ) -> None:
     service, shift_id, _ = setup_receipt_service
-    receipt = service.create_receipt(shift_id, currency="gel")
+    receipt = service.create_receipt(shift_id, currency="GEL")
     receipt_id = receipt.id
     service.close_receipt(receipt_id)
 
@@ -196,7 +196,7 @@ def test_calculate_discount_campaign() -> None:
     receipt = Receipt(
         id="1",
         shift_id="1",
-        currency="gel",
+        currency="GEL",
         products=[],
         status="open",
         total=0,
@@ -276,7 +276,7 @@ def test_calculate_payment_mixed_campaigns() -> None:
     receipt = Receipt(
         id="1",
         shift_id="1",
-        currency="gel",
+        currency="GEL",
         products=[],
         status="open",
         total=0,
@@ -344,7 +344,7 @@ def test_calculate_payment_combo_discount_multiple_quantities() -> None:
     receipt = Receipt(
         id="1",
         shift_id="1",
-        currency="gel",
+        currency="GEL",
         products=[],
         status="open",
         total=0,
@@ -396,7 +396,7 @@ def test_calculate_payment_buy_n_get_n_with_discount() -> None:
     receipt = Receipt(
         id="1",
         shift_id="1",
-        currency="gel",
+        currency="GEL",
         products=[],
         status="open",
         total=0,
@@ -467,7 +467,7 @@ def test_calculate_payment_large_receipt_discount() -> None:
     receipt = Receipt(
         id="1",
         shift_id="1",
-        currency="gel",
+        currency="GEL",
         products=[],
         status="open",
         total=0,

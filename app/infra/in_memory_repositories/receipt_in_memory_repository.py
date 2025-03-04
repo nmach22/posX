@@ -229,6 +229,11 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             discounted_price = discounted_price * conversion_rate
             total_price = total_price * conversion_rate
 
+        print(receipt.discounted_total)
+        receipt.discounted_total = total_price - discounted_price
+        print("->")
+        print(receipt.discounted_total)
+        self.shifts.add_receipt_to_shift(receipt)
 
         return ReceiptForPayment(
             receipt, discounted_price, total_price - discounted_price
