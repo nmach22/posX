@@ -220,6 +220,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 break
 
         total_price = receipt.total
+        receipt.currency = receipt.currency.upper()
         if receipt.currency != "GEL":
             conversion_rate = self.exchange_rate_service.get_exchange_rate(
                 "GEL", receipt.currency

@@ -38,9 +38,9 @@ class ReceiptEntry(BaseModel):
 
 class PaymentResponse(BaseModel):
     id: str
-    total: int
-    discounted_total: int
-    reduced_price: int
+    total: float
+    discounted_total: float
+    reduced_price: float
     currency: str
 
 
@@ -223,10 +223,11 @@ def calculate_payment(
 
     # Call the repository method to calculate payment
     receipt_payment = receipt_service.calculate_payment(receipt_id)
-
+    print("-----------------")
+    print(receipt_payment.receipt)
     return PaymentResponse(
         id=receipt_payment.receipt.id,
-        total=receipt_payment.receipt.total,
+        total=receipt_payment.receipt.total/100,
         discounted_total=receipt_payment.discounted_price,
         reduced_price=receipt_payment.reduced_price,
         currency=receipt_payment.receipt.currency,

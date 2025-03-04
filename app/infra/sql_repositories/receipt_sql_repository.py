@@ -283,40 +283,40 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                         discounted_price = result * free_qty
                         total_discounted_price += discounted_price
 
-            reduced_price = original_total - total_discounted_price
-            cursor.execute(
-                """
-                SELECT discount_percentage, min_amount
-                FROM campaigns
-                WHERE type = 'receipt discount' AND min_amount <= ?
-                """,
-                (reduced_price,),
+        reduced_price = original_total - total_discounted_price
+        cursor.execute(
+            """
+            SELECT discount_percentage, min_amount
+            FROM campaigns
+            WHERE type = 'receipt discount' AND min_amount <= ?
+            """,
+            (reduced_price,),
+        )
+        receipt_discount_row = cursor.fetchone()
+
+        if receipt_discount_row:
+            discount_percentage, min_amount = receipt_discount_row
+            receipt_discount_price = (reduced_price * discount_percentage) / 100
+            reduced_price -= receipt_discount_price
+
+        receipt = self.read(receipt_id)
+        receipt.currency = receipt.currency.upper()
+        if receipt.currency != "GEL":
+            conversion_rate = self.exchange_rate_service.get_exchange_rate(
+                "GEL", receipt.currency
             )
-            receipt_discount_row = cursor.fetchone()
-
-            if receipt_discount_row:
-                discount_percentage, min_amount = receipt_discount_row
-                receipt_discount_price = (reduced_price * discount_percentage) / 100
-                reduced_price -= receipt_discount_price
-
-            receipt = self.read(receipt_id)
-            if receipt.currency != "GEL":
-                conversion_rate = self.exchange_rate_service.get_exchange_rate(
-                    "GEL", receipt.currency
-                )
-                discounted_price_in_target_currency = int(
-                    total_discounted_price * conversion_rate
-                )
-                reduced_price_in_target_currency = int(reduced_price * conversion_rate)
-            else:
-                discounted_price_in_target_currency = int(total_discounted_price)
-                reduced_price_in_target_currency = int(reduced_price)
-
-            return ReceiptForPayment(
-                receipt,
-                discounted_price=discounted_price_in_target_currency,
-                reduced_price=reduced_price_in_target_currency,
+            discounted_price_in_target_currency = int(
+                (total_discounted_price/100) * conversion_rate
             )
+            reduced_price_in_target_currency = int((reduced_price/100) * conversion_rate)
+        else:
+            discounted_price_in_target_currency = int(total_discounted_price)
+            reduced_price_in_target_currency = int(reduced_price)
+        return ReceiptForPayment(
+            receipt,
+            discounted_price=discounted_price_in_target_currency/100,
+            reduced_price=reduced_price_in_target_currency/100,
+        )
 
     def add_payment(self, receipt_id) -> ReceiptForPayment:
         cursor = self.conn.cursor()
