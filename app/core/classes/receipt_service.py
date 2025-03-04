@@ -53,3 +53,6 @@ class ReceiptService(ReceiptInterface):
 
     def calculate_payment(self, receipt_id: str) -> ReceiptForPayment:
         return self.repository.calculate_payment(receipt_id)
+
+    def add_payment(self, receipt_id: str) -> ReceiptForPayment:
+        return self.repository.add_payment(receipt_id)
