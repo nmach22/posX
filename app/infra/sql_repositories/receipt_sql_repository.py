@@ -283,6 +283,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                         result = quantity // (required_qty + free_qty)
                         discounted_price = result * free_qty
                         total_discounted_price += discounted_price
+            else:
+                total_discounted_price += total_price
 
         reduced_price = original_total - total_discounted_price
         cursor.execute(
@@ -316,9 +318,6 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             discounted_price_in_target_currency = int(total_discounted_price)
             reduced_price_in_target_currency = int(reduced_price)
 
-        print("calcshi")
-        print(discounted_price_in_target_currency)
-
         return ReceiptForPayment(
             receipt,
             discounted_price=discounted_price_in_target_currency,
@@ -329,8 +328,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         cursor = self.conn.cursor()
         receipt_for_payment = self.calculate_payment(receipt_id)
         discounted_price = receipt_for_payment.discounted_price
-        print("addshi")
-        print(discounted_price)
+
         cursor.execute(
             "UPDATE receipts SET discounted_total = ? WHERE id = ?",
             (discounted_price, receipt_id),
