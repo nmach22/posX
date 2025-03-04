@@ -85,7 +85,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             (
                 receipt.id,
                 receipt.shift_id,
-                receipt.currency,
+                receipt.currency.upper(),
                 receipt.status,
                 receipt.total,
                 receipt.discounted_total,
@@ -315,8 +315,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             )
             reduced_price_in_target_currency = int((reduced_price/100) * conversion_rate)
         else:
-            discounted_price_in_target_currency = int(total_discounted_price)
-            reduced_price_in_target_currency = int(reduced_price)
+            discounted_price_in_target_currency = int(total_discounted_price/100)
+            reduced_price_in_target_currency = int(reduced_price/100)
 
         return ReceiptForPayment(
             receipt,
@@ -333,6 +333,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             "UPDATE receipts SET discounted_total = ? WHERE id = ?",
             (discounted_price, receipt_id),
         )
+
         receipt = self.read(receipt_id)
         receipt_for_payment.receipt = receipt
+
         return receipt_for_payment

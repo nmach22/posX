@@ -13,6 +13,9 @@ from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterf
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
+class OpenReceiptsError(Exception):
+    """Raised when trying to update a shift that has open receipts."""
+    pass
 
 
 @dataclass
@@ -27,6 +30,9 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
         find: bool = False
         for _shift in self.shifts:
             if _shift.shift_id == shift.shift_id:
+                for _receipt in _shift.receipts:
+                    if _receipt.status == "open":
+                        raise OpenReceiptsError("Shift cannot be closed while there are open receipts.")
                 self.shifts.remove(_shift)
                 self.shifts.append(shift)
                 return
