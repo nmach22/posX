@@ -35,12 +35,14 @@ class ReceiptEntry(BaseModel):
     products: list[ReceiptProductDict]
     total: int
 
+
 class PaymentResponse(BaseModel):
     id: str
     total: int
     discounted_total: int
     reduced_price: int
     currency: str
+
 
 class CreateReceiptRequest(BaseModel):
     shift_id: str
@@ -72,7 +74,10 @@ def create_products_repository(request: Request) -> Repository[Product]:
 @receipts_api.post(
     "",
     status_code=201,
-    responses={404: {"model": ErrorResponse, "description": "Shift not found."}},
+    responses={
+        404: {"model": ErrorResponse, "description": "Shift not found."},
+        409: {"model": ErrorResponse, "description": "Shift already closed."},
+    },
 )
 def create_receipt(
     request: CreateReceiptRequest,
@@ -90,7 +95,7 @@ def create_receipt(
         )
     except AlreadyClosedError:
         raise HTTPException(
-            status_code=400,
+            status_code=409,
             detail={
                 "error": {
                     "message": f"Shift with id<{request.shift_id}> is already closed."
@@ -198,7 +203,6 @@ def get_receipt(
     )
 
 
-
 @receipts_api.post(
     "/{receipt_id}/quotes",
     responses={404: {"model": ErrorResponse, "description": "Receipt not found."}},
@@ -219,9 +223,6 @@ def calculate_payment(
 
     # Call the repository method to calculate payment
     receipt_payment = receipt_service.calculate_payment(receipt_id)
-    print("--------------------")
-    print(receipt_payment)
-
 
     return PaymentResponse(
         id=receipt_payment.receipt.id,
