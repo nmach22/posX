@@ -60,10 +60,11 @@ def test_close_shift() -> None:
         shift_id=shift.shift_id,
         currency="gel",
         products=[],
-        status="open",
+        status="closed",
         total=100,
         discounted_total=0,
     )
+
     service.add_receipt_to_shift(receipt)
     service.close_shift(shift.shift_id)
 
