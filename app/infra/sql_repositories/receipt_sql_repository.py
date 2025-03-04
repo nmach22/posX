@@ -283,6 +283,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                         result = quantity // (required_qty + free_qty)
                         discounted_price = result * free_qty
                         total_discounted_price += discounted_price
+            else:
+                total_discounted_price += total_price
 
         reduced_price = original_total - total_discounted_price
         cursor.execute(
