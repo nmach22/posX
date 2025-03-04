@@ -54,7 +54,7 @@ def add_campaign(
 
 
 @campaigns_api.delete(
-    "{campaign_id}",
+    "/{campaign_id}",
     responses={404: {"model": ErrorResponse, "description": "Campaign not found"}},
 )
 def delete_campaign(
