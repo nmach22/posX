@@ -75,7 +75,10 @@ def create_products_repository(request: Request) -> Repository[Product]:
 @receipts_api.post(
     "",
     status_code=201,
-    responses={404: {"model": ErrorResponse, "description": "Shift not found."}},
+    responses={
+        404: {"model": ErrorResponse, "description": "Shift not found."},
+        409: {"model": ErrorResponse, "description": "Shift already closed."},
+    },
 )
 def create_receipt(
     request: CreateReceiptRequest,
@@ -93,7 +96,7 @@ def create_receipt(
         )
     except AlreadyClosedError:
         raise HTTPException(
-            status_code=400,
+            status_code=409,
             detail={
                 "error": {
                     "message": f"Shift with id<{request.shift_id}> is already closed."

@@ -63,7 +63,7 @@ class CampaignInMemoryRepository(Repository[Campaign]):
                 # self.campaign_product_list.append(product_for_campaign)
                 self.campaigns_product_list[product_id] = product_for_campaign
 
-        if campaign.type == "Buy n get n" and isinstance(campaign.data, BuyNGetN):
+        if campaign.type == "buy n get n" and isinstance(campaign.data, BuyNGetN):
             if self.product_does_not_exist(campaign.data.product_id):
                 raise DoesntExistError
             product_for_campaign = CampaignAndProducts(

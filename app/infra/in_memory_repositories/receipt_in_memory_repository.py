@@ -227,15 +227,20 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             discounted_price = discounted_price * conversion_rate
             total_price = total_price * conversion_rate
 
-        print(receipt.discounted_total)
         receipt.discounted_total = total_price - discounted_price
-        print("->")
-        print(receipt.discounted_total)
         self.shifts.add_receipt_to_shift(receipt)
 
         return ReceiptForPayment(
             receipt, discounted_price, total_price - discounted_price
         )
+
+    def add_payment_to_the_receipt(
+        self,
+        receipt_id: str,
+    ) -> ReceiptForPayment:
+        receipt_for_payment = self.calculate_payment(receipt_id)
+        self.shifts.add_receipt_to_shift(receipt_for_payment.receipt)
+        return receipt_for_payment
 
     def delete(self, receipt_id: str) -> None:
         raise NotImplementedError("Not implemented yet.")
