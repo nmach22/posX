@@ -299,23 +299,36 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 receipt_discount_price = (reduced_price * discount_percentage) / 100
                 reduced_price -= receipt_discount_price
 
-
             receipt = self.read(receipt_id)
             if receipt.currency != "GEL":
-                conversion_rate = self.exchange_rate_service.get_exchange_rate("GEL", receipt.currency)
-                discounted_price_in_target_currency = int(total_discounted_price * conversion_rate)
+                conversion_rate = self.exchange_rate_service.get_exchange_rate(
+                    "GEL", receipt.currency
+                )
+                discounted_price_in_target_currency = int(
+                    total_discounted_price * conversion_rate
+                )
                 reduced_price_in_target_currency = int(reduced_price * conversion_rate)
             else:
                 discounted_price_in_target_currency = int(total_discounted_price)
                 reduced_price_in_target_currency = int(reduced_price)
-
-            cursor.execute(
-                "UPDATE receipts SET discounted_total = ? WHERE id = ?",
-                (reduced_price_in_target_currency, receipt_id),
-            )
 
             return ReceiptForPayment(
                 receipt,
                 discounted_price=discounted_price_in_target_currency,
                 reduced_price=reduced_price_in_target_currency,
             )
+
+    def add_payment(self, receipt_id) -> ReceiptForPayment:
+        cursor = self.conn.cursor()
+        receipt_for_payment = self.calculate_payment(receipt_id)
+        discounted_price = receipt_for_payment.discounted_price
+
+        cursor.execute(
+            "UPDATE receipts SET discounted_total = ? WHERE id = ?",
+            (discounted_price, receipt_id),
+        )
+
+        receipt = self.read(receipt_id)
+        receipt_for_payment.receipt = receipt
+
+        return receipt_for_payment
