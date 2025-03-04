@@ -21,7 +21,6 @@ from app.infra.in_memory_repositories.campaign_in_memory_repository import (
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
-    ExistsError,
     ProductInMemoryRepository,
 )
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
@@ -127,9 +126,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             ):
                 discounted_price += receipt_product.total - int(
                     receipt_product.total
-                    * already_checkouted_product_from_combo.get(
-                        receipt_product.id, 0
-                    )
+                    * already_checkouted_product_from_combo.get(receipt_product.id, 0)
                     / 100
                 )
 
@@ -224,8 +221,9 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
 
         total_price = receipt.total
         if receipt.currency != "GEL":
-            conversion_rate = (self.exchange_rate_service.
-                               get_exchange_rate("GEL", receipt.currency))
+            conversion_rate = self.exchange_rate_service.get_exchange_rate(
+                "GEL", receipt.currency
+            )
             discounted_price = discounted_price * conversion_rate
             total_price = total_price * conversion_rate
 
