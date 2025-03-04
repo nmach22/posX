@@ -25,7 +25,9 @@ class CampaignInMemoryRepository(Repository[Campaign]):
         default_factory=ProductInMemoryRepository
     )
     # campaign_product_list: list[CampaignAndProducts] = field(default_factory=list)
-    campaigns_product_list: Dict[str, CampaignAndProducts] = field(default_factory=dict)
+    campaigns_product_list: Dict[str, list[CampaignAndProducts]] = field(
+        default_factory=dict
+    )
     campaigns: list[Campaign] = field(default_factory=list)
 
     def create(self, campaign: Campaign) -> Campaign:
@@ -42,8 +44,11 @@ class CampaignInMemoryRepository(Repository[Campaign]):
                 campaign.data.product_id,
                 new_price,
             )
-            # self.campaign_product_list.append(product_for_campaign)
-            self.campaigns_product_list[campaign.data.product_id] = product_for_campaign
+            if campaign.data.product_id not in self.campaigns_product_list:
+                self.campaigns_product_list[campaign.data.product_id] = []
+            self.campaigns_product_list[campaign.data.product_id].append(
+                product_for_campaign
+            )
         if campaign.type == "combo" and isinstance(campaign.data, Combo):
             for product_id in campaign.data.products:
                 if self.product_does_not_exist(product_id):
@@ -60,8 +65,9 @@ class CampaignInMemoryRepository(Repository[Campaign]):
                     product_id,
                     new_price,
                 )
-                # self.campaign_product_list.append(product_for_campaign)
-                self.campaigns_product_list[product_id] = product_for_campaign
+                if product_id not in self.campaigns_product_list:
+                    self.campaigns_product_list[product_id] = []
+                self.campaigns_product_list[product_id].append(product_for_campaign)
 
         if campaign.type == "buy n get n" and isinstance(campaign.data, BuyNGetN):
             if self.product_does_not_exist(campaign.data.product_id):
@@ -72,8 +78,11 @@ class CampaignInMemoryRepository(Repository[Campaign]):
                 campaign.data.product_id,
                 self.products_repo.read(campaign.data.product_id).price,
             )
-            # self.campaign_product_list.append(product_for_campaign)
-            self.campaigns_product_list[campaign.data.product_id] = product_for_campaign
+            if campaign.data.product_id not in self.campaigns_product_list:
+                self.campaigns_product_list[campaign.data.product_id] = []
+            self.campaigns_product_list[campaign.data.product_id].append(
+                product_for_campaign
+            )
 
         return campaign
 
@@ -84,10 +93,13 @@ class CampaignInMemoryRepository(Repository[Campaign]):
                 self.campaigns.remove(campaign)
                 find = True
 
-        for product_id, campaign_product in list(self.campaigns_product_list.items()):
-            if campaign_product.campaign_id == campaign_id:
-                del self.campaigns_product_list[product_id]
-                return
+        for product_id, campaign_product_list in list(
+            self.campaigns_product_list.items()
+        ):
+            for campaign_product in campaign_product_list:
+                if campaign_product.campaign_id == campaign_id:
+                    del self.campaigns_product_list[product_id]
+                    return
 
         if not find:
             raise DoesntExistError
