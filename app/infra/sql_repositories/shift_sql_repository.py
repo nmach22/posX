@@ -13,6 +13,7 @@ from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterf
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
+from app.infra.in_memory_repositories.shift_in_memory_repository import OpenReceiptsError
 
 
 @dataclass
@@ -46,8 +47,14 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         return shift
 
     def update(self, shift: Shift) -> None:
-        self.delete(shift.shift_id)
         cursor = self.conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM receipts WHERE shift_id = ? AND status = 'open'", (shift.shift_id,))
+        open_receipt_count = cursor.fetchone()[0]
+
+        if open_receipt_count > 0:
+            raise OpenReceiptsError("Shift cannot be closed while there are open receipts.")
+        self.delete(shift.shift_id)
+
         cursor.execute(
             """
             INSERT INTO shifts (shift_id, status) VALUES (?, ?)
@@ -93,9 +100,9 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         n_receipts = len(receipts)
         currency_revenue: dict[Any, Any] = {}
 
-        for receipt_id, total_payment, currency in receipts:
-            print(total_payment)
-            currency_revenue[currency] = currency_revenue.get(currency, 0) + total_payment
+        for receipt_id, discounted_total, currency in receipts:
+            print(discounted_total)
+            currency_revenue[currency] = currency_revenue.get(currency, 0) + discounted_total
 
         product_summary = {}
         cursor.execute(

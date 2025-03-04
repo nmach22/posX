@@ -11,6 +11,7 @@ from app.infra.api.products import ErrorResponse
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
+from app.infra.in_memory_repositories.shift_in_memory_repository import OpenReceiptsError
 
 shifts_api = APIRouter()
 
@@ -95,7 +96,6 @@ def get_x_reports(
     except ValueError:
         raise HTTPException(status_code=400, detail="Shift is closed.")
 
-
 @shifts_api.post(
     "/close-shift",
     responses={
@@ -104,6 +104,10 @@ def get_x_reports(
             "description": "Product with the given barcode already exists.",
         },
         404: {"model": ErrorResponse, "description": "Product not found."},
+        400: {
+            "model": ErrorResponse,
+            "description": "Invalid request: shift already closed or has open receipts.",
+        },
     },
 )
 def close_shift(
@@ -116,7 +120,7 @@ def close_shift(
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
-            detail={"error": {"message": f"shift with id<{shift_id}> does not exist."}},
+            detail={"error": {"message": f"Shift with id<{shift_id}> does not exist."}},
         )
     except ValueError:
         raise HTTPException(
@@ -125,8 +129,17 @@ def close_shift(
                 "error": {"message": f"Shift with id<{shift_id}> is already closed."}
             },
         )
-    return CloseShiftResponse(message=f"Shift {shift_id} successfully closed.")
+    except OpenReceiptsError:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": {
+                    "message": f"Shift with id<{shift_id}> has open receipts."
+                }
+            },
+        )
 
+    return CloseShiftResponse(message=f"Shift {shift_id} successfully closed.")
 
 @shifts_api.get("/sales", response_model=SalesReportResponse)
 def get_sales_report(

@@ -25,7 +25,9 @@ from app.infra.in_memory_repositories.product_in_memory_repository import (
 class TestCampaignService(unittest.TestCase):
     def test_create_campaign(self) -> None:
         campaigns: list[Campaign] = []
-        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
+        campaigns_products: Dict[
+            str, list[CampaignAndProducts]
+        ] = {}  # Changed to dictionary
         product_repo = ProductInMemoryRepository(
             [Product("123", "sigareti", 10, "12345")]
         )
@@ -51,7 +53,9 @@ class TestCampaignService(unittest.TestCase):
 
     def test_delete_campaign_success(self) -> None:
         campaigns: list[Campaign] = []
-        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
+        campaigns_products: Dict[
+            str, list[CampaignAndProducts]
+        ] = {}  # Changed to dictionary
         product_list: list[Product] = [Product("123", "sigareti", 10, "12345")]
         product_repo = ProductInMemoryRepository(product_list)
         repository = CampaignInMemoryRepository(
@@ -71,7 +75,9 @@ class TestCampaignService(unittest.TestCase):
 
     def test_delete_campaign_raises_error(self) -> None:
         campaigns: list[Campaign] = []
-        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
+        campaigns_products: Dict[
+            str, list[CampaignAndProducts]
+        ] = {}  # Changed to dictionary
         product_repo = ProductInMemoryRepository([])
         repository = CampaignInMemoryRepository(
             product_repo, campaigns_products, campaigns
@@ -83,7 +89,9 @@ class TestCampaignService(unittest.TestCase):
 
     def test_read_all_campaigns(self) -> None:
         campaigns: list[Campaign] = []
-        campaigns_products: Dict[str, CampaignAndProducts] = {}  # Changed to dictionary
+        campaigns_products: Dict[
+            str, list[CampaignAndProducts]
+        ] = {}  # Changed to dictionary
         product_list: list[Product] = [
             Product("123", "sigareti", 10, "12345"),
             Product("111", "kvercxi", 5, "123123"),

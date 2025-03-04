@@ -37,8 +37,8 @@ class AddProductRequest:
 class ReceiptForPayment:
     receipt: Receipt
     #girda 100 gaxda 90 discounted =90. reduced = 10
-    discounted_price: int
-    reduced_price: int
+    discounted_price: float
+    reduced_price: float
 
 
 class ReceiptInterface(Protocol):
