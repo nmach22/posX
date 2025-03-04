@@ -178,12 +178,14 @@ def test_calculate_discount_campaign() -> None:
         ),
     ]
     campaigns_product_list = {
-        "1": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="discount_1",
-            product_id="1",
-            discounted_price=90,
-        )
+        "1": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="discount_1",
+                product_id="1",
+                discounted_price=90,
+            )
+        ]
     }
     campaign_repo = CampaignInMemoryRepository(
         product_repo, campaigns_product_list, campaigns
@@ -246,18 +248,22 @@ def test_calculate_payment_mixed_campaigns() -> None:
         ),
     ]
     campaigns_product_list = {
-        "1": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="discount_1",
-            product_id="1",
-            discounted_price=90,
-        ),
-        "2": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="buy_n_get_m_1",
-            product_id="2",
-            discounted_price=200,
-        ),
+        "1": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="discount_1",
+                product_id="1",
+                discounted_price=90,
+            )
+        ],
+        "2": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="buy_n_get_m_1",
+                product_id="2",
+                discounted_price=200,
+            )
+        ],
     }
     campaign_repo = CampaignInMemoryRepository(
         product_repo, campaigns_product_list, campaigns
@@ -320,18 +326,22 @@ def test_calculate_payment_combo_discount_multiple_quantities() -> None:
         ),
     ]
     campaigns_product_list = {
-        "1": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="combo_1",
-            product_id="1",
-            discounted_price=80,
-        ),
-        "2": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="combo_1",
-            product_id="2",
-            discounted_price=160,
-        ),
+        "1": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="combo_1",
+                product_id="1",
+                discounted_price=80,
+            )
+        ],
+        "2": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="combo_1",
+                product_id="2",
+                discounted_price=160,
+            )
+        ],
     }
     campaign_repo = CampaignInMemoryRepository(
         product_repo, campaigns_product_list, campaigns
@@ -378,12 +388,14 @@ def test_calculate_payment_buy_n_get_n_with_discount() -> None:
         ),
     ]
     campaigns_product_list = {
-        "1": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="buy_n_get_1",
-            product_id="1",
-            discounted_price=100,
-        ),
+        "1": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="buy_n_get_1",
+                product_id="1",
+                discounted_price=100,
+            )
+        ],
     }
     campaign_repo = CampaignInMemoryRepository(
         product_repo, campaigns_product_list, campaigns
@@ -443,18 +455,22 @@ def test_calculate_payment_large_receipt_discount() -> None:
         ),
     ]
     campaigns_product_list = {
-        "1": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="discount_1",
-            product_id="1",
-            discounted_price=135,
-        ),
-        "2": CampaignAndProducts(
-            id=str(uuid.uuid4()),
-            campaign_id="buy_n_get_1",
-            product_id="2",
-            discounted_price=250,
-        ),
+        "1": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="discount_1",
+                product_id="1",
+                discounted_price=135,
+            )
+        ],
+        "2": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="buy_n_get_1",
+                product_id="2",
+                discounted_price=250,
+            )
+        ],
     }
     campaign_repo = CampaignInMemoryRepository(
         product_repo, campaigns_product_list, campaigns
@@ -490,3 +506,129 @@ def test_calculate_payment_large_receipt_discount() -> None:
     # Total: 770
     # 15% receipt discount: 770 - 115.5 = int(654.5) = 655
     assert receipt_payment.discounted_price == 655
+
+
+def test_calculate_payment_best_discount_selected() -> None:
+    product_list = [
+        Product(id="1", name="Product 1", price=200, barcode="12345"),
+    ]
+    product_repo = ProductInMemoryRepository(product_list)
+
+    campaigns = [
+        Campaign(
+            campaign_id="discount_1",
+            type="discount",
+            data=Discount(product_id="1", discount_percentage=20),  # 20% discount
+        ),
+        Campaign(
+            campaign_id="discount_2",
+            type="discount",
+            data=Discount(product_id="1", discount_percentage=30),  # 30% discount
+        ),
+    ]
+    campaigns_product_list = {
+        "1": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="discount_1",
+                product_id="1",
+                discounted_price=160,  # 20% off
+            ),
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="discount_2",
+                product_id="1",
+                discounted_price=140,  # 30% off
+            ),
+        ],
+    }
+    campaign_repo = CampaignInMemoryRepository(
+        product_repo, campaigns_product_list, campaigns
+    )
+    shift_repo = ShiftInMemoryRepository([Shift("1", [], "open")])
+    receipt_repo = ReceiptInMemoryRepository(
+        [], product_repo, shift_repo, campaign_repo
+    )
+
+    receipt = Receipt(
+        id="1",
+        shift_id="1",
+        currency="GEL",
+        products=[],
+        status="open",
+        total=0,
+        discounted_total=0,
+    )
+    receipt_repo.create(receipt)
+
+    product_request = AddProductRequest(product_id="1", quantity=1)  # Buy 1
+    receipt_repo.add_product_to_receipt("1", product_request)
+
+    receipt_payment = receipt_repo.calculate_payment("1")
+
+    # Expecting the best discount (30% off) -> 140
+    assert receipt_payment.discounted_price == 140
+
+
+def test_calculate_payment_best_campaign_type_selected() -> None:
+    product_list = [
+        Product(id="1", name="Product 1", price=200, barcode="12345"),
+    ]
+    product_repo = ProductInMemoryRepository(product_list)
+
+    campaigns = [
+        Campaign(
+            campaign_id="discount_1",
+            type="discount",
+            data=Discount(product_id="1", discount_percentage=25),  # 25% off
+        ),
+        Campaign(
+            campaign_id="buy_n_get_1",
+            type="buy n get n",
+            data=BuyNGetN(
+                product_id="1", buy_quantity=2, get_quantity=1
+            ),  # Buy 2 Get 1 Free
+        ),
+    ]
+    campaigns_product_list = {
+        "1": [
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="discount_1",
+                product_id="1",
+                discounted_price=150,  # 25% off -> 150 GEL per unit
+            ),
+            CampaignAndProducts(
+                id=str(uuid.uuid4()),
+                campaign_id="buy_n_get_1",
+                product_id="1",
+                discounted_price=133,  # Buy 3, pay for 2 → (2 * 200) / 3 = 133.33 per unit
+            ),
+        ],
+    }
+    campaign_repo = CampaignInMemoryRepository(
+        product_repo, campaigns_product_list, campaigns
+    )
+    shift_repo = ShiftInMemoryRepository([Shift("1", [], "open")])
+    receipt_repo = ReceiptInMemoryRepository(
+        [], product_repo, shift_repo, campaign_repo
+    )
+
+    receipt = Receipt(
+        id="1",
+        shift_id="1",
+        currency="GEL",
+        products=[],
+        status="open",
+        total=0,
+        discounted_total=0,
+    )
+    receipt_repo.create(receipt)
+
+    product_request = AddProductRequest(product_id="1", quantity=3)  # Buy 3 products
+    receipt_repo.add_product_to_receipt("1", product_request)
+
+    receipt_payment = receipt_repo.calculate_payment("1")
+
+    # Expecting the best discount (Buy 2 Get 1 Free → 133 per unit * 3 = 400)
+    assert receipt_payment.discounted_price == 400

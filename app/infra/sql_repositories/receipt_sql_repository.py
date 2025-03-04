@@ -85,7 +85,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             (
                 receipt.id,
                 receipt.shift_id,
-                receipt.currency,
+                receipt.currency.upper(),
                 receipt.status,
                 receipt.total,
                 receipt.discounted_total,
@@ -305,17 +305,18 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             reduced_price += (total_discounted_price * discount_percentage) / 100
 
         receipt = self.read(receipt_id)
+        receipt.currency = receipt.currency.upper()
         if receipt.currency != "GEL":
             conversion_rate = self.exchange_rate_service.get_exchange_rate(
                 "GEL", receipt.currency
             )
             discounted_price_in_target_currency = int(
-                total_discounted_price * conversion_rate
+                (total_discounted_price/100) * conversion_rate
             )
-            reduced_price_in_target_currency = int(reduced_price * conversion_rate)
+            reduced_price_in_target_currency = int((reduced_price/100) * conversion_rate)
         else:
-            discounted_price_in_target_currency = int(total_discounted_price)
-            reduced_price_in_target_currency = int(reduced_price)
+            discounted_price_in_target_currency = int(total_discounted_price/100)
+            reduced_price_in_target_currency = int(reduced_price/100)
 
         return ReceiptForPayment(
             receipt,
