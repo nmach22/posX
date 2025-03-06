@@ -10,15 +10,7 @@ from app.core.Interfaces.shift_interface import (
     Shift,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
-
-
-class OpenReceiptsError(Exception):
-    """Raised when trying to update a shift that has open receipts."""
-
-    pass
+from app.core.classes.errors import OpenReceiptsError, DoesntExistError
 
 
 @dataclass

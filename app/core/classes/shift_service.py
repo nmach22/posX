@@ -9,9 +9,7 @@ from app.core.Interfaces.shift_interface import (
     ShiftInterface,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
+from app.core.classes.errors import DoesntExistError
 
 
 @dataclass

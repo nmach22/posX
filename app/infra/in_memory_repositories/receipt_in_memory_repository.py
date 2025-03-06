@@ -1,6 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
+from app.core.classes.errors import DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
 from app.core.Interfaces.campaign_interface import (
@@ -23,7 +24,6 @@ from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
     ProductInMemoryRepository,
 )
 from app.infra.in_memory_repositories.shift_in_memory_repository import (

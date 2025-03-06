@@ -12,13 +12,13 @@ from app.core.Interfaces.campaign_interface import (
     Discount,
 )
 from app.core.Interfaces.product_interface import Product
+from app.core.classes.errors import DoesntExistError
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignAndProducts,
     CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-    ProductInMemoryRepository,
+    ProductInMemoryRepository
 )
 
 

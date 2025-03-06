@@ -3,9 +3,7 @@ import sqlite3
 import pytest
 
 from app.core.Interfaces.shift_interface import Shift
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
+from app.core.classes.errors import DoesntExistError
 from app.infra.sql_repositories.shift_sql_repository import ShiftSQLRepository
 
 
@@ -55,8 +53,6 @@ def test_create_shift(repo: ShiftSQLRepository) -> None:
 
 def test_update_shift(repo: ShiftSQLRepository) -> None:
     """Tests updating a shift's status."""
-    # TODO anan
-    pass
     shift = Shift(shift_id="shift1", receipts=[], status="open")
 
     repo.create(shift)
@@ -189,6 +185,6 @@ def test_get_lifetime_sales_report(repo: ShiftSQLRepository) -> None:
 
     # Find each receipt and check payment
     payment_map = {r.receipt_id: r.calculated_payment for r in report.closed_receipts}
-    assert payment_map["receipt1"] == 100.0
-    assert payment_map["receipt2"] == 150.0
-    assert payment_map["receipt3"] == 200.0
+    assert payment_map["receipt1"] == 100
+    assert payment_map["receipt2"] == 150
+    assert payment_map["receipt3"] == 200

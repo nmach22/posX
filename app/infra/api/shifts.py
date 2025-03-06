@@ -4,13 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
+from app.core.classes.errors import DoesntExistError
 from app.core.classes.shift_service import ShiftService
 from app.core.Interfaces.shift_interface import Report, Shift
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.api.products import ErrorResponse
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
+
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     OpenReceiptsError,
 )
@@ -40,22 +39,18 @@ class ZReportResponse(BaseModel):
     z_report: Report
 
 
-class NotFoundError:
-    pass
-
-
 class CloseShiftResponse(BaseModel):
     message: str
 
 
 class ClosedReceiptResponse(BaseModel):
     receipt_id: str
-    calculated_payment: int
+    calculated_payment: float
 
 
 class SalesReportResponse(BaseModel):
     total_receipts: int
-    total_revenue: Dict[str, int]
+    total_revenue: Dict[str, float]
     closed_receipts: list[ClosedReceiptResponse]
 
 

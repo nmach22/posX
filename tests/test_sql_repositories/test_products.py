@@ -3,10 +3,7 @@ import sqlite3
 import pytest
 
 from app.core.Interfaces.product_interface import Product
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-    ExistsError,
-)
+from app.core.classes.errors import ExistsError, DoesntExistError
 from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
 
 

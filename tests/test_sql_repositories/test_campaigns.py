@@ -5,9 +5,7 @@ import pytest
 
 from app.core.Interfaces.campaign_interface import BuyNGetN, Campaign, Combo, Discount
 from app.core.Interfaces.product_interface import Product
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
+from app.core.classes.errors import DoesntExistError
 from app.infra.sql_repositories.campaign_sql_repository import CampaignSQLRepository
 from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
 

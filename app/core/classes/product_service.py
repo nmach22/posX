@@ -7,10 +7,7 @@ from app.core.Interfaces.product_interface import (
     ProductRequest,
 )
 from app.core.Interfaces.repository import Repository
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-    ExistsError,
-)
+from app.core.classes.errors import ExistsError, DoesntExistError
 
 
 @dataclass

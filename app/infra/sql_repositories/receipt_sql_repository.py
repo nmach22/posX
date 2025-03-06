@@ -10,15 +10,13 @@ from app.core.Interfaces.receipt_interface import (
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import ItemT, Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
+from app.core.classes.errors import DoesntExistError, AlreadyClosedError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignAndProducts,
 )
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    AlreadyClosedError,
-    DoesntExistError,
-)
+
 
 
 class ReceiptSQLRepository(ReceiptRepositoryInterface):
@@ -407,12 +405,11 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         cursor = self.conn.cursor()
         receipt_for_payment = self.calculate_payment(receipt_id)
         discounted_price = receipt_for_payment.discounted_price
-
         cursor.execute(
             "UPDATE receipts SET discounted_total = ? WHERE id = ?",
             (discounted_price, receipt_id),
         )
-
+        self.conn.commit()
         receipt = self.read(receipt_id)
         receipt_for_payment.receipt = receipt
 

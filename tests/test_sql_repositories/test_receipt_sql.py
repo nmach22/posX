@@ -2,6 +2,7 @@ import sqlite3
 
 import pytest
 
+from app.core.classes.errors import DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
@@ -11,9 +12,6 @@ from app.core.Interfaces.receipt_interface import (
 )
 from app.core.Interfaces.shift_interface import Shift
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
 from app.infra.sql_repositories.campaign_sql_repository import CampaignSQLRepository
 from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
 from app.infra.sql_repositories.receipt_sql_repository import ReceiptSQLRepository

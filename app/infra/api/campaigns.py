@@ -10,10 +10,9 @@ from app.core.Interfaces.campaign_interface import (
     CampaignRequest,
 )
 from app.core.Interfaces.repository import Repository
+from app.core.classes.errors import DoesntExistError
 from app.infra.api.products import ErrorResponse
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
+
 
 campaigns_api = APIRouter()
 

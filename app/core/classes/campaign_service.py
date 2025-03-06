@@ -9,9 +9,7 @@ from app.core.Interfaces.campaign_interface import (
     CampaignRequest,
 )
 from app.core.Interfaces.repository import Repository
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
+from app.core.classes.errors import DoesntExistError
 
 
 @dataclass

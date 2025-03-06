@@ -5,8 +5,8 @@ from typing import Dict
 from app.core.Interfaces.campaign_interface import BuyNGetN, Campaign, Combo, Discount
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
+from app.core.classes.errors import DoesntExistError
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
     ProductInMemoryRepository,
 )
 

@@ -1,11 +1,16 @@
-import requests
+import os
 
-EXCHANGE_RATE_API_KEY = "616d00e9b7800f1a1aade2d3"
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 class ExchangeRateService:
+    key = os.environ.get("EXCHANGE_RATE_API_KEY")
     def get_exchange_rate(self, from_currency: str, to_currency: str) -> float:
-        url = f"https://v6.exchangerate-api.com/v6/{EXCHANGE_RATE_API_KEY}/latest/{from_currency}"
+        url = f"https://v6.exchangerate-api.com/v6/{self.key}/latest/{from_currency}"
         response = requests.get(url)
         data = response.json()
 

@@ -3,6 +3,7 @@ from typing import Tuple
 
 import pytest
 
+from app.core.classes.errors import DoesntExistError, AlreadyClosedError
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.campaign_interface import (
     BuyNGetN,
@@ -19,8 +20,6 @@ from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    AlreadyClosedError,
-    DoesntExistError,
     ProductInMemoryRepository,
 )
 from app.infra.in_memory_repositories.receipt_in_memory_repository import (

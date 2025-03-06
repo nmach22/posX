@@ -11,9 +11,7 @@ from app.core.Interfaces.shift_interface import (
     Shift,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
+from app.core.classes.errors import DoesntExistError
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     OpenReceiptsError,
 )
@@ -155,15 +153,13 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         receipts = cursor.fetchall()
 
         total_receipts = len(receipts)
-        currency_totals: Dict[str, int] = {}  # Ensure float values
+        currency_totals: Dict[str, float] = {}
         closed_receipts: list[ClosedReceipt] = []
-
         for receipt_id, currency, total_payment in receipts:
             currency_totals[currency] = currency_totals.get(currency, 0) + total_payment
             closed_receipts.append(
                 ClosedReceipt(receipt_id=receipt_id, calculated_payment=total_payment)
             )
-
         return SalesReport(
             total_receipts=total_receipts,
             total_revenue=currency_totals,

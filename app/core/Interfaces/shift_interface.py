@@ -15,20 +15,20 @@ class Shift:
 class Report:
     shift_id: str
     n_receipts: int
-    revenue: Dict[str, int]
+    revenue: Dict[str, float]
     products: list[Dict[str, Any]]
 
 
 @dataclass
 class ClosedReceipt:
     receipt_id: str
-    calculated_payment: int
+    calculated_payment: float
 
 
 @dataclass
 class SalesReport:
     total_receipts: int
-    total_revenue: Dict[str, int]
+    total_revenue: Dict[str, float]
     closed_receipts: list[ClosedReceipt]
 
 

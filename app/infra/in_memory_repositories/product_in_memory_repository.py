@@ -2,18 +2,7 @@ from dataclasses import dataclass, field
 
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
-
-
-class ExistsError(Exception):
-    pass
-
-
-class DoesntExistError(Exception):
-    pass
-
-
-class AlreadyClosedError(Exception):
-    pass
+from app.core.classes.errors import ExistsError, DoesntExistError
 
 
 @dataclass

@@ -9,9 +9,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    AlreadyClosedError,
-)
+from app.core.classes.errors import AlreadyClosedError
 
 
 @dataclass
