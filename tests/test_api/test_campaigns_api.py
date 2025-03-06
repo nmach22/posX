@@ -22,7 +22,7 @@ def create_product(test_app: TestClient) -> str:
     payload = {"name": "Test Product", "barcode": str(barcode), "price": 100}
     response = test_app.post("/products", json=payload)
     assert response.status_code == 201
-    return response.json()["product"]["id"]
+    return str(response.json()["product"]["id"])
 
 
 def test_get_all_products(test_app: TestClient) -> None:

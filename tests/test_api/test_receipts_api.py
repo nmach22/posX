@@ -20,7 +20,7 @@ def test_app() -> TestClient:
 def shift_id(test_app: TestClient) -> str:
     response = test_app.post("/shifts")
     shift_id = response.json()["shift"]["shift_id"]
-    return shift_id
+    return str(shift_id)
 
 
 @pytest.fixture(scope="function")
@@ -30,7 +30,7 @@ def receipt_id(test_app: TestClient, shift_id: str) -> Any:
     )
     assert response.status_code == 201
     receipt_id = response.json()["receipt"]["id"]
-    return receipt_id
+    return str(receipt_id)
 
 
 @pytest.fixture(scope="function")
@@ -58,7 +58,7 @@ def test_close_receipt(test_app: TestClient, receipt_id: str) -> None:
     assert response.json()["message"] == f"Receipt {receipt_id} successfully closed."
 
 
-def test_close_non_existent_receipt(test_app):
+def test_close_non_existent_receipt(test_app: TestClient) -> None:
     """Should return 404 when closing a non-existent receipt"""
     response = test_app.post("/receipts/non-existent-receipt/close")
     assert response.status_code == 404

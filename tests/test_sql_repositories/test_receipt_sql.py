@@ -47,7 +47,7 @@ def campaign_repo(
 
 
 @pytest.fixture
-def exchange_rate_service():
+def exchange_rate_service() -> ExchangeRateService:
     return ExchangeRateService()
 
 

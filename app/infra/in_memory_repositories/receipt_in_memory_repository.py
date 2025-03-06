@@ -164,8 +164,8 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             conversion_rate = self.exchange_rate_service.get_exchange_rate(
                 "GEL", receipt.currency
             )
-            discounted_price = discounted_price * conversion_rate
-            total_price = total_price * conversion_rate
+            discounted_price = int(discounted_price * conversion_rate)
+            total_price = int(total_price * conversion_rate)
 
         receipt.discounted_total = discounted_price
         self.shifts.add_receipt_to_shift(receipt)

@@ -10,7 +10,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.Interfaces.repository import Repository
+from app.core.Interfaces.repository import Repository, ItemT
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     AlreadyClosedError,
@@ -330,7 +330,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             reduced_price=reduced_price_in_target_currency,
         )
 
-    def add_payment(self, receipt_id) -> ReceiptForPayment:
+    def add_payment(self, receipt_id: str) -> ReceiptForPayment:
         cursor = self.conn.cursor()
         receipt_for_payment = self.calculate_payment(receipt_id)
         discounted_price = receipt_for_payment.discounted_price
@@ -344,3 +344,6 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         receipt_for_payment.receipt = receipt
 
         return receipt_for_payment
+
+    def read_all(self) -> list[ItemT]:
+        raise NotImplementedError("Not implemented yet.")

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Dict
 
 from app.core.Interfaces.receipt_interface import Receipt
+from app.core.Interfaces.repository import ItemT
 from app.core.Interfaces.shift_interface import (
     ClosedReceipt,
     Report,
@@ -192,3 +193,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         if row:
             return Shift(shift_id=row[0], receipts=[], status=row[1])
         raise DoesntExistError
+
+    def read_all(self) -> list[ItemT]:
+        raise NotImplementedError("Not implemented yet.")

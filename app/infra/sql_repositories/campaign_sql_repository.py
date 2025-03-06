@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+from typing import Union
 
 from app.core.Interfaces.campaign_interface import (
     BuyNGetN,
@@ -187,6 +188,8 @@ class CampaignSQLRepository(Repository[Campaign]):
             # todo: in discount and buy n get n i assume that there is 1 in product_ids,
             #  es davcheckot
             product_ids = [product[0] for product in campaign_products_data]
+
+            campaign_data_obj: Union[Discount, Combo, BuyNGetN, ReceiptDiscount]
 
             if type_ == "discount":
                 campaign_data_obj = Discount(
