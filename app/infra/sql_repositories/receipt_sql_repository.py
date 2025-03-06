@@ -18,7 +18,6 @@ from app.infra.in_memory_repositories.campaign_in_memory_repository import (
 )
 
 
-
 class ReceiptSQLRepository(ReceiptRepositoryInterface):
     def __init__(
         self,
@@ -167,9 +166,13 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     ) -> Receipt:
         cursor = self.conn.cursor()
 
-        cursor.execute("SELECT id FROM receipts WHERE id = ?", (receipt_id,))
-        if not cursor.fetchone():
+        cursor.execute("SELECT * FROM receipts WHERE id = ?", (receipt_id,))
+        receipt = cursor.fetchone()
+
+        if not receipt:
             raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
+        elif receipt[3] == "closed":
+            raise AlreadyClosedError(f"Receipt with ID {receipt_id} is already closed.")
 
         cursor.execute(
             "SELECT price FROM products WHERE id = ?",

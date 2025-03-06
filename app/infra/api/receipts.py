@@ -131,7 +131,10 @@ def close_receipt(
 @receipts_api.post(
     "/{receipt_id}/products",
     status_code=201,
-    responses={404: {"model": ErrorResponse, "description": "Product not found."}},
+    responses={
+        404: {"model": ErrorResponse, "description": "Product not found."},
+        400: {"model": ErrorResponse, "description": "receipt already closed ."},
+    },
 )
 def add_product(
     receipt_id: str,
@@ -148,6 +151,11 @@ def add_product(
             detail={
                 "error": {"message": "product or receipt with this id does not exist."}
             },
+        )
+    except AlreadyClosedError:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"message": f"receipt with this id already closed."}},
         )
     return ReceiptResponse(
         receipt=ReceiptEntry(
@@ -168,7 +176,7 @@ def add_product(
 
 @receipts_api.get(
     "/{receipt_id}",
-    responses={404: {"model": ErrorResponse, "description": "Product not found."}},
+    responses={404: {"model": ErrorResponse, "description": "receipt not found."}},
 )
 def get_receipt(
     receipt_id: str,
@@ -180,9 +188,7 @@ def get_receipt(
     except DoesntExistError:
         raise HTTPException(
             status_code=404,
-            detail={
-                "error": {"message": "product or receipt with this id does not exist."}
-            },
+            detail={"error": {"message": "receipt with this id does not exist."}},
         )
     return ReceiptResponse(
         receipt=ReceiptEntry(
