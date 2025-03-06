@@ -167,7 +167,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             discounted_price = discounted_price * conversion_rate
             total_price = total_price * conversion_rate
 
-        receipt.discounted_total = total_price - discounted_price
+        receipt.discounted_total = discounted_price
         self.shifts.add_receipt_to_shift(receipt)
 
         return ReceiptForPayment(
@@ -234,12 +234,6 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     receipt_product.total,
                     discount_percentage,
                 )
-
-        #     discounted_price = discounted_price * conversion_rate
-        #     total_price = total_price * conversion_rate
-        #
-        # receipt.discounted_total = total_price - discounted_price
-        # self.shifts.add_receipt_to_shift(receipt)
 
         return discounted_price
 
