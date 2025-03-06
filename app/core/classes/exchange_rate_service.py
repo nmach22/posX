@@ -1,6 +1,5 @@
 import requests
 
-
 EXCHANGE_RATE_API_KEY = "616d00e9b7800f1a1aade2d3"
 
 
@@ -13,7 +12,7 @@ class ExchangeRateService:
         if data.get("result") == "success":
             conversion_rate = data["conversion_rates"].get(to_currency)
             if conversion_rate:
-                return conversion_rate
+                return float(conversion_rate)
             else:
                 raise ValueError(f"Conversion rate for {to_currency} not found.")
         else:

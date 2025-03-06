@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Protocol, Any
+from typing import Any, Dict, Protocol
 
 from app.core.Interfaces.receipt_interface import Receipt
 
@@ -23,6 +23,7 @@ class Report:
 class ClosedReceipt:
     receipt_id: str
     calculated_payment: int
+
 
 @dataclass
 class SalesReport:

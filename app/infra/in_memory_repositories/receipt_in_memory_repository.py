@@ -1,6 +1,8 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
+from app.core.classes.exchange_rate_service import ExchangeRateService
+from app.core.classes.percentage_discount import PercentageDiscount
 from app.core.Interfaces.campaign_interface import (
     BuyNGetN,
     Campaign,
@@ -8,6 +10,7 @@ from app.core.Interfaces.campaign_interface import (
     Discount,
     ReceiptDiscount,
 )
+from app.core.Interfaces.discount_handler import DiscountHandler
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -15,10 +18,9 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
-    CampaignInMemoryRepository,
     CampaignAndProducts,
+    CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
@@ -42,6 +44,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     exchange_rate_service: ExchangeRateService = field(
         default_factory=ExchangeRateService
     )
+    discount_handler: DiscountHandler = field(default_factory=PercentageDiscount)
 
     def create(self, receipt: Receipt) -> Receipt:
         shift_found = False
@@ -151,8 +154,8 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 and isinstance(campaign.data, ReceiptDiscount)
                 and discounted_price >= campaign.data.min_amount
             ):
-                discounted_price -= int(
-                    discounted_price * campaign.data.discount_percentage / 100
+                discounted_price = self.discount_handler.calculate_discounted_price(
+                    discounted_price, campaign.data.discount_percentage
                 )
                 break
 
@@ -161,10 +164,10 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             conversion_rate = self.exchange_rate_service.get_exchange_rate(
                 "GEL", receipt.currency
             )
-            discounted_price = discounted_price * conversion_rate
-            total_price = total_price * conversion_rate
+            discounted_price = int(discounted_price * conversion_rate)
+            total_price = int(total_price * conversion_rate)
 
-        receipt.discounted_total = total_price - discounted_price
+        receipt.discounted_total = discounted_price
         self.shifts.add_receipt_to_shift(receipt)
 
         return ReceiptForPayment(
@@ -180,19 +183,16 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         campaign_with_type_on_this_product = self.get_campaign_with_campaign_id(
             campaign_without_type_on_this_product.campaign_id
         )
+        discounted_price: int = receipt_product.total
         if (
             isinstance(campaign_with_type_on_this_product, Campaign)
             and campaign_with_type_on_this_product.type == "discount"
             and isinstance(campaign_with_type_on_this_product.data, Discount)
         ):
-            new_price = receipt_product.total - (
-                (
-                    receipt_product.total
-                    * campaign_with_type_on_this_product.data.discount_percentage
-                )
-                / 100
+            discounted_price = self.discount_handler.calculate_discounted_price(
+                receipt_product.total,
+                campaign_with_type_on_this_product.data.discount_percentage,
             )
-            return int(new_price)
         elif (
             isinstance(campaign_with_type_on_this_product, Campaign)
             and campaign_with_type_on_this_product.type == "buy n get n"
@@ -202,7 +202,8 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             m = campaign_with_type_on_this_product.data.get_quantity
             amount_of_campaign_costumer_use = receipt_product.quantity // (n + m)
             amount_of_product_got_without_price = m * amount_of_campaign_costumer_use
-            return receipt_product.total - (
+
+            discounted_price = receipt_product.total - (
                 receipt_product.price * amount_of_product_got_without_price
             )
         elif (
@@ -224,24 +225,17 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     break
 
             if combo_failed:
-                return receipt_product.total
+                discounted_price = receipt_product.total
+            else:
+                discount_percentage = (
+                    campaign_with_type_on_this_product.data.discount_percentage
+                )
+                discounted_price = self.discount_handler.calculate_discounted_price(
+                    receipt_product.total,
+                    discount_percentage,
+                )
 
-            discount_percentage = (
-                campaign_with_type_on_this_product.data.discount_percentage
-            )
-            return int(
-                receipt_product.total
-                - (receipt_product.total * discount_percentage / 100)
-            )
-            discounted_price = discounted_price * conversion_rate
-            total_price = total_price * conversion_rate
-
-        receipt.discounted_total = total_price - discounted_price
-        self.shifts.add_receipt_to_shift(receipt)
-
-        return ReceiptForPayment(
-            receipt, discounted_price, total_price - discounted_price
-        )
+        return discounted_price
 
     def add_payment(
         self,

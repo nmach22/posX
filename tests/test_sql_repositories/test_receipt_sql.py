@@ -2,15 +2,15 @@ import sqlite3
 
 import pytest
 
+from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
+    AddProductRequest,
     Receipt,
     ReceiptProduct,
-    AddProductRequest,
 )
 from app.core.Interfaces.shift_interface import Shift
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
@@ -47,7 +47,7 @@ def campaign_repo(
 
 
 @pytest.fixture
-def exchange_rate_service():
+def exchange_rate_service() -> ExchangeRateService:
     return ExchangeRateService()
 
 
@@ -122,7 +122,7 @@ def test_create_receipt(repo: ReceiptSQLRepository, sample_receipt: Receipt) -> 
 
 
 def test_create_receipt_with_nonexistent_shift(repo: ReceiptSQLRepository) -> None:
-    """Tests that creating a receipt with a non-existent shift raises DoesntExistError."""
+    """Tests that creating a receipt with non-existent shift raises DoesntExistError."""
     receipt = Receipt(
         id="r1",
         shift_id="nonexistent",
@@ -383,17 +383,19 @@ def test_calculate_payment_with_discount_campaign(
     #
     # # Product p1 has discount
     # cursor.execute(
-    #     "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total) VALUES (?, ?, ?, ?, ?)",
+    #     ("INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+    #      " VALUES (?, ?, ?, ?, ?)"),
     #     ("r1", "p1", 2, 100, 200),
     # )
     # # Product p2 has no discount
     # cursor.execute(
-    #     "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total) VALUES (?, ?, ?, ?, ?)",
+    #   ("INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+    #      " VALUES (?, ?, ?, ?, ?)"),
     #     ("r1", "p2", 1, 200, 200),
     # )
     # cursor.execute("UPDATE receipts SET total = 400 WHERE id = ?", ("r1",))
     # repo.conn.commit()
-    #
+
     # # Setup mock campaign products table with discount info
     # cursor.execute("""
     #     CREATE TABLE IF NOT EXISTS campaign_products (
@@ -425,7 +427,8 @@ def test_calculate_payment_with_discount_campaign(
     #
     # # Insert campaign product with discounted price
     # cursor.execute(
-    #     "INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price) VALUES (?, ?, ?, ?)",
+    #   ("INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price)"
+    #      " VALUES (?, ?, ?, ?)"),
     #     (str(uuid.uuid4()), "dc1", "p1", 80),  # 20% off 100 = 80
     # )
     # repo.conn.commit()
@@ -436,5 +439,5 @@ def test_calculate_payment_with_discount_campaign(
     # # For 2 items of p1 with 20% discount (2 * 20 = 40) and no discount on p2
     # assert payment.receipt.id == "r1"
     # assert payment.receipt.total == 400
-    # assert payment.discounted_price == 2 * 80  # 2 items at discounted price of 80 each
+    # assert payment.discounted_price == 2 * 80 # 2 items at discounted price of 80 each
     # assert payment.reduced_price == 400 - (2 * 20)  # Original - discount

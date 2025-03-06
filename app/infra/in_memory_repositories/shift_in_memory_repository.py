@@ -1,6 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Dict, Any
+from typing import Any, Dict
 
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.shift_interface import (
@@ -13,8 +13,11 @@ from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterf
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
+
+
 class OpenReceiptsError(Exception):
     """Raised when trying to update a shift that has open receipts."""
+
     pass
 
 
@@ -32,7 +35,9 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
             if _shift.shift_id == shift.shift_id:
                 for _receipt in _shift.receipts:
                     if _receipt.status == "open":
-                        raise OpenReceiptsError("Shift cannot be closed while there are open receipts.")
+                        raise OpenReceiptsError(
+                            "Shift cannot be closed while there are open receipts."
+                        )
                 self.shifts.remove(_shift)
                 self.shifts.append(shift)
                 return
@@ -95,7 +100,8 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
                 if receipt.status == "closed":
                     total_receipts += 1
                     currency_totals[receipt.currency] = (
-                        currency_totals.get(receipt.currency, 0) + receipt.discounted_total
+                        currency_totals.get(receipt.currency, 0)
+                        + receipt.discounted_total
                     )
 
                     closed_receipts.append(

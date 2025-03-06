@@ -11,7 +11,9 @@ from app.infra.api.products import ErrorResponse
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,
 )
-from app.infra.in_memory_repositories.shift_in_memory_repository import OpenReceiptsError
+from app.infra.in_memory_repositories.shift_in_memory_repository import (
+    OpenReceiptsError,
+)
 
 shifts_api = APIRouter()
 
@@ -96,6 +98,7 @@ def get_x_reports(
     except ValueError:
         raise HTTPException(status_code=400, detail="Shift is closed.")
 
+
 @shifts_api.post(
     "/close-shift",
     responses={
@@ -133,13 +136,12 @@ def close_shift(
         raise HTTPException(
             status_code=400,
             detail={
-                "error": {
-                    "message": f"Shift with id<{shift_id}> has open receipts."
-                }
+                "error": {"message": f"Shift with id<{shift_id}> has open receipts."}
             },
         )
 
     return CloseShiftResponse(message=f"Shift {shift_id} successfully closed.")
+
 
 @shifts_api.get("/sales", response_model=SalesReportResponse)
 def get_sales_report(

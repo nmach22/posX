@@ -44,6 +44,8 @@ def test_read_all_products() -> None:
     service = ProductService(ProductInMemoryRepository(product_list))
     product1 = service.create_product(ProductRequest("lobio", 500, "123123"))
     product2 = service.create_product(ProductRequest("mchadi", 3, "1234"))
+    assert product1.name == "lobio"
+    assert product2.name == "mchadi"
     all_product = service.read_all_products()
     assert len(all_product) == 2
 

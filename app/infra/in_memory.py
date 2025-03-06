@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 
+from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignInMemoryRepository,
 )
@@ -47,7 +47,9 @@ class InMemory:
             products_repo=self._products,
         )
         self._receipts = ReceiptInMemoryRepository(
-            products=self._products, shifts=self._shifts, campaigns_repo=self._campaigns,
+            products=self._products,
+            shifts=self._shifts,
+            campaigns_repo=self._campaigns,
             exchange_rate_service=self._exchange_rate_service,
         )
 
