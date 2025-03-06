@@ -406,6 +406,15 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
     def add_payment(self, receipt_id: str) -> ReceiptForPayment:
         cursor = self.conn.cursor()
+
+        cursor.execute("SELECT * FROM receipts WHERE id = ?", (receipt_id,))
+        receipt = cursor.fetchone()
+
+        if not receipt:
+            raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
+        elif receipt[3] == "closed":
+            raise AlreadyClosedError(f"Receipt with ID {receipt_id} is already closed.")
+
         receipt_for_payment = self.calculate_payment(receipt_id)
         discounted_price = receipt_for_payment.discounted_price
         cursor.execute(

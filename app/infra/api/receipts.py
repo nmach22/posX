@@ -218,7 +218,13 @@ def calculate_payment(
     receipt_service = ReceiptService(receipts_repo)
 
     # Call the repository method to calculate payment
-    receipt_payment = receipt_service.calculate_payment(receipt_id)
+    try:
+        receipt_payment = receipt_service.calculate_payment(receipt_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": {"message": "receipt with this id does not exist."}},
+        )
 
     # return receipt_payment
     return PaymentResponse(
@@ -232,14 +238,28 @@ def calculate_payment(
 
 @receipts_api.post(
     "/{receipt_id}/payments",
-    responses={404: {"model": ErrorResponse, "description": "Receipt not found."}},
+    responses={
+        404: {"model": ErrorResponse, "description": "Receipt not found."},
+        400: {"model": ErrorResponse, "description": "receipt already closed ."},
+    },
 )
 def add_payment(
     receipt_id: str,
     receipts_repo: ReceiptRepositoryInterface = Depends(create_receipts_repository),
 ) -> PaymentResponse:
     receipt_service = ReceiptService(receipts_repo)
-    receipt_payment = receipt_service.add_payment(receipt_id)
+    try:
+        receipt_payment = receipt_service.add_payment(receipt_id)
+    except DoesntExistError:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": {"message": "receipt with this id does not exist."}},
+        )
+    except AlreadyClosedError:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"message": f"receipt with this id already closed."}},
+        )
 
     return PaymentResponse(
         id=receipt_payment.receipt.id,

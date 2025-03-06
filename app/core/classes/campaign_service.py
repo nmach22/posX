@@ -21,10 +21,10 @@ class CampaignService(CampaignInterface):
 
         campaign_data: Optional[CampaignData] = None
         type_in_string: str
-        type: str = campaign_request.type.lower()
-        if type == "buy n get n":
+        campaign_type: str = campaign_request.type.lower()
+        if campaign_type == "buy n get n":
             type_in_string = "buy_n_get_n"
-        elif type == "receipt discount":
+        elif campaign_type == "receipt discount":
             type_in_string = "receipt_discount"
         else:
             type_in_string = campaign_request.type
