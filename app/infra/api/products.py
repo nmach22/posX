@@ -65,7 +65,8 @@ def create_product(
             status_code=409,
             detail={
                 "error": {
-                    "message": f"Product with barcode<{request.barcode}> already exists."
+                    "message": f"Product with barcode"
+                    f"<{request.barcode}> already exists."
                 }
             },
         )

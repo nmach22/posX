@@ -602,7 +602,8 @@ def test_calculate_payment_best_campaign_type_selected() -> None:
                 id=str(uuid.uuid4()),
                 campaign_id="buy_n_get_1",
                 product_id="1",
-                discounted_price=133,  # Buy 3, pay for 2 → (2 * 200) / 3 = 133.33 per unit
+                # Buy 3, pay for 2 → (2 * 200) / 3 = 133.33 per unit
+                discounted_price=133,
             ),
         ],
     }

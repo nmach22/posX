@@ -109,7 +109,8 @@ def get_x_reports(
         404: {"model": ErrorResponse, "description": "Product not found."},
         400: {
             "model": ErrorResponse,
-            "description": "Invalid request: shift already closed or has open receipts.",
+            "description": "Invalid request: "
+            "shift already closed or has open receipts.",
         },
     },
 )

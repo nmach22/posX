@@ -10,7 +10,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.Interfaces.repository import Repository, ItemT
+from app.core.Interfaces.repository import ItemT, Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     AlreadyClosedError,
@@ -81,7 +81,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             )
 
         cursor.execute(
-            "INSERT INTO receipts (id, shift_id, currency, status, total, discounted_total)"
+            "INSERT INTO receipts "
+            "(id, shift_id, currency, status, total, discounted_total)"
             " VALUES (?, ?, ?,?,?,?)",
             (
                 receipt.id,
@@ -95,7 +96,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
         for product in receipt.products:
             cursor.execute(
-                "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+                "INSERT INTO receipt_products "
+                "(receipt_id, product_id, quantity, price, total)"
                 " VALUES (?, ?, ?, ?, ?)",
                 (
                     receipt.id,
@@ -181,7 +183,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         total_price = product_request.quantity * product_price
 
         cursor.execute(
-            "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+            "INSERT INTO receipt_products "
+            "(receipt_id, product_id, quantity, price, total)"
             " VALUES (?, ?, ?, ?, ?)",
             (
                 receipt_id,
@@ -242,7 +245,9 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
             cursor.execute(
                 """
-                SELECT c.id, c.type, cp.discounted_price, c.discount_percentage, c.buy_quantity, c.get_quantity
+                SELECT c.id, c.type, 
+                    cp.discounted_price, c.discount_percentage, 
+                    c.buy_quantity, c.get_quantity
                 FROM campaign_products cp
                 JOIN campaigns c ON cp.campaign_id = c.id
                 WHERE cp.product_id = ?
