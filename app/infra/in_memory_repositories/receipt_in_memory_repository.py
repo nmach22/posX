@@ -1,6 +1,8 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
+from app.core.classes.exchange_rate_service import ExchangeRateService
+from app.core.classes.percentage_discount import PercentageDiscount
 from app.core.Interfaces.campaign_interface import (
     BuyNGetN,
     Campaign,
@@ -16,11 +18,9 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.classes.exchange_rate_service import ExchangeRateService
-from app.core.classes.percentage_discount import PercentageDiscount
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
-    CampaignInMemoryRepository,
     CampaignAndProducts,
+    CampaignInMemoryRepository,
 )
 from app.infra.in_memory_repositories.product_in_memory_repository import (
     DoesntExistError,

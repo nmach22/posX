@@ -139,7 +139,7 @@ def test_get_x_report(repo: ShiftSQLRepository) -> None:
 
 
 def test_get_x_report_for_nonexistent_shift(repo: ShiftSQLRepository) -> None:
-    """Tests that getting an X report for a non-existent shift raises DoesntExistError."""
+    """Tests that getting X report for a non-existent shift raises DoesntExistError."""
     with pytest.raises(DoesntExistError):
         repo.get_x_report("nonexistent_shift")
 

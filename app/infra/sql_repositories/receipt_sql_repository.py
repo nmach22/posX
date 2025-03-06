@@ -1,5 +1,6 @@
 import sqlite3
 
+from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
@@ -11,10 +12,9 @@ from app.core.Interfaces.receipt_interface import (
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
     AlreadyClosedError,
+    DoesntExistError,
 )
 
 
@@ -81,7 +81,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             )
 
         cursor.execute(
-            "INSERT INTO receipts (id, shift_id, currency, status, total, discounted_total) VALUES (?, ?, ?,?,?,?)",
+            "INSERT INTO receipts (id, shift_id, currency, status, total, discounted_total)"
+            " VALUES (?, ?, ?,?,?,?)",
             (
                 receipt.id,
                 receipt.shift_id,
@@ -94,7 +95,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
         for product in receipt.products:
             cursor.execute(
-                "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+                " VALUES (?, ?, ?, ?, ?)",
                 (
                     receipt.id,
                     product.id,
@@ -117,7 +119,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         # self.calculate_payment(receipt_id)
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT id, shift_id, currency, status, total, discounted_total FROM receipts WHERE id = ?",
+            "SELECT id, shift_id, currency, status, total, discounted_total "
+            "FROM receipts WHERE id = ?",
             (receipt_id,),
         )
         row = cursor.fetchone()
@@ -178,7 +181,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         total_price = product_request.quantity * product_price
 
         cursor.execute(
-            "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+            " VALUES (?, ?, ?, ?, ?)",
             (
                 receipt_id,
                 product_request.product_id,
@@ -311,12 +315,14 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                 "GEL", receipt.currency
             )
             discounted_price_in_target_currency = int(
-                (total_discounted_price/100) * conversion_rate
+                (total_discounted_price / 100) * conversion_rate
             )
-            reduced_price_in_target_currency = int((reduced_price/100) * conversion_rate)
+            reduced_price_in_target_currency = int(
+                (reduced_price / 100) * conversion_rate
+            )
         else:
-            discounted_price_in_target_currency = int(total_discounted_price/100)
-            reduced_price_in_target_currency = int(reduced_price/100)
+            discounted_price_in_target_currency = int(total_discounted_price / 100)
+            reduced_price_in_target_currency = int(reduced_price / 100)
 
         return ReceiptForPayment(
             receipt,

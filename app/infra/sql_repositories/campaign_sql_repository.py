@@ -184,7 +184,8 @@ class CampaignSQLRepository(Repository[Campaign]):
                 (campaign_id,),
             )
             campaign_products_data = cursor.fetchall()
-            # todo: in discount and buy n get n i assume that there is 1 in product_ids, es davcheckot
+            # todo: in discount and buy n get n i assume that there is 1 in product_ids,
+            #  es davcheckot
             product_ids = [product[0] for product in campaign_products_data]
 
             if type_ == "discount":

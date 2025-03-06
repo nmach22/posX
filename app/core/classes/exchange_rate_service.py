@@ -1,6 +1,5 @@
 import requests
 
-
 EXCHANGE_RATE_API_KEY = "616d00e9b7800f1a1aade2d3"
 
 

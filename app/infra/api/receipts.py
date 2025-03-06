@@ -1,4 +1,4 @@
-from typing import Protocol, Any
+from typing import Any, Protocol
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
@@ -8,14 +8,13 @@ from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
-    ReceiptForPayment,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
 from app.infra.api.products import ErrorResponse
 from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
     AlreadyClosedError,
+    DoesntExistError,
 )
 
 receipts_api = APIRouter()
@@ -217,10 +216,10 @@ def calculate_payment(
     # Call the repository method to calculate payment
     receipt_payment = receipt_service.calculate_payment(receipt_id)
 
-    #return receipt_payment
+    # return receipt_payment
     return PaymentResponse(
         id=receipt_payment.receipt.id,
-        total=receipt_payment.receipt.total/100,
+        total=receipt_payment.receipt.total / 100,
         discounted_total=receipt_payment.discounted_price,
         reduced_price=receipt_payment.reduced_price,
         currency=receipt_payment.receipt.currency,

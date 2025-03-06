@@ -1,4 +1,6 @@
 import os
+from typing import Any
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -22,7 +24,7 @@ def shift_id(test_app: TestClient) -> str:
 
 
 @pytest.fixture(scope="function")
-def receipt_id(test_app: TestClient, shift_id: str) -> str:
+def receipt_id(test_app: TestClient, shift_id: str) -> Any:
     response = test_app.post(
         "/receipts", json={"shift_id": shift_id, "currency": "USD"}
     )
@@ -32,7 +34,7 @@ def receipt_id(test_app: TestClient, shift_id: str) -> str:
 
 
 @pytest.fixture(scope="function")
-def product_id(test_app: TestClient) -> str:
+def product_id(test_app: TestClient) -> Any:
     payload = {"name": "Test Product", "barcode": "123456", "price": 100}
     response = test_app.post("/products", json=payload)
     assert response.status_code == 201
