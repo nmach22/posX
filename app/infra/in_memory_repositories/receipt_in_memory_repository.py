@@ -121,7 +121,6 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             campaigns_list_on_this_product: list[CampaignAndProducts] = (
                 campaigns_and_products[receipt_product.id]
             )
-            print(type(campaigns_list_on_this_product))  # Debugging step
             if campaigns_list_on_this_product is None:
                 discounted_price += receipt_product.total
             else:
