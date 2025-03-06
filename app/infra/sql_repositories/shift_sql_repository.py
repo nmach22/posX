@@ -82,7 +82,8 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         #     )
         #     for product in receipt.products:
         #         cursor.execute(
-        #             "INSERT INTO products (product_id, receipt_id, quantity, total_price)"
+        #             ("INSERT INTO products "
+        #              "(product_id, receipt_id, quantity, total_price)")
         #             " VALUES (?, ?, ?, ?)",
         #             (product.id, receipt.receipt_id, product.quantity, product.total)
         #         )

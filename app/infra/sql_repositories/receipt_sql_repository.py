@@ -8,7 +8,7 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.Interfaces.repository import Repository, ItemT
+from app.core.Interfaces.repository import ItemT, Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
@@ -86,7 +86,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             )
 
         cursor.execute(
-            "INSERT INTO receipts (id, shift_id, currency, status, total, discounted_total)"
+            "INSERT INTO receipts "
+            "(id, shift_id, currency, status, total, discounted_total)"
             " VALUES (?, ?, ?,?,?,?)",
             (
                 receipt.id,
@@ -100,7 +101,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
         for product in receipt.products:
             cursor.execute(
-                "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+                "INSERT INTO receipt_products "
+                "(receipt_id, product_id, quantity, price, total)"
                 " VALUES (?, ?, ?, ?, ?)",
                 (
                     receipt.id,
@@ -186,7 +188,8 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         total_price = product_request.quantity * product_price
 
         cursor.execute(
-            "INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
+            "INSERT INTO receipt_products "
+            "(receipt_id, product_id, quantity, price, total)"
             " VALUES (?, ?, ?, ?, ?)",
             (
                 receipt_id,
@@ -275,7 +278,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             ORDER BY discount_percentage DESC 
             LIMIT 1
             """,
-            (original_total,),
+            (total_discounted_price,),
         )
         receipt_campaign = cursor.fetchone()
 

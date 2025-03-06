@@ -30,7 +30,12 @@ class CampaignSQLRepository(Repository[Campaign]):
             """
             CREATE TABLE IF NOT EXISTS campaigns (
                 id TEXT PRIMARY KEY,
-                type TEXT NOT NULL CHECK(type IN ('buy n get n', 'discount', 'combo', 'receipt discount')),
+                type TEXT NOT NULL CHECK (
+                    type IN 
+                        (
+                            'buy n get n', 'discount', 'combo', 'receipt discount'
+                        )
+                    ),
                 discount_percentage INTEGER,
                 buy_quantity INTEGER,
                 get_quantity INTEGER,
@@ -86,7 +91,9 @@ class CampaignSQLRepository(Repository[Campaign]):
 
         cursor.execute(
             """
-            INSERT INTO campaigns (id, type, discount_percentage, buy_quantity, get_quantity, min_amount)
+            INSERT INTO campaigns (
+                id, type, discount_percentage, buy_quantity, get_quantity, min_amount
+            )
             VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
@@ -105,7 +112,8 @@ class CampaignSQLRepository(Repository[Campaign]):
             new_price = old_price - (old_price * discount / 100)
             cursor.execute(
                 """
-                INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price)
+                INSERT INTO campaign_products 
+                    (id, campaign_id, product_id, discounted_price)
                 VALUES (?, ?, ?, ?)
                 """,
                 (
@@ -122,7 +130,8 @@ class CampaignSQLRepository(Repository[Campaign]):
                 new_price = old_price - (old_price * discount / 100)
                 cursor.execute(
                     """
-                    INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price)
+                    INSERT INTO campaign_products 
+                        (id, campaign_id, product_id, discounted_price)
                     VALUES (?, ?, ?, ?)
                     """,
                     (
@@ -135,7 +144,8 @@ class CampaignSQLRepository(Repository[Campaign]):
         elif campaign.type == "buy n get n" and isinstance(campaign.data, BuyNGetN):
             cursor.execute(
                 """
-                INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price)
+                INSERT INTO campaign_products 
+                    (id, campaign_id, product_id, discounted_price)
                 VALUES (?, ?, ?, ?)
                 """,
                 (
