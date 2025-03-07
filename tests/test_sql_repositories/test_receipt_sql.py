@@ -2,6 +2,7 @@ import sqlite3
 
 import pytest
 
+from app.core.classes.campaign_discount_calculator import CampaignDiscountCalculator
 from app.core.classes.errors import DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.Interfaces.product_interface import Product
@@ -56,6 +57,7 @@ def repo(
     shift_repo: ShiftRepositoryInterface,
     campaign_repo: CampaignSQLRepository,
     exchange_rate_service: ExchangeRateService,
+    # campaign_discount_calculator: CampaignDiscountCalculator,
 ) -> ReceiptSQLRepository:
     """Creates a receipt repository with all dependencies."""
     return ReceiptSQLRepository(

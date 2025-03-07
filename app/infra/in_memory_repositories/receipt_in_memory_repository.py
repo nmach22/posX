@@ -1,6 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
+from app.core.classes.campaign_discount_calculator import CampaignDiscountCalculator
 from app.core.classes.errors import AlreadyClosedError, DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
@@ -45,6 +46,12 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         default_factory=ExchangeRateService
     )
     discount_handler: DiscountHandler = field(default_factory=PercentageDiscount)
+    campaign_discount_calculator: CampaignDiscountCalculator = field(init=False)
+
+    def __post_init__(self):
+        self.campaign_discount_calculator = CampaignDiscountCalculator(
+            self.discount_handler
+        )
 
     def create(self, receipt: Receipt) -> Receipt:
         shift_found = False
@@ -73,7 +80,6 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     def read(self, receipt_id: str) -> Receipt:
         for receipt in self.receipts:
             if receipt.id == receipt_id:
-                #    receipt.discounted_total = self.calculate_payment(receipt.id)
                 return receipt
         raise DoesntExistError(f"Receipt with ID {receipt_id} does not exist.")
 
@@ -133,12 +139,18 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 for (
                     campaign_without_type_on_this_product
                 ) in campaigns_list_on_this_product:
-                    discounted_price_using_this_campaign = (
-                        self.calculate_price_for_this_campaign(
-                            receipt_id,
-                            campaign_without_type_on_this_product,
-                            receipt_product,
-                        )
+                    # discounted_price_using_this_campaign = (
+                    #     self.calculate_price_for_this_campaign(
+                    #         receipt_id,
+                    #         campaign_without_type_on_this_product,
+                    #         receipt_product,
+                    #     )
+                    # )
+                    discounted_price_using_this_campaign = self.campaign_discount_calculator.calculate_price_for_this_campaign(
+                        receipt_id,
+                        campaign_without_type_on_this_product,
+                        receipt_product,
+                        self,
                     )
                     if (
                         discounted_price_using_this_campaign
@@ -176,68 +188,68 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             receipt, discounted_price, total_price - discounted_price
         )
 
-    def calculate_price_for_this_campaign(
-        self,
-        receipt_id: str,
-        campaign_without_type_on_this_product: CampaignAndProducts,
-        receipt_product: ReceiptProduct,
-    ) -> int:
-        campaign_with_type_on_this_product = self.get_campaign_with_campaign_id(
-            campaign_without_type_on_this_product.campaign_id
-        )
-        discounted_price: int = receipt_product.total
-        if (
-            isinstance(campaign_with_type_on_this_product, Campaign)
-            and campaign_with_type_on_this_product.type == "discount"
-            and isinstance(campaign_with_type_on_this_product.data, Discount)
-        ):
-            discounted_price = self.discount_handler.calculate_discounted_price(
-                receipt_product.total,
-                campaign_with_type_on_this_product.data.discount_percentage,
-            )
-        elif (
-            isinstance(campaign_with_type_on_this_product, Campaign)
-            and campaign_with_type_on_this_product.type == "buy n get n"
-            and isinstance(campaign_with_type_on_this_product.data, BuyNGetN)
-        ):
-            n = campaign_with_type_on_this_product.data.buy_quantity
-            m = campaign_with_type_on_this_product.data.get_quantity
-            amount_of_campaign_costumer_use = receipt_product.quantity // (n + m)
-            amount_of_product_got_without_price = m * amount_of_campaign_costumer_use
-
-            discounted_price = receipt_product.total - (
-                receipt_product.price * amount_of_product_got_without_price
-            )
-        elif (
-            isinstance(campaign_with_type_on_this_product, Campaign)
-            and campaign_with_type_on_this_product.type == "combo"
-            and isinstance(campaign_with_type_on_this_product.data, Combo)
-        ):
-            other_products_in_combo = self.get_other_products_with_same_campaign(
-                campaign_without_type_on_this_product.campaign_id
-            )
-            other_products_in_combo.remove(
-                campaign_without_type_on_this_product.product_id
-            )
-            combo_failed = False
-
-            for next_product_id_in_combo in other_products_in_combo:
-                if self.product_not_in_receipt(next_product_id_in_combo, receipt_id):
-                    combo_failed = True
-                    break
-
-            if combo_failed:
-                discounted_price = receipt_product.total
-            else:
-                discount_percentage = (
-                    campaign_with_type_on_this_product.data.discount_percentage
-                )
-                discounted_price = self.discount_handler.calculate_discounted_price(
-                    receipt_product.total,
-                    discount_percentage,
-                )
-
-        return discounted_price
+    # def calculate_price_for_this_campaign(
+    #     self,
+    #     receipt_id: str,
+    #     campaign_without_type_on_this_product: CampaignAndProducts,
+    #     receipt_product: ReceiptProduct,
+    # ) -> int:
+    #     campaign_with_type_on_this_product = self.get_campaign_with_campaign_id(
+    #         campaign_without_type_on_this_product.campaign_id
+    #     )
+    #     discounted_price: int = receipt_product.total
+    #     if (
+    #         isinstance(campaign_with_type_on_this_product, Campaign)
+    #         and campaign_with_type_on_this_product.type == "discount"
+    #         and isinstance(campaign_with_type_on_this_product.data, Discount)
+    #     ):
+    #         discounted_price = self.discount_handler.calculate_discounted_price(
+    #             receipt_product.total,
+    #             campaign_with_type_on_this_product.data.discount_percentage,
+    #         )
+    #     elif (
+    #         isinstance(campaign_with_type_on_this_product, Campaign)
+    #         and campaign_with_type_on_this_product.type == "buy n get n"
+    #         and isinstance(campaign_with_type_on_this_product.data, BuyNGetN)
+    #     ):
+    #         n = campaign_with_type_on_this_product.data.buy_quantity
+    #         m = campaign_with_type_on_this_product.data.get_quantity
+    #         amount_of_campaign_costumer_use = receipt_product.quantity // (n + m)
+    #         amount_of_product_got_without_price = m * amount_of_campaign_costumer_use
+    #
+    #         discounted_price = receipt_product.total - (
+    #             receipt_product.price * amount_of_product_got_without_price
+    #         )
+    #     elif (
+    #         isinstance(campaign_with_type_on_this_product, Campaign)
+    #         and campaign_with_type_on_this_product.type == "combo"
+    #         and isinstance(campaign_with_type_on_this_product.data, Combo)
+    #     ):
+    #         other_products_in_combo = self.get_other_products_with_same_campaign(
+    #             campaign_without_type_on_this_product.campaign_id
+    #         )
+    #         other_products_in_combo.remove(
+    #             campaign_without_type_on_this_product.product_id
+    #         )
+    #         combo_failed = False
+    #
+    #         for next_product_id_in_combo in other_products_in_combo:
+    #             if self.product_not_in_receipt(next_product_id_in_combo, receipt_id):
+    #                 combo_failed = True
+    #                 break
+    #
+    #         if combo_failed:
+    #             discounted_price = receipt_product.total
+    #         else:
+    #             discount_percentage = (
+    #                 campaign_with_type_on_this_product.data.discount_percentage
+    #             )
+    #             discounted_price = self.discount_handler.calculate_discounted_price(
+    #                 receipt_product.total,
+    #                 discount_percentage,
+    #             )
+    #
+    #     return discounted_price
 
     def add_payment(
         self,
