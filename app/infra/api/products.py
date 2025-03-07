@@ -32,7 +32,7 @@ class ProductsListResponse(BaseModel):
 
 
 class UpdateProductRequest(BaseModel):
-    price: int
+    price: float
 
 
 class ErrorResponse(BaseModel):
@@ -116,7 +116,7 @@ def update_product(
         id=existing_product.id,
         name=existing_product.name,
         barcode=existing_product.barcode,
-        price=request.price,
+        price=int(request.price * 100),
     )
     try:
         product_service.update_product_price(updated_product)

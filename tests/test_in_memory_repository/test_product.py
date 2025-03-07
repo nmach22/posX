@@ -22,7 +22,7 @@ def test_add_and_read_product() -> None:
     product = service.create_product(ProductRequest("lobio", 500, "123123"))
     returned_product = service.get_product(product.id)
     assert returned_product.name == "lobio"
-    assert returned_product.price == 500
+    assert returned_product.price / 100 == 500
     assert returned_product.barcode == "123123"
 
 

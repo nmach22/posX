@@ -13,7 +13,7 @@ class Product:
 @dataclass
 class ProductRequest:
     name: str
-    price: int
+    price: float
     barcode: str
 
 

@@ -21,8 +21,8 @@ receipts_api = APIRouter()
 class ReceiptProductDict(BaseModel):
     id: str
     quantity: int
-    price: int
-    total: int
+    price_in_GEL: float
+    total_in_GEL: float
 
 
 class ReceiptEntry(BaseModel):
@@ -31,7 +31,7 @@ class ReceiptEntry(BaseModel):
     currency: str
     status: str
     products: list[ReceiptProductDict]
-    total: int
+    total_in_GEL: float
 
 
 class PaymentResponse(BaseModel):
@@ -108,7 +108,7 @@ def create_receipt(
             currency=request.currency,
             status=created_receipt.status,
             products=[],
-            total=created_receipt.total,
+            total_in_GEL=created_receipt.total,
         )
     )
 
@@ -157,6 +157,10 @@ def add_product(
             status_code=400,
             detail={"error": {"message": f"receipt with this id already closed."}},
         )
+    return get_receipt_response(receipt)
+
+
+def get_receipt_response(receipt):
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=receipt.id,
@@ -165,11 +169,14 @@ def add_product(
             status=receipt.status,
             products=[
                 ReceiptProductDict(
-                    id=p.id, quantity=p.quantity, price=p.price, total=p.total
+                    id=p.id,
+                    quantity=p.quantity,
+                    price_in_GEL=float(p.price / 100),
+                    total_in_GEL=float(p.total / 100),
                 )
                 for p in receipt.products
             ],
-            total=receipt.total,
+            total_in_GEL=float(receipt.total / 100),
         )
     )
 
@@ -190,21 +197,7 @@ def get_receipt(
             status_code=404,
             detail={"error": {"message": "receipt with this id does not exist."}},
         )
-    return ReceiptResponse(
-        receipt=ReceiptEntry(
-            id=receipt.id,
-            shift_id=receipt.shift_id,
-            currency=receipt.currency,
-            status=receipt.status,
-            products=[
-                ReceiptProductDict(
-                    id=p.id, quantity=p.quantity, price=p.price, total=p.total
-                )
-                for p in receipt.products
-            ],
-            total=receipt.total,
-        )
-    )
+    return get_receipt_response(receipt)
 
 
 @receipts_api.post(
