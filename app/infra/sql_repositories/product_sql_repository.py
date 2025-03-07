@@ -36,6 +36,7 @@ class ProductSQLRepository(Repository[Product]):
             raise ExistsError
         return product
 
+
     def read(self, product_id: str) -> Product:
         cursor = self.conn.cursor()
         cursor.execute(

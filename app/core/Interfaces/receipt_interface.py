@@ -36,7 +36,6 @@ class AddProductRequest:
 @dataclass
 class ReceiptForPayment:
     receipt: Receipt
-    # girda 100, girs 90-discounted =90. reduced = 10
     discounted_price: float
     reduced_price: float
 
