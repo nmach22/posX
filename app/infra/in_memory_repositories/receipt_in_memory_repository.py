@@ -243,8 +243,6 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         self,
         receipt_id: str,
     ) -> ReceiptForPayment:
-        if self.read(receipt_id).status == "closed":
-            raise AlreadyClosedError(f"receipt with this id already closed")
         receipt_for_payment = self.calculate_payment(receipt_id)
 
         self.shifts.add_receipt_to_shift(receipt_for_payment.receipt)
