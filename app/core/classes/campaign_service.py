@@ -2,6 +2,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Optional
 
+from app.core.classes.errors import DoesntExistError
 from app.core.Interfaces.campaign_interface import (
     Campaign,
     CampaignData,
@@ -9,7 +10,6 @@ from app.core.Interfaces.campaign_interface import (
     CampaignRequest,
 )
 from app.core.Interfaces.repository import Repository
-from app.core.classes.errors import DoesntExistError
 
 
 @dataclass
@@ -26,6 +26,7 @@ class CampaignService(CampaignInterface):
             type_in_string = "buy_n_get_n"
         elif campaign_type == "receipt discount":
             type_in_string = "receipt_discount"
+
         else:
             type_in_string = campaign_request.type
 
@@ -37,6 +38,9 @@ class CampaignService(CampaignInterface):
         if campaign_data is None:
             raise ValueError("At least one campaign data field must be provided.")
 
+        if campaign_type == "receipt discount":
+            campaign_data.min_amount *= 100
+
         new_campaign = Campaign(
             str(campaign_id),
             campaign_request.type,
@@ -44,6 +48,8 @@ class CampaignService(CampaignInterface):
         )
 
         self.repository.create(new_campaign)
+        if campaign_type == "receipt discount":
+            new_campaign.data.min_amount /= 100
         return new_campaign
 
     def delete_campaign(self, campaign_id: str) -> None:

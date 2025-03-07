@@ -1,6 +1,7 @@
 import uuid
 from dataclasses import dataclass
 
+from app.core.classes.errors import DoesntExistError
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.shift_interface import (
     Report,
@@ -9,7 +10,6 @@ from app.core.Interfaces.shift_interface import (
     ShiftInterface,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.core.classes.errors import DoesntExistError
 
 
 @dataclass

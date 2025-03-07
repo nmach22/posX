@@ -2,6 +2,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
+from app.core.classes.errors import DoesntExistError, OpenReceiptsError
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.shift_interface import (
     ClosedReceipt,
@@ -10,7 +11,6 @@ from app.core.Interfaces.shift_interface import (
     Shift,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.core.classes.errors import OpenReceiptsError, DoesntExistError
 
 
 @dataclass

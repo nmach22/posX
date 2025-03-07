@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
-from app.core.classes.errors import DoesntExistError, AlreadyClosedError
+from app.core.classes.errors import AlreadyClosedError, DoesntExistError
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
@@ -13,7 +13,6 @@ from app.core.Interfaces.receipt_interface import (
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
 from app.infra.api.products import ErrorResponse
-
 
 receipts_api = APIRouter()
 
@@ -113,7 +112,13 @@ def create_receipt(
     )
 
 
-@receipts_api.post("/{receipt_id}/close")
+@receipts_api.post(
+    "/{receipt_id}/close",
+    responses={
+        404: {"model": ErrorResponse, "description": "Receipt not found."},
+        400: {"model": ErrorResponse, "description": "receipt already closed ."},
+    },
+)
 def close_receipt(
     receipt_id: str,
     repository: ReceiptRepositoryInterface = Depends(create_receipts_repository),
@@ -155,7 +160,7 @@ def add_product(
     except AlreadyClosedError:
         raise HTTPException(
             status_code=400,
-            detail={"error": {"message": f"receipt with this id already closed."}},
+            detail={"error": {"message": "receipt with this id already closed."}},
         )
     return get_receipt_response(receipt)
 
@@ -251,7 +256,7 @@ def add_payment(
     except AlreadyClosedError:
         raise HTTPException(
             status_code=400,
-            detail={"error": {"message": f"receipt with this id already closed."}},
+            detail={"error": {"message": "receipt with this id already closed."}},
         )
 
     return PaymentResponse(

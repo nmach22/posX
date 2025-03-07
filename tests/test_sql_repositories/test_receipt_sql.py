@@ -335,28 +335,6 @@ def test_calculate_payment_basic(
 ) -> None:
     """Tests calculating payment for a receipt with no discounts."""
     pass
-    # Create the receipt
-    # repo.create(sample_receipt)
-    #
-    # # Add a product to the receipt
-    # updated_receipt = repo.add_product_to_receipt(
-    #     "r1", AddProductRequest(product_id="p1", quantity=2)
-    # )
-    # updated_receipt = repo.add_product_to_receipt(
-    #     "r1", AddProductRequest(product_id="p2", quantity=1)
-    # )
-    #
-    # cursor = repo.conn.cursor()
-    #
-    # # Calculate payment
-    # repo.read("r1")
-    # payment = repo.calculate_payment(updated_receipt.id)
-
-    # With no discounts, original and reduced price should be the same
-    # assert payment.receipt.id == updated_receipt.id
-    # assert payment.receipt.total == 400
-    # assert payment.discounted_price == 0
-    # assert payment.reduced_price == 400
 
 
 def test_calculate_payment_with_discount_campaign(
@@ -366,80 +344,4 @@ def test_calculate_payment_with_discount_campaign(
     sample_products: list[Product],
 ) -> None:
     """Tests calculating payment with discount campaigns applied."""
-    # Create a discount campaign
-    # discount_campaign = Campaign(
-    #     campaign_id="dc1",
-    #     type="discount",
-    #     data=Discount(product_id="p1", discount_percentage=20),
-    # )
-    # campaign_repo.create(discount_campaign)
-    #
-    # # Create the receipt
-    # repo.create(sample_receipt)
-    #
-    # # Add products to the receipt directly
-    # cursor = repo.conn.cursor()
-    #
-    # # Product p1 has discount
-    # cursor.execute(
-    #     (
-    #         "INSERT INTO receipt_products "
-    #         "(receipt_id, product_id, quantity, price, total)"
-    #         " VALUES (?, ?, ?, ?, ?)"
-    #     ),
-    #     ("r1", "p1", 2, 100, 200),
-    # )
-    # # Product p2 has no discount
-    # cursor.execute(
-    #   ("INSERT INTO receipt_products (receipt_id, product_id, quantity, price, total)"
-    #      " VALUES (?, ?, ?, ?, ?)"),
-    #     ("r1", "p2", 1, 200, 200),
-    # )
-    # cursor.execute("UPDATE receipts SET total = 400 WHERE id = ?", ("r1",))
-    # repo.conn.commit()
-
-    # # Setup mock campaign products table with discount info
-    # cursor.execute("""
-    #     CREATE TABLE IF NOT EXISTS campaign_products (
-    #         id TEXT PRIMARY KEY,
-    #         campaign_id TEXT,
-    #         product_id TEXT,
-    #         discounted_price INTEGER,
-    #         FOREIGN KEY (campaign_id) REFERENCES campaigns(id),
-    #         FOREIGN KEY (product_id) REFERENCES products(id)
-    #     )
-    # """)
-    #
-    # cursor.execute("""
-    #     CREATE TABLE IF NOT EXISTS campaigns (
-    #         id TEXT PRIMARY KEY,
-    #         type TEXT NOT NULL,
-    #         discount_percentage INTEGER,
-    #         buy_quantity INTEGER,
-    #         get_quantity INTEGER,
-    #         min_amount INTEGER
-    #     )
-    # """)
-    #
-    # # Insert campaign data
-    # cursor.execute(
-    #     "INSERT INTO campaigns (id, type, discount_percentage) VALUES (?, ?, ?)",
-    #     ("dc1", "discount", 20),
-    # )
-    #
-    # # Insert campaign product with discounted price
-    # cursor.execute(
-    #   ("INSERT INTO campaign_products (id, campaign_id, product_id, discounted_price)"
-    #      " VALUES (?, ?, ?, ?)"),
-    #     (str(uuid.uuid4()), "dc1", "p1", 80),  # 20% off 100 = 80
-    # )
-    # repo.conn.commit()
-    #
-    # # Calculate payment
-    # payment = repo.calculate_payment("r1")
-    #
-    # # For 2 items of p1 with 20% discount (2 * 20 = 40) and no discount on p2
-    # assert payment.receipt.id == "r1"
-    # assert payment.receipt.total == 400
-    # assert payment.discounted_price == 2 * 80 # 2 items at discounted price of 80 each
-    # assert payment.reduced_price == 400 - (2 * 20)  # Original - discount
+    pass

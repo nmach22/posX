@@ -1,5 +1,9 @@
 import sqlite3
-from app.core.Interfaces.campaign_interface import Campaign, Discount, BuyNGetN, Combo
+
+from app.core.classes.errors import AlreadyClosedError, DoesntExistError
+from app.core.classes.exchange_rate_service import ExchangeRateService
+from app.core.classes.percentage_discount import PercentageDiscount
+from app.core.Interfaces.campaign_interface import BuyNGetN, Campaign, Combo, Discount
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
@@ -10,9 +14,6 @@ from app.core.Interfaces.receipt_interface import (
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import ItemT, Repository
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.core.classes.errors import DoesntExistError, AlreadyClosedError
-from app.core.classes.exchange_rate_service import ExchangeRateService
-from app.core.classes.percentage_discount import PercentageDiscount
 from app.infra.in_memory_repositories.campaign_in_memory_repository import (
     CampaignAndProducts,
 )
@@ -72,8 +73,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             (receipt.shift_id,),
         )
         row = cursor.fetchone()
-        # todo: should i leave these errors here or write them in service?
-        # todo: if i write them in service then i need Shift(so new function)
+
         if not row:
             raise DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
 
@@ -236,7 +236,10 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
 
             cursor.execute(
                 """
-                SELECT c.id, cp.campaign_id, c.type, cp.discounted_price, c.discount_percentage, c.buy_quantity, c.get_quantity, c.min_amount
+                SELECT 
+                c.id, cp.campaign_id, c.type, cp.discounted_price,
+                c.discount_percentage, c.buy_quantity,
+                c.get_quantity, c.min_amount
                 FROM campaign_products cp
                 JOIN campaigns c ON cp.campaign_id = c.id
                 WHERE cp.product_id = ?

@@ -1,13 +1,13 @@
 import uuid
 from dataclasses import dataclass
 
+from app.core.classes.errors import DoesntExistError, ExistsError
 from app.core.Interfaces.product_interface import (
     Product,
     ProductInterface,
     ProductRequest,
 )
 from app.core.Interfaces.repository import Repository
-from app.core.classes.errors import ExistsError, DoesntExistError
 
 
 @dataclass

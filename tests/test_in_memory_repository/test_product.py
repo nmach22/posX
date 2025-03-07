@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.classes.errors import ExistsError, DoesntExistError
+from app.core.classes.errors import DoesntExistError, ExistsError
 from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.infra.in_memory_repositories.product_in_memory_repository import (

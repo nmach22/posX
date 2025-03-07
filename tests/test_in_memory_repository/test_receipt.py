@@ -3,7 +3,7 @@ from typing import Tuple
 
 import pytest
 
-from app.core.classes.errors import DoesntExistError, AlreadyClosedError
+from app.core.classes.errors import AlreadyClosedError, DoesntExistError
 from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.campaign_interface import (
     BuyNGetN,

@@ -2,8 +2,8 @@ import sqlite3
 
 import pytest
 
+from app.core.classes.errors import DoesntExistError, ExistsError
 from app.core.Interfaces.product_interface import Product
-from app.core.classes.errors import ExistsError, DoesntExistError
 from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
 
 

@@ -1,7 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 
-from app.core.classes.errors import DoesntExistError, AlreadyClosedError
+from app.core.classes.errors import AlreadyClosedError, DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
 from app.core.Interfaces.campaign_interface import (
@@ -98,7 +98,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         for receipt in self.receipts:
             if receipt.id == receipt_id:
                 if receipt.status == "closed":
-                    raise (AlreadyClosedError(f"receipt already closed."))
+                    raise (AlreadyClosedError("receipt already closed."))
                 total_price = product_request.quantity * product_price
 
                 new_product = ReceiptProduct(

@@ -1,8 +1,8 @@
 import sqlite3
 
+from app.core.classes.errors import DoesntExistError, ExistsError
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
-from app.core.classes.errors import ExistsError, DoesntExistError
 
 
 class ProductSQLRepository(Repository[Product]):
@@ -47,19 +47,9 @@ class ProductSQLRepository(Repository[Product]):
             return Product(id=row[0], name=row[1], barcode=row[2], price=row[3])
         raise DoesntExistError
 
-    # todo: we can use self.create here
     def update(self, product: Product) -> None:
         self.delete(product.id)
-        cursor = self.conn.cursor()
-
-        cursor.execute(
-            """
-            INSERT INTO products (id, name, price, barcode) VALUES (?, ?, ?, ?)
-            """,
-            (product.id, product.name, product.price, product.barcode),
-        )
-
-        self.conn.commit()
+        self.create(product)
 
     def read_all(self) -> list[Product]:
         cursor = self.conn.cursor()

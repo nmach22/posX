@@ -195,8 +195,6 @@ class CampaignSQLRepository(Repository[Campaign]):
                 (campaign_id,),
             )
             campaign_products_data = cursor.fetchall()
-            # todo: in discount and buy n get n i assume that there is 1 in product_ids,
-            #  es check
             product_ids = [product[0] for product in campaign_products_data]
 
             campaign_data_obj: Union[Discount, Combo, BuyNGetN, ReceiptDiscount]
@@ -218,7 +216,7 @@ class CampaignSQLRepository(Repository[Campaign]):
                 )
             elif type_ == "receipt discount":
                 campaign_data_obj = ReceiptDiscount(
-                    min_amount=min_amount,
+                    min_amount=min_amount / 100,
                     discount_percentage=discount_percentage,
                 )
             else:

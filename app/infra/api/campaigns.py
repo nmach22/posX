@@ -5,14 +5,13 @@ from pydantic import BaseModel
 from starlette.requests import Request
 
 from app.core.classes.campaign_service import CampaignService
+from app.core.classes.errors import DoesntExistError
 from app.core.Interfaces.campaign_interface import (
     Campaign,
     CampaignRequest,
 )
 from app.core.Interfaces.repository import Repository
-from app.core.classes.errors import DoesntExistError
 from app.infra.api.products import ErrorResponse
-
 
 campaigns_api = APIRouter()
 

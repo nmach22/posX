@@ -3,9 +3,9 @@ import uuid
 
 import pytest
 
+from app.core.classes.errors import DoesntExistError
 from app.core.Interfaces.campaign_interface import BuyNGetN, Campaign, Combo, Discount
 from app.core.Interfaces.product_interface import Product
-from app.core.classes.errors import DoesntExistError
 from app.infra.sql_repositories.campaign_sql_repository import CampaignSQLRepository
 from app.infra.sql_repositories.product_sql_repository import ProductSQLRepository
 

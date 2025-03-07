@@ -2,6 +2,7 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Any, Dict
 
+from app.core.classes.errors import DoesntExistError
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.repository import ItemT
 from app.core.Interfaces.shift_interface import (
@@ -11,7 +12,6 @@ from app.core.Interfaces.shift_interface import (
     Shift,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.core.classes.errors import DoesntExistError
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     OpenReceiptsError,
 )

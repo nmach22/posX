@@ -1,6 +1,7 @@
 import uuid
 from dataclasses import dataclass
 
+from app.core.classes.errors import AlreadyClosedError
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -9,7 +10,6 @@ from app.core.Interfaces.receipt_interface import (
     ReceiptProduct,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
-from app.core.classes.errors import AlreadyClosedError
 
 
 @dataclass

@@ -21,7 +21,7 @@ class Combo(BaseModel):
 
 
 class ReceiptDiscount(BaseModel):
-    min_amount: int
+    min_amount: float
     discount_percentage: int
 
 

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 
+from app.core.classes.errors import DoesntExistError, ExistsError
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
-from app.core.classes.errors import ExistsError, DoesntExistError
 
 
 @dataclass

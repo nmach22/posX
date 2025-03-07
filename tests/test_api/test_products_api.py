@@ -22,7 +22,7 @@ def test_create_product(test_app: TestClient) -> None:
     assert response.status_code == 201
     assert response.json()["product"]["name"] == "Test Product"
     assert response.json()["product"]["barcode"] == "123456"
-    assert response.json()["product"]["price"] / 100 == 100
+    assert response.json()["product"]["price"] == 100
 
 
 def test_get_all_products(test_app: TestClient) -> None:

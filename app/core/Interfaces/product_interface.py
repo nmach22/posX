@@ -6,7 +6,7 @@ from typing import Protocol
 class Product:
     id: str
     name: str
-    price: int
+    price: float
     barcode: str
 
 

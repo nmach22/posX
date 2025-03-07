@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
-from app.core.classes.errors import ExistsError, DoesntExistError
+from app.core.classes.errors import DoesntExistError, ExistsError
 from app.core.classes.product_service import ProductService
 from app.core.Interfaces.product_interface import Product, ProductRequest
 from app.core.Interfaces.repository import Repository
-
 
 products_api = APIRouter()
 
@@ -57,6 +56,7 @@ def create_product(
 
     try:
         created_product = product_service.create_product(request)
+        created_product.price /= 100
         return ProductResponse(product=created_product)
     except ExistsError:
         raise HTTPException(
@@ -83,7 +83,7 @@ def get_all_products(
                 id=_product.id,
                 name=_product.name,
                 barcode=_product.barcode,
-                price=_product.price,
+                price=_product.price / 100,
             )
             for _product in products
         ]

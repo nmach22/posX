@@ -9,7 +9,6 @@ from app.core.classes.shift_service import ShiftService
 from app.core.Interfaces.shift_interface import Report, Shift
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.api.products import ErrorResponse
-
 from app.infra.in_memory_repositories.shift_in_memory_repository import (
     OpenReceiptsError,
 )
@@ -73,11 +72,8 @@ def create_shift(
 @shifts_api.get(
     "/x-reports",
     responses={
-        409: {
-            "model": ErrorResponse,
-            "description": "Product with the given barcode already exists.",
-        },
-        404: {"model": ErrorResponse, "description": "Product not found."},
+        400: {"model": ErrorResponse, "description": "shift already closed ."},
+        404: {"model": ErrorResponse, "description": "shift not found"},
     },
 )
 def get_x_reports(

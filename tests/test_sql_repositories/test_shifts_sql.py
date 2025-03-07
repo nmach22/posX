@@ -2,8 +2,8 @@ import sqlite3
 
 import pytest
 
-from app.core.Interfaces.shift_interface import Shift
 from app.core.classes.errors import DoesntExistError
+from app.core.Interfaces.shift_interface import Shift
 from app.infra.sql_repositories.shift_sql_repository import ShiftSQLRepository
 
 
@@ -153,13 +153,11 @@ def test_get_x_report_for_closed_shift(repo: ShiftSQLRepository) -> None:
 
 def test_get_lifetime_sales_report(repo: ShiftSQLRepository) -> None:
     """Tests getting a lifetime sales report."""
-    # Create shifts
     shift1 = Shift(shift_id="shift1", receipts=[], status="open")
     shift2 = Shift(shift_id="shift2", receipts=[], status="closed")
     repo.create(shift1)
     repo.create(shift2)
 
-    # Add test data
     cursor = repo.conn.cursor()
     cursor.executescript("""
         INSERT INTO receipts (id,shift_id,currency,status,total,discounted_total)
@@ -172,7 +170,6 @@ def test_get_lifetime_sales_report(repo: ShiftSQLRepository) -> None:
     """)
     repo.conn.commit()
 
-    # Get lifetime sales report
     report = repo.get_lifetime_sales_report()
 
     # Verify report contents - should only count closed receipts
