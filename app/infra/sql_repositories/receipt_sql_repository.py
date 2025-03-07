@@ -258,19 +258,6 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             else:
                 best_discounted_price_for_this_product = receipt_product.total
                 for campaign_row in campaign_rows:
-                    # discounted_price_using_this_campaign = (
-                    #     self.calculate_price_for_this_campaign(
-                    #         receipt_id,
-                    #         CampaignAndProducts(
-                    #             id=campaign_row[0],
-                    #             campaign_id=campaign_row[1],
-                    #             product_id=receipt_product.id,
-                    #             discounted_price=campaign_row[3],
-                    #         ),
-                    #         receipt_product,
-                    #     )
-                    # )
-
                     discounted_price_using_this_campaign = (
                         self.campaign_calculator.calculate_price_for_campaign(
                             receipt_id,
@@ -339,68 +326,6 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             reduced_price=reduced_price_in_target_currency,
         )
 
-    # def calculate_price_for_this_campaign(
-    #     self,
-    #     receipt_id: str,
-    #     campaign_without_type_on_this_product: CampaignAndProducts,
-    #     receipt_product: ReceiptProduct,
-    # ) -> int:
-    #     campaign_with_type_on_this_product = self.get_campaign_with_campaign_id(
-    #         campaign_without_type_on_this_product.campaign_id
-    #     )
-    #     discounted_price: int = receipt_product.total
-    #     if (
-    #         isinstance(campaign_with_type_on_this_product, Campaign)
-    #         and campaign_with_type_on_this_product.type == "discount"
-    #         and isinstance(campaign_with_type_on_this_product.data, Discount)
-    #     ):
-    #         discounted_price = self.discount_handler.calculate_discounted_price(
-    #             receipt_product.total,
-    #             campaign_with_type_on_this_product.data.discount_percentage,
-    #         )
-    #     elif (
-    #         isinstance(campaign_with_type_on_this_product, Campaign)
-    #         and campaign_with_type_on_this_product.type == "buy n get n"
-    #         and isinstance(campaign_with_type_on_this_product.data, BuyNGetN)
-    #     ):
-    #         n = campaign_with_type_on_this_product.data.buy_quantity
-    #         m = campaign_with_type_on_this_product.data.get_quantity
-    #         amount_of_campaign_costumer_use = receipt_product.quantity // (n + m)
-    #         amount_of_product_got_without_price = m * amount_of_campaign_costumer_use
-    #
-    #         discounted_price = receipt_product.total - (
-    #             receipt_product.price * amount_of_product_got_without_price
-    #         )
-    #     elif (
-    #         isinstance(campaign_with_type_on_this_product, Campaign)
-    #         and campaign_with_type_on_this_product.type == "combo"
-    #         and isinstance(campaign_with_type_on_this_product.data, Combo)
-    #     ):
-    #         other_products_in_combo = self.get_other_products_with_same_campaign(
-    #             campaign_without_type_on_this_product.campaign_id
-    #         )
-    #         other_products_in_combo.remove(
-    #             campaign_without_type_on_this_product.product_id
-    #         )
-    #         combo_failed = False
-    #
-    #         for next_product_id_in_combo in other_products_in_combo:
-    #             if self.product_not_in_receipt(next_product_id_in_combo, receipt_id):
-    #                 combo_failed = True
-    #                 break
-    #
-    #         if combo_failed:
-    #             discounted_price = receipt_product.total
-    #         else:
-    #             discount_percentage = (
-    #                 campaign_with_type_on_this_product.data.discount_percentage
-    #             )
-    #             discounted_price = self.discount_handler.calculate_discounted_price(
-    #                 receipt_product.total,
-    #                 discount_percentage,
-    #             )
-    #
-    #     return discounted_price
 
     def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign | None:
         campaigns = self.campaigns.read_all()
