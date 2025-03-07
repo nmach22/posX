@@ -127,7 +127,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
         campaigns_and_products = self.campaigns_repo.campaigns_product_list
         for receipt_product in receipt_products_from_receipt:
             campaigns_list_on_this_product: list[CampaignAndProducts] = (
-                campaigns_and_products[receipt_product.id]
+                campaigns_and_products.get(receipt_product.id, [])
             )
             if campaigns_list_on_this_product is None:
                 discounted_price += receipt_product.total
