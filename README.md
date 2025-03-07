@@ -8,13 +8,7 @@
    cd your-repo
    ```
 
-2. Create and activate a virtual environment (if applicable):
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows use: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
+2. Install dependencies:
    ```sh
    poetry install
    ```
