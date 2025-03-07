@@ -61,7 +61,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
             raise (
                 DoesntExistError(f"Shift with ID {receipt.shift_id} does not exist.")
             )
-
+        receipt.currency = receipt.currency.upper()
         self.receipts.append(deepcopy(receipt))
         self.shifts.add_receipt_to_shift(receipt)
         return receipt
@@ -174,7 +174,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 break
 
         total_price = receipt.total
-        if receipt.currency != "GEL":
+        if receipt.currency.upper() != "GEL":
             conversion_rate = self.exchange_rate_service.get_exchange_rate(
                 "GEL", receipt.currency
             )
