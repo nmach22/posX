@@ -1,10 +1,11 @@
 import sqlite3
+from typing import Optional
 
 from app.core.classes.campaign_discount_calculator import CampaignDiscountCalculator
 from app.core.classes.errors import AlreadyClosedError, DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
-from app.core.Interfaces.campaign_interface import BuyNGetN, Campaign, Combo, Discount
+from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.discount_handler import DiscountHandler
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
@@ -30,7 +31,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         campaigns_repo: Repository[Campaign],
         exchange_rate_service: ExchangeRateService,
         discount_handler: DiscountHandler = PercentageDiscount(),
-        campaign_discount_calculator: CampaignDiscountCalculator = None,
+        campaign_calculator: Optional[CampaignDiscountCalculator] = None,
     ) -> None:
         self.conn = connection
         self.products = products_repo
@@ -39,12 +40,11 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         self.exchange_rate_service = exchange_rate_service
         self._initialize_db()
         self.discount_handler = discount_handler
-        if campaign_discount_calculator is None:
-            self.campaign_discount_calculator = CampaignDiscountCalculator(
-                discount_handler
-            )
 
-        self.campaign_discount_calculator = campaign_discount_calculator
+        if campaign_calculator is None:
+            self.campaign_calculator = CampaignDiscountCalculator(discount_handler)
+        else:
+            self.campaign_calculator = campaign_calculator
 
     def _initialize_db(self) -> None:
         cursor = self.conn.cursor()
@@ -271,16 +271,18 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
                     #     )
                     # )
 
-                    discounted_price_using_this_campaign = self.campaign_discount_calculator.calculate_price_for_this_campaign(
-                        receipt_id,
-                        CampaignAndProducts(
-                            id=campaign_row[0],
-                            campaign_id=campaign_row[1],
-                            product_id=receipt_product.id,
-                            discounted_price=campaign_row[3],
-                        ),
-                        receipt_product,
-                        self,
+                    discounted_price_using_this_campaign = (
+                        self.campaign_calculator.calculate_price_for_campaign(
+                            receipt_id,
+                            CampaignAndProducts(
+                                id=campaign_row[0],
+                                campaign_id=campaign_row[1],
+                                product_id=receipt_product.id,
+                                discounted_price=campaign_row[3],
+                            ),
+                            receipt_product,
+                            self,
+                        )
                     )
 
                     best_discounted_price_for_this_product = min(
@@ -400,12 +402,12 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
     #
     #     return discounted_price
 
-    def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign:
+    def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign | None:
         campaigns = self.campaigns.read_all()
         for campaign in campaigns:
             if campaign.campaign_id == campaign_id:
                 return campaign
-        raise DoesntExistError
+        return None
 
     def get_other_products_with_same_campaign(self, campaign_id: str) -> list[str]:
         cursor = self.conn.cursor()

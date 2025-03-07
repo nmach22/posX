@@ -6,10 +6,7 @@ from app.core.classes.errors import AlreadyClosedError, DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
 from app.core.Interfaces.campaign_interface import (
-    BuyNGetN,
     Campaign,
-    Combo,
-    Discount,
     ReceiptDiscount,
 )
 from app.core.Interfaces.discount_handler import DiscountHandler
@@ -48,7 +45,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     discount_handler: DiscountHandler = field(default_factory=PercentageDiscount)
     campaign_discount_calculator: CampaignDiscountCalculator = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.campaign_discount_calculator = CampaignDiscountCalculator(
             self.discount_handler
         )
@@ -146,12 +143,15 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                     #         receipt_product,
                     #     )
                     # )
-                    discounted_price_using_this_campaign = self.campaign_discount_calculator.calculate_price_for_this_campaign(
-                        receipt_id,
-                        campaign_without_type_on_this_product,
-                        receipt_product,
-                        self,
+                    result = (
+                        self.campaign_discount_calculator.calculate_price_for_campaign(
+                            receipt_id,
+                            campaign_without_type_on_this_product,
+                            receipt_product,
+                            self,
+                        )
                     )
+                    discounted_price_using_this_campaign = result
                     if (
                         discounted_price_using_this_campaign
                         < best_discounted_price_for_this_product

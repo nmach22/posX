@@ -1,7 +1,7 @@
 from app.core.Interfaces.campaign_discount_calculator_interface import (
     ICampaignDiscountCalculator,
 )
-from app.core.Interfaces.campaign_interface import Discount, BuyNGetN, Combo
+from app.core.Interfaces.campaign_interface import BuyNGetN, Combo, Discount
 from app.core.Interfaces.discount_handler import DiscountHandler
 from app.core.Interfaces.receipt_interface import ReceiptProduct
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
@@ -16,12 +16,11 @@ class CampaignDiscountCalculator(ICampaignDiscountCalculator):
     def __init__(self, discount_handler: DiscountHandler):
         self.discount_handler = discount_handler
 
-    def calculate_price_for_this_campaign(
+    def calculate_price_for_campaign(
         self,
         receipt_id: str,
         campaign_without_type_on_this_product: CampaignAndProducts,
         receipt_product: ReceiptProduct,
-        # todo:  change this
         receipt_repo: ReceiptRepositoryInterface,
     ) -> int:
         campaign = receipt_repo.get_campaign_with_campaign_id(

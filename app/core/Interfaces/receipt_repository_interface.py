@@ -1,5 +1,6 @@
 from typing import Protocol
 
+from app.core.Interfaces.campaign_interface import Campaign
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
     Receipt,
@@ -24,6 +25,15 @@ class ReceiptOperations(Protocol):
         self,
         receipt_id: str,
     ) -> ReceiptForPayment:
+        pass
+
+    def get_other_products_with_same_campaign(self, campaign_id: str) -> list[str]:
+        pass
+
+    def product_not_in_receipt(self, product_id: str, receipt_id: str) -> bool:
+        pass
+
+    def get_campaign_with_campaign_id(self, campaign_id: str) -> Campaign | None:
         pass
 
 
