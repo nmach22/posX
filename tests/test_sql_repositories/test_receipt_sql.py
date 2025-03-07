@@ -3,15 +3,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from app.core.classes.errors import AlreadyClosedError, DoesntExistError
+from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.Interfaces.campaign_interface import (
-    Discount,
-    Campaign,
     BuyNGetN,
+    Campaign,
     Combo,
+    Discount,
     ReceiptDiscount,
 )
-from app.core.classes.errors import DoesntExistError, AlreadyClosedError
-from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,

@@ -139,7 +139,9 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
         currency_totals: Dict[str, float] = {}
         closed_receipts: list[ClosedReceipt] = []
         for receipt_id, currency, total_payment in receipts:
-            currency_totals[currency] = round(currency_totals.get(currency, 0) + total_payment, 2)
+            currency_totals[currency] = round(
+                currency_totals.get(currency, 0) + total_payment, 2
+            )
             closed_receipts.append(
                 ClosedReceipt(receipt_id=receipt_id, calculated_payment=total_payment)
             )

@@ -1,5 +1,40 @@
 # posX
 
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/nmach22/posX.git
+   cd your-repo
+   ```
+
+2. Create and activate a virtual environment (if applicable):
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```sh
+   poetry install
+   ```
+
+## Configuration
+
+This project uses a `.env` file for environment variables. Before running the application, create a `.env` file in the root directory and add the following variables:
+
+```ini
+REPOSITORY_KIND=sqlite-disk    # Use persistent SQLite (options: inmemory, sqlite-memory, sqlite-disk)
+EXCHANGE_RATE_API_KEY=your_api_key_here     #("616d00e9b7800f1a1aade2d3")
+```
+
+### Steps:
+1. Create a `.env` file in the root directory.
+2. Copy and paste the above variables into the file.
+3. Replace `your_api_key_here` with a valid API key from [ExchangeRate-API](https://www.exchangerate-api.com/).
+4. Save the file.
+
+
 ## Intro
 
 Within the scope of this assignment, we are going to design a service with HTTP API for Point of Sales (POS) system.

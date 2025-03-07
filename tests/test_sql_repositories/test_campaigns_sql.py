@@ -56,8 +56,6 @@ def test_add_discount_campaign(
         assert campaigns[0].campaign_id == campaign.campaign_id
         assert campaigns[0].data.product_id == sample_product.id
         assert campaigns[0].data.discount_percentage == 10
-    else:
-        assert False
 
 
 def test_add_combo_campaign(
@@ -82,8 +80,6 @@ def test_add_combo_campaign(
     if isinstance(campaigns[0].data, Combo):
         assert set(campaigns[0].data.products) == {"p1", "p2"}
         assert campaigns[0].data.discount_percentage == 20
-    else:
-        assert False
 
 
 def test_add_buy_n_get_n_campaign(
@@ -104,8 +100,6 @@ def test_add_buy_n_get_n_campaign(
         assert campaigns[0].data.product_id == sample_product.id
         assert campaigns[0].data.buy_quantity == 2
         assert campaigns[0].data.get_quantity == 1
-    else:
-        assert False
 
 
 def test_delete_existing_campaign(
