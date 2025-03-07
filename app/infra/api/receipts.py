@@ -222,7 +222,7 @@ def calculate_payment(
     # return receipt_payment
     return PaymentResponse(
         id=receipt_payment.receipt.id,
-        total=receipt_payment.receipt.total / 100,
+        total=receipt_payment.receipt.total,
         discounted_total=receipt_payment.discounted_price,
         reduced_price=receipt_payment.reduced_price,
         currency=receipt_payment.receipt.currency,
@@ -256,7 +256,7 @@ def add_payment(
 
     return PaymentResponse(
         id=receipt_payment.receipt.id,
-        total=receipt_payment.receipt.total / 100,
+        total=receipt_payment.receipt.total,
         discounted_total=receipt_payment.discounted_price,
         reduced_price=receipt_payment.reduced_price,
         currency=receipt_payment.receipt.currency,

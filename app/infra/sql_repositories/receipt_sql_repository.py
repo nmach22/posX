@@ -299,13 +299,18 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             discounted_price_in_target_currency = float(
                 int(total_discounted_price * conversion_rate) / 100
             )
+            total_price_in_target_currency = float(
+                int(original_total * conversion_rate) / 100
+            )
             reduced_price_in_target_currency = float(
                 int(reduced_price * conversion_rate) / 100
             )
         else:
             discounted_price_in_target_currency = float(total_discounted_price / 100)
             reduced_price_in_target_currency = float(reduced_price / 100)
+            total_price_in_target_currency = float(original_total / 100)
 
+        receipt.total = total_price_in_target_currency
         return ReceiptForPayment(
             receipt,
             discounted_price=discounted_price_in_target_currency,
@@ -420,7 +425,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
             (discounted_price, receipt_id),
         )
         self.conn.commit()
-        receipt = self.read(receipt_id)
+        receipt = receipt_for_payment.receipt
         receipt_for_payment.receipt = receipt
 
         return receipt_for_payment

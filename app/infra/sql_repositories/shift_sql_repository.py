@@ -71,21 +71,8 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
 
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         """Add a receipt to a shift in the database."""
-        # with sqlite3.connect(self.db_path) as conn:
-        #     cursor = self.conn.cursor()
-        #     cursor.execute(
-        #         ("INSERT INTO receipts (receipt_id, shift_id, total, status)"
-        #          " VALUES (?, ?, ?, ?)"),
-        #         (receipt.receipt_id, receipt.shift_id, receipt.total, receipt.status)
-        #     )
-        #     for product in receipt.products:
-        #         cursor.execute(
-        #             ("INSERT INTO products "
-        #              "(product_id, receipt_id, quantity, total_price)")
-        #             " VALUES (?, ?, ?, ?)",
-        #             (product.id, receipt.receipt_id, product.quantity, product.total)
-        #         )
-        #     self.conn.commit()
+        pass
+
 
     def get_x_report(self, shift_id: str) -> Report:
         cursor = self.conn.cursor()
