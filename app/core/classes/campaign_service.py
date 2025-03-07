@@ -8,6 +8,7 @@ from app.core.Interfaces.campaign_interface import (
     CampaignData,
     CampaignInterface,
     CampaignRequest,
+    ReceiptDiscount,
 )
 from app.core.Interfaces.repository import Repository
 
@@ -38,7 +39,9 @@ class CampaignService(CampaignInterface):
         if campaign_data is None:
             raise ValueError("At least one campaign data field must be provided.")
 
-        if campaign_type == "receipt discount":
+        if campaign_type == "receipt discount" and isinstance(
+            campaign_data, ReceiptDiscount
+        ):
             campaign_data.min_amount *= 100
 
         new_campaign = Campaign(
@@ -48,7 +51,9 @@ class CampaignService(CampaignInterface):
         )
 
         self.repository.create(new_campaign)
-        if campaign_type == "receipt discount":
+        if campaign_type == "receipt discount" and isinstance(
+            new_campaign.data, ReceiptDiscount
+        ):
             new_campaign.data.min_amount /= 100
         return new_campaign
 

@@ -2,7 +2,7 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from app.core.classes.errors import DoesntExistError
+from app.core.classes.errors import DoesntExistError, OpenReceiptsError
 from app.core.Interfaces.receipt_interface import Receipt
 from app.core.Interfaces.repository import ItemT
 from app.core.Interfaces.shift_interface import (
@@ -12,9 +12,6 @@ from app.core.Interfaces.shift_interface import (
     Shift,
 )
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
-from app.infra.in_memory_repositories.shift_in_memory_repository import (
-    OpenReceiptsError,
-)
 
 
 @dataclass
@@ -72,7 +69,6 @@ class ShiftSQLRepository(ShiftRepositoryInterface):
     def add_receipt_to_shift(self, receipt: Receipt) -> None:
         """Add a receipt to a shift in the database."""
         pass
-
 
     def get_x_report(self, shift_id: str) -> Report:
         cursor = self.conn.cursor()

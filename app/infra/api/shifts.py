@@ -4,14 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from pydantic import BaseModel
 
-from app.core.classes.errors import DoesntExistError
+from app.core.classes.errors import DoesntExistError, OpenReceiptsError
 from app.core.classes.shift_service import ShiftService
 from app.core.Interfaces.shift_interface import Report, Shift
 from app.core.Interfaces.shift_repository_interface import ShiftRepositoryInterface
 from app.infra.api.products import ErrorResponse
-from app.infra.in_memory_repositories.shift_in_memory_repository import (
-    OpenReceiptsError,
-)
 
 shifts_api = APIRouter()
 

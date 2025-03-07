@@ -23,8 +23,8 @@ class Receipt:
     currency: str
     products: list[ReceiptProduct]
     status: str
-    total: int
-    discounted_total: int
+    total: float
+    discounted_total: float
 
 
 @dataclass

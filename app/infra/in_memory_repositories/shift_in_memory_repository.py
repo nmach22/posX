@@ -55,7 +55,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
         if shift.status != "open":
             raise ValueError(f"Cannot generate X Report for closed shift {shift_id}.")
         n_receipts = 0
-        currency_revenue: Dict[str, int] = {}
+        currency_revenue: Dict[str, float] = {}
         product_summary: Dict[str, Dict[str, Any]] = {}
 
         for receipt in shift.receipts:
@@ -84,7 +84,7 @@ class ShiftInMemoryRepository(ShiftRepositoryInterface):
 
     def get_lifetime_sales_report(self) -> SalesReport:
         total_receipts = 0
-        currency_totals: Dict[str, int] = {}
+        currency_totals: Dict[str, float] = {}
         closed_receipts: list[ClosedReceipt] = []
 
         for shift in self.shifts:

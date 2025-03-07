@@ -76,7 +76,7 @@ class CampaignInMemoryRepository(Repository[Campaign]):
                 str(uuid.uuid4()),
                 campaign.campaign_id,
                 campaign.data.product_id,
-                self.products_repo.read(campaign.data.product_id).price,
+                int(self.products_repo.read(campaign.data.product_id).price),
             )
             if campaign.data.product_id not in self.campaigns_product_list:
                 self.campaigns_product_list[campaign.data.product_id] = []

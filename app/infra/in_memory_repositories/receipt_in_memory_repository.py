@@ -80,7 +80,7 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
     def add_product_to_receipt(
         self, receipt_id: str, product_request: AddProductRequest
     ) -> Receipt:
-        product_price = 0
+        product_price: float = 0
         product_found = False
         for product in self.products.read_all():
             if product.id == product_request.product_id:
@@ -104,8 +104,8 @@ class ReceiptInMemoryRepository(ReceiptRepositoryInterface):
                 new_product = ReceiptProduct(
                     id=product_request.product_id,
                     quantity=product_request.quantity,
-                    price=product_price,
-                    total=total_price,
+                    price=int(product_price),
+                    total=int(total_price),
                 )
 
                 receipt.products.append(deepcopy(new_product))

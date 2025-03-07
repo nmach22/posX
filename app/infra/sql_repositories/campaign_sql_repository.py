@@ -2,6 +2,7 @@ import sqlite3
 import uuid
 from typing import Union
 
+from app.core.classes.errors import DoesntExistError
 from app.core.Interfaces.campaign_interface import (
     BuyNGetN,
     Campaign,
@@ -11,9 +12,6 @@ from app.core.Interfaces.campaign_interface import (
 )
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.repository import Repository
-from app.infra.in_memory_repositories.product_in_memory_repository import (
-    DoesntExistError,
-)
 
 
 class CampaignSQLRepository(Repository[Campaign]):

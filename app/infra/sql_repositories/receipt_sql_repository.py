@@ -4,6 +4,7 @@ from app.core.classes.errors import AlreadyClosedError, DoesntExistError
 from app.core.classes.exchange_rate_service import ExchangeRateService
 from app.core.classes.percentage_discount import PercentageDiscount
 from app.core.Interfaces.campaign_interface import BuyNGetN, Campaign, Combo, Discount
+from app.core.Interfaces.discount_handler import DiscountHandler
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
@@ -27,7 +28,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         shifts_repo: ShiftRepositoryInterface,
         campaigns_repo: Repository[Campaign],
         exchange_rate_service: ExchangeRateService,
-        discount_handler: Discount = PercentageDiscount(),
+        discount_handler: DiscountHandler = PercentageDiscount(),
     ) -> None:
         self.conn = connection
         self.products = products_repo
@@ -230,7 +231,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         receipt = self.read(receipt_id)
         original_total = receipt.total
         products_data = receipt.products
-        total_discounted_price = 0
+        total_discounted_price: float = 0
         for receipt_product in products_data:
             # product_id, quantity, price, total_price = product_data
 
@@ -289,7 +290,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         if receipt_campaign:
             discount_percentage = receipt_campaign[0]
             total_discounted_price = self.discount_handler.calculate_discounted_price(
-                total_discounted_price, discount_percentage
+                int(total_discounted_price), discount_percentage
             )
 
         reduced_price = original_total - total_discounted_price
@@ -388,6 +389,7 @@ class ReceiptSQLRepository(ReceiptRepositoryInterface):
         for campaign in campaigns:
             if campaign.campaign_id == campaign_id:
                 return campaign
+        raise DoesntExistError
 
     def get_other_products_with_same_campaign(self, campaign_id: str) -> list[str]:
         cursor = self.conn.cursor()

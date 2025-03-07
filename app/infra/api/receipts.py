@@ -9,6 +9,7 @@ from app.core.classes.receipt_service import ReceiptService
 from app.core.Interfaces.product_interface import Product
 from app.core.Interfaces.receipt_interface import (
     AddProductRequest,
+    Receipt,
 )
 from app.core.Interfaces.receipt_repository_interface import ReceiptRepositoryInterface
 from app.core.Interfaces.repository import Repository
@@ -165,7 +166,7 @@ def add_product(
     return get_receipt_response(receipt)
 
 
-def get_receipt_response(receipt):
+def get_receipt_response(receipt: Receipt) -> ReceiptResponse:
     return ReceiptResponse(
         receipt=ReceiptEntry(
             id=receipt.id,

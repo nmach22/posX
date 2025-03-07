@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-
 class ExchangeRateService:
     key = os.environ.get("EXCHANGE_RATE_API_KEY")
+
     def get_exchange_rate(self, from_currency: str, to_currency: str) -> float:
         url = f"https://v6.exchangerate-api.com/v6/{self.key}/latest/{from_currency}"
         response = requests.get(url)
